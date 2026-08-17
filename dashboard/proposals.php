@@ -11,7 +11,7 @@ $user = $currentUser;
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Proposals — BharatSEO</title>
 <?php include dirname(__DIR__) . '/app/views/head-assets.php'; ?>
-<script src="https://unpkg.com/lucide@1.31.0/dist/umd/lucide.js" defer></script>
+<script src="https://unpkg.com/lucide@1.31.0/dist/umd/lucide.js" async></script>
 </head>
 <body>
 <script>window.__CSRF_TOKEN__ = <?= json_encode(Security::csrfToken()) ?>; window.__BASE__ = <?= json_encode(Url::basePath()) ?>;</script>
@@ -21,7 +21,7 @@ $user = $currentUser;
         <?php include __DIR__ . '/partials/topbar.php'; ?>
         <div class="page-body">
             <div class="card" style="margin-bottom:16px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;">
-                <input id="f-search" class="form-control" placeholder="Search proposals..." style="max-width:240px;">
+                <input id="f-search" class="form-control" placeholder="Search proposals..." style="max-width:240px;" aria-label="Search proposals">
                 <div style="display:flex;gap:10px;">
                     <button class="btn btn-secondary" style="width:auto;" id="btn-ai-proposal"><i data-lucide="sparkles" style="width:15px;height:15px;"></i> Generate with AI</button>
                     <button class="btn btn-primary" style="width:auto;" id="btn-new-proposal"><i data-lucide="plus" style="width:15px;height:15px;"></i> New Proposal</button>
@@ -43,7 +43,7 @@ $user = $currentUser;
 <div class="modal-overlay" id="ai-modal">
     <div class="modal-box">
         <h2>Generate Proposal with AI</h2>
-        <div class="form-group"><label>What does the client need?</label><textarea id="ai-requirement" class="form-control" rows="4" placeholder="Describe the project, client requirement, or paste their message..."></textarea></div>
+        <div class="form-group"><label for="ai-requirement">What does the client need?</label><textarea id="ai-requirement" class="form-control" rows="4" placeholder="Describe the project, client requirement, or paste their message..."></textarea></div>
         <div style="display:flex;gap:10px;">
             <button class="btn btn-secondary" onclick="document.getElementById('ai-modal').classList.remove('open')">Cancel</button>
             <button class="btn btn-primary" id="ai-generate-submit">Generate</button>
@@ -55,10 +55,10 @@ $user = $currentUser;
     <div class="modal-box" style="max-width:640px;">
         <h2>New Proposal</h2>
         <form id="manual-form">
-            <div class="form-group"><label>Title</label><input id="m-title" class="form-control" required></div>
-            <div class="form-group"><label>Introduction</label><textarea id="m-intro" class="form-control" rows="2"></textarea></div>
-            <div class="form-group"><label>Solution</label><textarea id="m-solution" class="form-control" rows="2"></textarea></div>
-            <div class="form-group"><label>Pricing Summary</label><textarea id="m-pricing" class="form-control" rows="2"></textarea></div>
+            <div class="form-group"><label for="m-title">Title</label><input id="m-title" class="form-control" required></div>
+            <div class="form-group"><label for="m-intro">Introduction</label><textarea id="m-intro" class="form-control" rows="2"></textarea></div>
+            <div class="form-group"><label for="m-solution">Solution</label><textarea id="m-solution" class="form-control" rows="2"></textarea></div>
+            <div class="form-group"><label for="m-pricing">Pricing Summary</label><textarea id="m-pricing" class="form-control" rows="2"></textarea></div>
             <div style="display:flex;gap:10px;">
                 <button type="button" class="btn btn-secondary" onclick="document.getElementById('manual-modal').classList.remove('open')">Cancel</button>
                 <button type="submit" class="btn btn-primary">Create</button>

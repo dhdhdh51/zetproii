@@ -185,7 +185,27 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    if (window.lucide) {
-        lucide.createIcons();
+    /* ---------------------------------------------------------- icons */
+    // The icon library is loaded async from a CDN, so it can arrive after this
+    // DOMContentLoaded handler has already run. A one-shot check here would
+    // silently drop every icon whenever the CDN was slow, so try now and then
+    // poll briefly. Icons are decorative and every icon-only control has an
+    // aria-label, so giving up after ~10s is safe.
+    const buildIcons = () => {
+        if (window.lucide && typeof window.lucide.createIcons === 'function') {
+            window.lucide.createIcons();
+            return true;
+        }
+        return false;
+    };
+
+    if (!buildIcons()) {
+        let tries = 0;
+        const timer = setInterval(() => {
+            tries += 1;
+            if (buildIcons() || tries > 100) {
+                clearInterval(timer);
+            }
+        }, 100);
     }
 });

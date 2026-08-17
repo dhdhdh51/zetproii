@@ -186,9 +186,14 @@
     }
 
     /* ---------------------------------------------------------------- icons */
-    // Replaces every <i data-lucide="name"> with its SVG. This file is deferred,
-    // so the icon library has already executed by the time we get here.
-    // Re-checked on DOMContentLoaded too, in case this script somehow runs first.
+    // Replaces every <i data-lucide="name"> with its SVG.
+    //
+    // The library is loaded async from a CDN, so it may arrive before OR well
+    // after this file runs. Waiting on a single event is unreliable: a listener
+    // added after the event has already fired never runs, and the library can
+    // also arrive after window.load on a slow connection. So try immediately,
+    // then poll briefly. Deliberately not `defer`-ordered behind the library any
+    // more - that coupling meant a slow CDN also delayed everything below.
     function buildIcons() {
         if (window.lucide && typeof window.lucide.createIcons === 'function') {
             window.lucide.createIcons();
@@ -198,10 +203,15 @@
     }
 
     if (!buildIcons()) {
-        document.addEventListener('DOMContentLoaded', buildIcons);
-        // The library is loaded from a CDN; if it is merely slow rather than
-        // blocked, catch it on window load as a last attempt.
-        window.addEventListener('load', buildIcons);
+        var iconTries = 0;
+        var iconTimer = window.setInterval(function () {
+            iconTries += 1;
+            // ~10s of grace, then give up: icons are decorative, and every
+            // icon-only control already carries an aria-label.
+            if (buildIcons() || iconTries > 100) {
+                window.clearInterval(iconTimer);
+            }
+        }, 100);
     }
 
     /* ---------------------------------------------------------------- contact form */

@@ -11,7 +11,7 @@ $user = $currentUser;
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AI Assistant — BharatSEO</title>
 <?php include dirname(__DIR__) . '/app/views/head-assets.php'; ?>
-<script src="https://unpkg.com/lucide@1.31.0/dist/umd/lucide.js" defer></script>
+<script src="https://unpkg.com/lucide@1.31.0/dist/umd/lucide.js" async></script>
 <style>
 .chat-shell { display: flex; height: calc(100vh - 64px - 40px); gap: 16px; }
 .chat-sidebar { width: 260px; flex-shrink: 0; overflow-y: auto; }
@@ -43,8 +43,8 @@ $user = $currentUser;
                         <div class="empty-state">Ask your AI assistant anything about your business — qualify leads, draft a reply, summarize today's activity, or write a proposal.</div>
                     </div>
                     <div class="chat-input-row">
-                        <input id="chat-input" class="form-control" placeholder="Ask your AI assistant..." style="flex:1;">
-                        <button class="btn btn-primary" style="width:auto;" id="chat-send-btn"><i data-lucide="send" style="width:16px;height:16px;"></i></button>
+                        <input id="chat-input" class="form-control" placeholder="Ask your AI assistant..." style="flex:1;" aria-label="Ask your AI assistant">
+                        <button class="btn btn-primary" style="width:auto;" id="chat-send-btn" aria-label="Send message"><i data-lucide="send" style="width:16px;height:16px;"></i></button>
                     </div>
                 </div>
             </div>

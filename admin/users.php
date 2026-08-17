@@ -10,7 +10,7 @@ require_once __DIR__ . '/_init.php';
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Users — Admin | BharatSEO</title>
 <?php include dirname(__DIR__) . '/app/views/head-assets.php'; ?>
-<script src="https://unpkg.com/lucide@1.31.0/dist/umd/lucide.js" defer></script>
+<script src="https://unpkg.com/lucide@1.31.0/dist/umd/lucide.js" async></script>
 </head>
 <body>
 <script>window.__CSRF_TOKEN__ = <?= json_encode(Security::csrfToken()) ?>; window.__BASE__ = <?= json_encode(Url::basePath()) ?>;</script>
@@ -18,19 +18,19 @@ require_once __DIR__ . '/_init.php';
     <?php include __DIR__ . '/partials/sidebar.php'; ?>
     <div class="main-content">
         <header class="topbar">
-            <div class="topbar-left"><button class="sidebar-toggle" id="sidebar-toggle"><i data-lucide="menu"></i></button><h2 style="font-size:17px;margin:0;">Users</h2></div>
-            <button class="theme-toggle"><i data-lucide="moon"></i></button>
+            <div class="topbar-left"><button class="sidebar-toggle" id="sidebar-toggle" aria-label="Toggle menu" aria-expanded="false"><i data-lucide="menu"></i></button><h1>Users</h1></div>
+            <button class="theme-toggle" type="button" aria-label="Switch between light and dark theme"><i data-lucide="sun-moon"></i></button>
         </header>
         <div class="page-body">
             <div class="card" style="margin-bottom:16px;display:flex;gap:10px;flex-wrap:wrap;">
-                <input id="f-search" class="form-control" placeholder="Search name or email..." style="max-width:240px;">
-                <select id="f-role" class="form-control" style="max-width:180px;">
+                <input id="f-search" class="form-control" placeholder="Search name or email..." style="max-width:240px;" aria-label="Search name or email">
+                <select id="f-role" class="form-control" style="max-width:180px;" aria-label="Filter by role">
                     <option value="">All roles</option>
                     <option value="SUPER_ADMIN">Super Admin</option><option value="ADMIN">Admin</option>
                     <option value="BUSINESS_OWNER">Business Owner</option><option value="MANAGER">Manager</option>
                     <option value="STAFF">Staff</option><option value="AGENCY_OWNER">Agency Owner</option><option value="AGENCY_STAFF">Agency Staff</option>
                 </select>
-                <select id="f-status" class="form-control" style="max-width:160px;">
+                <select id="f-status" class="form-control" style="max-width:160px;" aria-label="Filter by status">
                     <option value="">All statuses</option><option value="active">Active</option><option value="pending">Pending</option>
                     <option value="inactive">Inactive</option><option value="suspended">Suspended</option>
                 </select>

@@ -13,7 +13,7 @@ $initial = strtoupper(substr((string) ($user['name'] ?? 'U'), 0, 1));
         <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Toggle menu" aria-expanded="false">
             <i data-lucide="menu"></i>
         </button>
-        <h2><?= View::e($pageTitle ?? 'Dashboard') ?></h2>
+        <h1><?= View::e($pageTitle ?? 'Dashboard') ?></h1>
     </div>
 
     <div class="topbar-right">

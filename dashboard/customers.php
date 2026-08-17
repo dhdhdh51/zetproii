@@ -11,7 +11,7 @@ $user = $currentUser;
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Customers — BharatSEO</title>
 <?php include dirname(__DIR__) . '/app/views/head-assets.php'; ?>
-<script src="https://unpkg.com/lucide@1.31.0/dist/umd/lucide.js" defer></script>
+<script src="https://unpkg.com/lucide@1.31.0/dist/umd/lucide.js" async></script>
 </head>
 <body>
 <script>window.__CSRF_TOKEN__ = <?= json_encode(Security::csrfToken()) ?>; window.__BASE__ = <?= json_encode(Url::basePath()) ?>;</script>
@@ -23,7 +23,7 @@ $user = $currentUser;
 
             <div class="card" style="margin-bottom:16px;">
                 <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;">
-                    <input id="f-search" class="form-control" placeholder="Search customers..." style="max-width:260px;">
+                    <input id="f-search" class="form-control" placeholder="Search customers..." style="max-width:260px;" aria-label="Search customers">
                     <button class="btn btn-primary" style="width:auto;" id="btn-new-customer"><i data-lucide="plus" style="width:16px;height:16px;"></i> Add Customer</button>
                 </div>
             </div>
@@ -47,14 +47,14 @@ $user = $currentUser;
         <form id="customer-form">
             <input type="hidden" id="customer-id">
             <div class="grid grid-2">
-                <div class="form-group"><label>Name *</label><input id="c-name" class="form-control" required></div>
-                <div class="form-group"><label>Company</label><input id="c-company" class="form-control"></div>
-                <div class="form-group"><label>Email</label><input id="c-email" type="email" class="form-control"></div>
-                <div class="form-group"><label>Phone</label><input id="c-phone" class="form-control"></div>
-                <div class="form-group"><label>City</label><input id="c-city" class="form-control"></div>
-                <div class="form-group"><label>State</label><input id="c-state" class="form-control"></div>
+                <div class="form-group"><label for="c-name">Name *</label><input id="c-name" class="form-control" required></div>
+                <div class="form-group"><label for="c-company">Company</label><input id="c-company" class="form-control"></div>
+                <div class="form-group"><label for="c-email">Email</label><input id="c-email" type="email" class="form-control"></div>
+                <div class="form-group"><label for="c-phone">Phone</label><input id="c-phone" class="form-control"></div>
+                <div class="form-group"><label for="c-city">City</label><input id="c-city" class="form-control"></div>
+                <div class="form-group"><label for="c-state">State</label><input id="c-state" class="form-control"></div>
             </div>
-            <div class="form-group"><label>Address</label><input id="c-address" class="form-control"></div>
+            <div class="form-group"><label for="c-address">Address</label><input id="c-address" class="form-control"></div>
             <div style="display:flex;gap:10px;margin-top:10px;">
                 <button type="button" class="btn btn-secondary" onclick="closeCustomerModal()">Cancel</button>
                 <button type="submit" class="btn btn-primary">Save Customer</button>
@@ -165,7 +165,7 @@ async function openCustomerDetail(id) {
         </div>
         <h3 style="font-size:15px;">Notes</h3>
         <div id="customer-notes-list">${(c.notes || []).map(n => `<div class="card" style="margin-bottom:8px;padding:12px;"><p style="margin:0;font-size:14px;">${n.note}</p><small style="color:var(--text-muted);">${n.user_name || ''} · ${new Date(n.created_at).toLocaleString()}</small></div>`).join('') || '<p style="color:var(--text-muted);font-size:14px;">No notes yet.</p>'}</div>
-        <div class="form-group" style="margin-top:10px;"><textarea id="new-customer-note" class="form-control" placeholder="Add a note..." rows="2"></textarea></div>
+        <div class="form-group" style="margin-top:10px;"><textarea id="new-customer-note" class="form-control" placeholder="Add a note..." rows="2" aria-label="Add a note"></textarea></div>
         <button class="btn btn-secondary" onclick="addCustomerNote(${c.id})">Add Note</button>
         <h3 style="font-size:15px;margin-top:16px;">Activity Timeline</h3>
         <div>${(c.activities || []).map(a => `<div style="padding:6px 0;font-size:13px;border-bottom:1px solid var(--border);">${a.activity_type} <span style="color:var(--text-muted);">· ${new Date(a.created_at).toLocaleString()}</span></div>`).join('') || '<p style="color:var(--text-muted);font-size:14px;">No activity yet.</p>'}</div>

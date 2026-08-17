@@ -11,7 +11,7 @@ $user = $currentUser;
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Leads — BharatSEO</title>
 <?php include dirname(__DIR__) . '/app/views/head-assets.php'; ?>
-<script src="https://unpkg.com/lucide@1.31.0/dist/umd/lucide.js" defer></script>
+<script src="https://unpkg.com/lucide@1.31.0/dist/umd/lucide.js" async></script>
 </head>
 <body>
 <script>window.__CSRF_TOKEN__ = <?= json_encode(Security::csrfToken()) ?>; window.__BASE__ = <?= json_encode(Url::basePath()) ?>;</script>
@@ -24,15 +24,15 @@ $user = $currentUser;
             <div class="card" style="margin-bottom:16px;">
                 <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;">
                     <div style="display:flex;flex-wrap:wrap;gap:10px;flex:1;">
-                        <input id="f-search" class="form-control" placeholder="Search leads..." style="max-width:220px;">
-                        <select id="f-status" class="form-control" style="max-width:170px;"><option value="">All statuses</option></select>
-                        <select id="f-source" class="form-control" style="max-width:170px;"><option value="">All sources</option></select>
-                        <select id="f-priority" class="form-control" style="max-width:150px;">
+                        <input id="f-search" class="form-control" placeholder="Search leads..." style="max-width:220px;" aria-label="Search leads">
+                        <select id="f-status" class="form-control" style="max-width:170px;" aria-label="Filter by status"><option value="">All statuses</option></select>
+                        <select id="f-source" class="form-control" style="max-width:170px;" aria-label="Filter by source"><option value="">All sources</option></select>
+                        <select id="f-priority" class="form-control" style="max-width:150px;" aria-label="Filter by priority">
                             <option value="">All priorities</option>
                             <option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option><option value="urgent">Urgent</option>
                         </select>
-                        <input type="date" id="f-date-from" class="form-control" style="max-width:150px;">
-                        <input type="date" id="f-date-to" class="form-control" style="max-width:150px;">
+                        <input type="date" id="f-date-from" class="form-control" style="max-width:150px;" aria-label="From date">
+                        <input type="date" id="f-date-to" class="form-control" style="max-width:150px;" aria-label="To date">
                     </div>
                     <button class="btn btn-primary" style="width:auto;" id="btn-new-lead"><i data-lucide="plus" style="width:16px;height:16px;"></i> Add Lead</button>
                 </div>
@@ -61,24 +61,24 @@ $user = $currentUser;
         <form id="lead-form">
             <input type="hidden" id="lead-id">
             <div class="grid grid-2">
-                <div class="form-group"><label>Name *</label><input id="lead-name" class="form-control" required></div>
-                <div class="form-group"><label>Company</label><input id="lead-company" class="form-control"></div>
-                <div class="form-group"><label>Email</label><input id="lead-email" type="email" class="form-control"></div>
-                <div class="form-group"><label>Phone</label><input id="lead-phone" class="form-control"></div>
-                <div class="form-group"><label>Status</label><select id="lead-status" class="form-control"></select></div>
-                <div class="form-group"><label>Source</label><select id="lead-source" class="form-control"></select></div>
-                <div class="form-group"><label>Priority</label>
+                <div class="form-group"><label for="lead-name">Name *</label><input id="lead-name" class="form-control" required></div>
+                <div class="form-group"><label for="lead-company">Company</label><input id="lead-company" class="form-control"></div>
+                <div class="form-group"><label for="lead-email">Email</label><input id="lead-email" type="email" class="form-control"></div>
+                <div class="form-group"><label for="lead-phone">Phone</label><input id="lead-phone" class="form-control"></div>
+                <div class="form-group"><label for="lead-status">Status</label><select id="lead-status" class="form-control"></select></div>
+                <div class="form-group"><label for="lead-source">Source</label><select id="lead-source" class="form-control"></select></div>
+                <div class="form-group"><label for="lead-priority">Priority</label>
                     <select id="lead-priority" class="form-control">
                         <option value="low">Low</option><option value="medium" selected>Medium</option><option value="high">High</option><option value="urgent">Urgent</option>
                     </select>
                 </div>
-                <div class="form-group"><label>Value</label><input id="lead-value" type="number" class="form-control"></div>
-                <div class="form-group"><label>Assigned to</label><select id="lead-assigned" class="form-control"><option value="">Unassigned</option></select></div>
-                <div class="form-group"><label>Next follow-up</label><input id="lead-followup" type="datetime-local" class="form-control"></div>
+                <div class="form-group"><label for="lead-value">Value</label><input id="lead-value" type="number" class="form-control"></div>
+                <div class="form-group"><label for="lead-assigned">Assigned to</label><select id="lead-assigned" class="form-control"><option value="">Unassigned</option></select></div>
+                <div class="form-group"><label for="lead-followup">Next follow-up</label><input id="lead-followup" type="datetime-local" class="form-control"></div>
             </div>
-            <div class="form-group"><label>Location</label><input id="lead-location" class="form-control"></div>
-            <div class="form-group"><label>Requirement</label><textarea id="lead-requirement" class="form-control" rows="2"></textarea></div>
-            <div class="form-group"><label>Budget</label><input id="lead-budget" class="form-control"></div>
+            <div class="form-group"><label for="lead-location">Location</label><input id="lead-location" class="form-control"></div>
+            <div class="form-group"><label for="lead-requirement">Requirement</label><textarea id="lead-requirement" class="form-control" rows="2"></textarea></div>
+            <div class="form-group"><label for="lead-budget">Budget</label><input id="lead-budget" class="form-control"></div>
             <div style="display:flex;gap:10px;margin-top:10px;">
                 <button type="button" class="btn btn-secondary" onclick="closeLeadModal()">Cancel</button>
                 <button type="submit" class="btn btn-primary" id="lead-submit-btn">Save Lead</button>
@@ -247,7 +247,7 @@ async function openLeadDetail(id) {
         </div>
         <h3 style="font-size:15px;">Notes</h3>
         <div id="lead-notes-list">${(l.notes || []).map(n => `<div class="card" style="margin-bottom:8px;padding:12px;"><p style="margin:0;font-size:14px;">${n.note}</p><small style="color:var(--text-muted);">${n.user_name || ''} · ${new Date(n.created_at).toLocaleString()}</small></div>`).join('') || '<p style="color:var(--text-muted);font-size:14px;">No notes yet.</p>'}</div>
-        <div class="form-group" style="margin-top:10px;"><textarea id="new-note-text" class="form-control" placeholder="Add a note..." rows="2"></textarea></div>
+        <div class="form-group" style="margin-top:10px;"><textarea id="new-note-text" class="form-control" placeholder="Add a note..." rows="2" aria-label="Add a note"></textarea></div>
         <button class="btn btn-secondary" onclick="addLeadNote(${l.id})">Add Note</button>
         <h3 style="font-size:15px;margin-top:16px;">Activity</h3>
         <div>${(l.activities || []).map(a => `<div style="padding:6px 0;font-size:13px;border-bottom:1px solid var(--border);">${a.description || a.activity_type} <span style="color:var(--text-muted);">· ${new Date(a.created_at).toLocaleString()}</span></div>`).join('') || '<p style="color:var(--text-muted);font-size:14px;">No activity yet.</p>'}</div>

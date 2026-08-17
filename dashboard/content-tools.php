@@ -11,7 +11,7 @@ $user = $currentUser;
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AI Content Tools — BharatSEO</title>
 <?php include dirname(__DIR__) . '/app/views/head-assets.php'; ?>
-<script src="https://unpkg.com/lucide@1.31.0/dist/umd/lucide.js" defer></script>
+<script src="https://unpkg.com/lucide@1.31.0/dist/umd/lucide.js" async></script>
 <style>
 .tabs { display: flex; gap: 6px; margin-bottom: 16px; border-bottom: 1px solid var(--border); }
 .tab-btn { padding: 10px 16px; background: none; border: none; cursor: pointer; font-size: 14px; font-weight: 600; color: var(--text-muted); border-bottom: 2px solid transparent; }
@@ -39,11 +39,11 @@ $user = $currentUser;
                     <h3 style="margin-top:0;">Paste a Customer Review</h3>
                     <form id="review-form">
                         <div class="grid grid-3">
-                            <div class="form-group"><label>Customer name</label><input id="rv-name" class="form-control"></div>
-                            <div class="form-group"><label>Source</label><input id="rv-source" class="form-control" placeholder="Google, Facebook, etc."></div>
-                            <div class="form-group"><label>Rating (1-5)</label><input id="rv-rating" type="number" min="1" max="5" class="form-control"></div>
+                            <div class="form-group"><label for="rv-name">Customer name</label><input id="rv-name" class="form-control"></div>
+                            <div class="form-group"><label for="rv-source">Source</label><input id="rv-source" class="form-control" placeholder="Google, Facebook, etc."></div>
+                            <div class="form-group"><label for="rv-rating">Rating (1-5)</label><input id="rv-rating" type="number" min="1" max="5" class="form-control"></div>
                         </div>
-                        <div class="form-group"><label>Review text</label><textarea id="rv-text" class="form-control" rows="3" required></textarea></div>
+                        <div class="form-group"><label for="rv-text">Review text</label><textarea id="rv-text" class="form-control" rows="3" required></textarea></div>
                         <button type="submit" class="btn btn-primary" style="width:auto;">Add Review</button>
                     </form>
                 </div>
@@ -59,19 +59,19 @@ $user = $currentUser;
                     <h3 style="margin-top:0;">Generate Social Post</h3>
                     <form id="social-form">
                         <div class="grid grid-3">
-                            <div class="form-group"><label>Platform</label>
+                            <div class="form-group"><label for="sc-platform">Platform</label>
                                 <select id="sc-platform" class="form-control">
                                     <option value="instagram">Instagram</option><option value="facebook">Facebook</option>
                                     <option value="linkedin">LinkedIn</option><option value="twitter">X / Twitter</option>
                                 </select>
                             </div>
-                            <div class="form-group"><label>Tone</label><input id="sc-tone" class="form-control" value="friendly"></div>
-                            <div class="form-group"><label>Audience</label><input id="sc-audience" class="form-control" placeholder="e.g. young professionals"></div>
+                            <div class="form-group"><label for="sc-tone">Tone</label><input id="sc-tone" class="form-control" value="friendly"></div>
+                            <div class="form-group"><label for="sc-audience">Audience</label><input id="sc-audience" class="form-control" placeholder="e.g. young professionals"></div>
                         </div>
-                        <div class="form-group"><label>Topic</label><input id="sc-topic" class="form-control" required></div>
+                        <div class="form-group"><label for="sc-topic">Topic</label><input id="sc-topic" class="form-control" required></div>
                         <div class="grid grid-2">
-                            <div class="form-group"><label>CTA</label><input id="sc-cta" class="form-control" value="Contact us today"></div>
-                            <div class="form-group"><label>Keywords</label><input id="sc-keywords" class="form-control"></div>
+                            <div class="form-group"><label for="sc-cta">CTA</label><input id="sc-cta" class="form-control" value="Contact us today"></div>
+                            <div class="form-group"><label for="sc-keywords">Keywords</label><input id="sc-keywords" class="form-control"></div>
                         </div>
                         <button type="submit" class="btn btn-primary" style="width:auto;">Generate</button>
                     </form>
@@ -87,28 +87,28 @@ $user = $currentUser;
                 <div class="card" style="margin-bottom:16px;">
                     <h3 style="margin-top:0;">SEO Projects</h3>
                     <form id="seo-project-form" style="display:flex;gap:10px;flex-wrap:wrap;">
-                        <input id="seo-project-name" class="form-control" placeholder="Project name" style="max-width:220px;">
-                        <input id="seo-country" class="form-control" placeholder="Country (e.g. IN)" style="max-width:140px;">
-                        <input id="seo-language" class="form-control" placeholder="Language (e.g. en)" style="max-width:140px;">
+                        <input id="seo-project-name" class="form-control" placeholder="Project name" style="max-width:220px;" aria-label="Project name">
+                        <input id="seo-country" class="form-control" placeholder="Country (e.g. IN)" style="max-width:140px;" aria-label="Country (e.g. IN)">
+                        <input id="seo-language" class="form-control" placeholder="Language (e.g. en)" style="max-width:140px;" aria-label="Language (e.g. en)">
                         <button type="submit" class="btn btn-primary" style="width:auto;">Create Project</button>
                     </form>
                 </div>
                 <div class="card" style="margin-bottom:16px;">
                     <h3 style="margin-top:0;">Generate Content</h3>
                     <form id="seo-generate-form">
-                        <div class="form-group"><label>Project</label><select id="seo-project-select" class="form-control"></select></div>
+                        <div class="form-group"><label for="seo-project-select">Project</label><select id="seo-project-select" class="form-control"></select></div>
                         <div class="grid grid-2">
-                            <div class="form-group"><label>Target keyword</label><input id="seo-keyword" class="form-control" required></div>
-                            <div class="form-group"><label>Secondary keywords</label><input id="seo-secondary" class="form-control"></div>
+                            <div class="form-group"><label for="seo-keyword">Target keyword</label><input id="seo-keyword" class="form-control" required></div>
+                            <div class="form-group"><label for="seo-secondary">Secondary keywords</label><input id="seo-secondary" class="form-control"></div>
                         </div>
                         <div class="grid grid-3">
-                            <div class="form-group"><label>Search intent</label>
+                            <div class="form-group"><label for="seo-intent">Search intent</label>
                                 <select id="seo-intent" class="form-control">
                                     <option value="informational">Informational</option><option value="commercial">Commercial</option><option value="transactional">Transactional</option>
                                 </select>
                             </div>
-                            <div class="form-group"><label>Article length</label><input id="seo-length" class="form-control" value="medium (800-1200 words)"></div>
-                            <div class="form-group"><label>Tone</label><input id="seo-tone" class="form-control" value="professional"></div>
+                            <div class="form-group"><label for="seo-length">Article length</label><input id="seo-length" class="form-control" value="medium (800-1200 words)"></div>
+                            <div class="form-group"><label for="seo-tone">Tone</label><input id="seo-tone" class="form-control" value="professional"></div>
                         </div>
                         <button type="submit" class="btn btn-primary" style="width:auto;">Generate SEO Content</button>
                     </form>

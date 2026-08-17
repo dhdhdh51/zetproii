@@ -11,7 +11,7 @@ $user = $currentUser;
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Support — BharatSEO</title>
 <?php include dirname(__DIR__) . '/app/views/head-assets.php'; ?>
-<script src="https://unpkg.com/lucide@1.31.0/dist/umd/lucide.js" defer></script>
+<script src="https://unpkg.com/lucide@1.31.0/dist/umd/lucide.js" async></script>
 </head>
 <body>
 <script>window.__CSRF_TOKEN__ = <?= json_encode(Security::csrfToken()) ?>; window.__BASE__ = <?= json_encode(Url::basePath()) ?>;</script>
@@ -24,12 +24,12 @@ $user = $currentUser;
                 <h3 style="margin-top:0;">Submit a Support Request</h3>
                 <form id="ticket-form">
                     <div class="grid grid-2">
-                        <div class="form-group"><label>Subject</label><input id="t-subject" class="form-control" required></div>
-                        <div class="form-group"><label>Priority</label>
+                        <div class="form-group"><label for="t-subject">Subject</label><input id="t-subject" class="form-control" required></div>
+                        <div class="form-group"><label for="t-priority">Priority</label>
                             <select id="t-priority" class="form-control"><option value="low">Low</option><option value="medium" selected>Medium</option><option value="high">High</option><option value="urgent">Urgent</option></select>
                         </div>
                     </div>
-                    <div class="form-group"><label>Description</label><textarea id="t-desc" class="form-control" rows="3" required></textarea></div>
+                    <div class="form-group"><label for="t-desc">Description</label><textarea id="t-desc" class="form-control" rows="3" required></textarea></div>
                     <button type="submit" class="btn btn-primary" style="width:auto;">Submit Ticket</button>
                 </form>
             </div>
@@ -83,7 +83,7 @@ async function openTicket(id) {
         <p style="font-size:14px;">${t.description}</p>
         <hr style="margin:14px 0;border-color:var(--border);">
         <div>${t.replies.map(r => `<div style="padding:8px 0;border-bottom:1px solid var(--border);"><strong>${r.is_admin_reply ? 'Support Team' : 'You'}:</strong> ${r.message}<br><small style="color:var(--text-muted);">${new Date(r.created_at).toLocaleString()}</small></div>`).join('') || '<p style="color:var(--text-muted);font-size:13px;">No replies yet.</p>'}</div>
-        <div class="form-group" style="margin-top:12px;"><textarea id="reply-text" class="form-control" rows="2" placeholder="Add a reply..."></textarea></div>
+        <div class="form-group" style="margin-top:12px;"><textarea id="reply-text" class="form-control" rows="2" placeholder="Add a reply..." aria-label="Add a reply"></textarea></div>
         <button class="btn btn-secondary" onclick="sendReply(${t.id})">Send Reply</button>
         <button class="btn btn-secondary" style="margin-top:8px;" onclick="document.getElementById('ticket-detail-modal').classList.remove('open')">Close</button>
     `;

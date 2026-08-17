@@ -10,7 +10,7 @@ require_once __DIR__ . '/_init.php';
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Plans — Admin | BharatSEO</title>
 <?php include dirname(__DIR__) . '/app/views/head-assets.php'; ?>
-<script src="https://unpkg.com/lucide@1.31.0/dist/umd/lucide.js" defer></script>
+<script src="https://unpkg.com/lucide@1.31.0/dist/umd/lucide.js" async></script>
 </head>
 <body>
 <script>window.__CSRF_TOKEN__ = <?= json_encode(Security::csrfToken()) ?>; window.__BASE__ = <?= json_encode(Url::basePath()) ?>;</script>
@@ -18,8 +18,8 @@ require_once __DIR__ . '/_init.php';
     <?php include __DIR__ . '/partials/sidebar.php'; ?>
     <div class="main-content">
         <header class="topbar">
-            <div class="topbar-left"><button class="sidebar-toggle" id="sidebar-toggle"><i data-lucide="menu"></i></button><h2 style="font-size:17px;margin:0;">Plans</h2></div>
-            <button class="theme-toggle"><i data-lucide="moon"></i></button>
+            <div class="topbar-left"><button class="sidebar-toggle" id="sidebar-toggle" aria-label="Toggle menu" aria-expanded="false"><i data-lucide="menu"></i></button><h1>Plans</h1></div>
+            <button class="theme-toggle" type="button" aria-label="Switch between light and dark theme"><i data-lucide="sun-moon"></i></button>
         </header>
         <div class="page-body" id="plans-container"><div class="skeleton" style="height:300px;"></div></div>
     </div>
@@ -33,8 +33,8 @@ async function loadPlans() {
     container.innerHTML = '<div class="grid grid-3">' + json.data.map(p => `
         <div class="card">
             <div style="display:flex;justify-content:space-between;"><h3 style="margin:0;">${p.name}</h3><span class="badge badge-blue">${p.subscriber_count} subscribers</span></div>
-            <div class="form-group" style="margin-top:10px;"><label>Monthly Price</label><input type="number" class="form-control plan-price-m" data-id="${p.id}" value="${p.price_monthly}"></div>
-            <div class="form-group"><label>Yearly Price</label><input type="number" class="form-control plan-price-y" data-id="${p.id}" value="${p.price_yearly}"></div>
+            <div class="form-group" style="margin-top:10px;"><label for="${p.id}">Monthly Price</label><input type="number" class="form-control plan-price-m" data-id="${p.id}" value="${p.price_monthly}"></div>
+            <div class="form-group"><label for="${p.id}">Yearly Price</label><input type="number" class="form-control plan-price-y" data-id="${p.id}" value="${p.price_yearly}"></div>
             <label><input type="checkbox" class="plan-active" data-id="${p.id}" ${p.is_active ? 'checked' : ''}> Active</label>
             <div style="margin-top:10px;font-size:12.5px;color:var(--text-muted);">
                 ${p.features.map(f => `${f.feature_key}: <strong>${f.feature_value}</strong>`).join(' · ')}

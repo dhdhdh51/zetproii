@@ -11,7 +11,7 @@ $user = $currentUser;
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>API & Webhooks — BharatSEO</title>
 <?php include dirname(__DIR__) . '/app/views/head-assets.php'; ?>
-<script src="https://unpkg.com/lucide@1.31.0/dist/umd/lucide.js" defer></script>
+<script src="https://unpkg.com/lucide@1.31.0/dist/umd/lucide.js" async></script>
 </head>
 <body>
 <script>window.__CSRF_TOKEN__ = <?= json_encode(Security::csrfToken()) ?>; window.__BASE__ = <?= json_encode(Url::basePath()) ?>;</script>
@@ -23,7 +23,7 @@ $user = $currentUser;
             <div class="card" style="margin-bottom:16px;">
                 <h3 style="margin-top:0;">API Keys</h3>
                 <form id="key-form" style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;">
-                    <input id="k-name" class="form-control" placeholder="Key name (e.g. Zapier integration)" style="max-width:260px;" required>
+                    <input id="k-name" class="form-control" placeholder="Key name (e.g. Zapier integration)" style="max-width:260px;" required aria-label="Key name (e.g. Zapier integration)">
                     <button type="submit" class="btn btn-primary" style="width:auto;">Generate Key</button>
                 </form>
                 <div id="new-key-display" style="display:none;margin-bottom:16px;" class="alert alert-success show"></div>
@@ -38,7 +38,7 @@ $user = $currentUser;
             <div class="card">
                 <h3 style="margin-top:0;">Webhooks</h3>
                 <form id="webhook-form" style="margin-bottom:16px;">
-                    <div class="form-group"><label>Target URL (HTTPS)</label><input id="w-url" class="form-control" placeholder="https://yourapp.com/webhook" required></div>
+                    <div class="form-group"><label for="w-url">Target URL (HTTPS)</label><input id="w-url" class="form-control" placeholder="https://yourapp.com/webhook" required></div>
                     <div class="form-group"><label>Events</label>
                         <div style="display:flex;flex-wrap:wrap;gap:10px;">
                             <?php foreach (['lead.created','lead.updated','lead.qualified','lead.won','customer.created','proposal.created','payment.completed','subscription.updated','chat.lead_created'] as $ev): ?>

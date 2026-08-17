@@ -11,7 +11,7 @@ $user = $currentUser;
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Campaigns — BharatSEO</title>
 <?php include dirname(__DIR__) . '/app/views/head-assets.php'; ?>
-<script src="https://unpkg.com/lucide@1.31.0/dist/umd/lucide.js" defer></script>
+<script src="https://unpkg.com/lucide@1.31.0/dist/umd/lucide.js" async></script>
 </head>
 <body>
 <script>window.__CSRF_TOKEN__ = <?= json_encode(Security::csrfToken()) ?>; window.__BASE__ = <?= json_encode(Url::basePath()) ?>;</script>
@@ -39,12 +39,12 @@ $user = $currentUser;
     <div class="modal-box">
         <h2>New Campaign</h2>
         <form id="campaign-form">
-            <div class="form-group"><label>Campaign name</label><input id="c-name" class="form-control" required></div>
-            <div class="form-group"><label>Recipients</label>
+            <div class="form-group"><label for="c-name">Campaign name</label><input id="c-name" class="form-control" required></div>
+            <div class="form-group"><label for="c-recipients">Recipients</label>
                 <select id="c-recipients" class="form-control"><option value="customers">Customers</option><option value="leads">Leads</option></select>
             </div>
-            <div class="form-group"><label>Subject</label><input id="c-subject" class="form-control"></div>
-            <div class="form-group"><label>Message</label><textarea id="c-body" class="form-control" rows="4"></textarea></div>
+            <div class="form-group"><label for="c-subject">Subject</label><input id="c-subject" class="form-control"></div>
+            <div class="form-group"><label for="c-body">Message</label><textarea id="c-body" class="form-control" rows="4"></textarea></div>
             <div style="display:flex;gap:10px;">
                 <button type="button" class="btn btn-secondary" onclick="document.getElementById('campaign-modal').classList.remove('open')">Cancel</button>
                 <button type="submit" class="btn btn-primary">Create Campaign</button>

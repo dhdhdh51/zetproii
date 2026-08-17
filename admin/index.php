@@ -10,7 +10,7 @@ require_once __DIR__ . '/_init.php';
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin Dashboard — BharatSEO</title>
 <?php include dirname(__DIR__) . '/app/views/head-assets.php'; ?>
-<script src="https://unpkg.com/lucide@1.31.0/dist/umd/lucide.js" defer></script>
+<script src="https://unpkg.com/lucide@1.31.0/dist/umd/lucide.js" async></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
 </head>
 <body>
@@ -19,8 +19,8 @@ require_once __DIR__ . '/_init.php';
     <?php include __DIR__ . '/partials/sidebar.php'; ?>
     <div class="main-content">
         <header class="topbar">
-            <div class="topbar-left"><button class="sidebar-toggle" id="sidebar-toggle"><i data-lucide="menu"></i></button><h2 style="font-size:17px;margin:0;">Platform Overview</h2></div>
-            <button class="theme-toggle"><i data-lucide="moon"></i></button>
+            <div class="topbar-left"><button class="sidebar-toggle" id="sidebar-toggle" aria-label="Toggle menu" aria-expanded="false"><i data-lucide="menu"></i></button><h1>Platform Overview</h1></div>
+            <button class="theme-toggle" type="button" aria-label="Switch between light and dark theme"><i data-lucide="sun-moon"></i></button>
         </header>
         <div class="page-body">
             <div id="metrics-grid" class="grid grid-4" style="margin-bottom:20px;">

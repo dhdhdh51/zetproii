@@ -10,7 +10,7 @@ require_once __DIR__ . '/_init.php';
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Coupons — Admin | BharatSEO</title>
 <?php include dirname(__DIR__) . '/app/views/head-assets.php'; ?>
-<script src="https://unpkg.com/lucide@1.31.0/dist/umd/lucide.js" defer></script>
+<script src="https://unpkg.com/lucide@1.31.0/dist/umd/lucide.js" async></script>
 </head>
 <body>
 <script>window.__CSRF_TOKEN__ = <?= json_encode(Security::csrfToken()) ?>; window.__BASE__ = <?= json_encode(Url::basePath()) ?>;</script>
@@ -18,16 +18,16 @@ require_once __DIR__ . '/_init.php';
     <?php include __DIR__ . '/partials/sidebar.php'; ?>
     <div class="main-content">
         <header class="topbar">
-            <div class="topbar-left"><button class="sidebar-toggle" id="sidebar-toggle"><i data-lucide="menu"></i></button><h2 style="font-size:17px;margin:0;">Coupons</h2></div>
-            <button class="theme-toggle"><i data-lucide="moon"></i></button>
+            <div class="topbar-left"><button class="sidebar-toggle" id="sidebar-toggle" aria-label="Toggle menu" aria-expanded="false"><i data-lucide="menu"></i></button><h1>Coupons</h1></div>
+            <button class="theme-toggle" type="button" aria-label="Switch between light and dark theme"><i data-lucide="sun-moon"></i></button>
         </header>
         <div class="page-body">
             <div class="card" style="margin-bottom:16px;">
                 <form id="coupon-form" style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;">
-                    <div class="form-group" style="margin:0;"><label>Code</label><input id="c-code" class="form-control" placeholder="SAVE20" required></div>
-                    <div class="form-group" style="margin:0;"><label>Type</label><select id="c-type" class="form-control"><option value="percent">Percent</option><option value="fixed">Fixed</option></select></div>
-                    <div class="form-group" style="margin:0;"><label>Value</label><input id="c-value" type="number" class="form-control" required></div>
-                    <div class="form-group" style="margin:0;"><label>Max redemptions</label><input id="c-max" type="number" class="form-control"></div>
+                    <div class="form-group" style="margin:0;"><label for="c-code">Code</label><input id="c-code" class="form-control" placeholder="SAVE20" required></div>
+                    <div class="form-group" style="margin:0;"><label for="c-type">Type</label><select id="c-type" class="form-control"><option value="percent">Percent</option><option value="fixed">Fixed</option></select></div>
+                    <div class="form-group" style="margin:0;"><label for="c-value">Value</label><input id="c-value" type="number" class="form-control" required></div>
+                    <div class="form-group" style="margin:0;"><label for="c-max">Max redemptions</label><input id="c-max" type="number" class="form-control"></div>
                     <button type="submit" class="btn btn-primary" style="width:auto;">Create Coupon</button>
                 </form>
             </div>

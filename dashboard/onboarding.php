@@ -32,7 +32,7 @@ $plans = Database::fetchAll("SELECT * FROM plans WHERE is_active = 1 ORDER BY so
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Welcome — Set Up Your Business | BharatSEO</title>
 <?php include dirname(__DIR__) . '/app/views/head-assets.php'; ?>
-<script src="https://unpkg.com/lucide@1.31.0/dist/umd/lucide.js" defer></script>
+<script src="https://unpkg.com/lucide@1.31.0/dist/umd/lucide.js" async></script>
 <style>
 .wizard-shell { max-width: 640px; margin: 40px auto; padding: 0 20px; }
 .wizard-steps { display: flex; gap: 6px; margin-bottom: 28px; }
@@ -47,9 +47,18 @@ $plans = Database::fetchAll("SELECT * FROM plans WHERE is_active = 1 ORDER BY so
 <body>
 <script>window.__CSRF_TOKEN__ = <?= json_encode(Security::csrfToken()) ?>; window.__BASE__ = <?= json_encode(Url::basePath()) ?>;</script>
 <div class="wizard-shell">
-    <a href="<?= url() ?>" class="auth-brand"><i data-lucide="trending-up"></i> BharatSEO</a>
-    <div class="wizard-steps" id="wizard-steps"></div>
-    <div class="wizard-card" id="wizard-content"></div>
+    <div style="width:100%;max-width:680px;">
+        <a href="<?= url() ?>" class="auth-brand"><i data-lucide="trending-up"></i> BharatSEO</a>
+        <?php /* A real heading in the server response, so the page is meaningful
+                 before (or without) the JavaScript that renders each step. The
+                 per-step headings are one level down, leaving exactly one h1. */ ?>
+        <h1 style="font-size:1.5rem;margin:6px 0 4px;">Set up your business</h1>
+        <p class="subtitle">A few details so BharatSEO can work with your real services and customers.</p>
+        <div class="wizard-steps" id="wizard-steps"></div>
+        <div class="wizard-card" id="wizard-content">
+            <noscript><p>JavaScript is required to complete setup. Please enable it and reload this page.</p></noscript>
+        </div>
+    </div>
 </div>
 
 <script src="<?= asset('js/app.js') ?>"></script>
@@ -96,42 +105,42 @@ function renderStep() {
     const el = document.getElementById('wizard-content');
     if (state.step === 2) {
         el.innerHTML = `
-            <h1>Tell us about your business</h1>
+            <h2>Tell us about your business</h2>
             <p class="subtitle">This helps us personalize your AI assistant.</p>
-            <div class="form-group"><label>Business name</label><input id="biz_name" class="form-control" value="${state.business?.name || ''}" required></div>
-            <div class="form-group"><label>Business type</label><input id="business_type" class="form-control" placeholder="e.g. Retail, Consulting, Agency"></div>
-            <div class="form-group"><label>Industry</label><input id="industry" class="form-control" placeholder="e.g. Real Estate, E-commerce"></div>
-            <div class="form-group"><label>Website</label><input id="website" class="form-control" placeholder="https://"></div>
-            <div class="form-group"><label>Business phone</label><input id="phone" class="form-control"></div>
-            <div class="form-group"><label>Business email</label><input id="email" class="form-control" type="email"></div>
-            <div class="form-group"><label>Address</label><input id="address" class="form-control"></div>
+            <div class="form-group"><label for="biz_name">Business name</label><input id="biz_name" class="form-control" value="${state.business?.name || ''}" required></div>
+            <div class="form-group"><label for="business_type">Business type</label><input id="business_type" class="form-control" placeholder="e.g. Retail, Consulting, Agency"></div>
+            <div class="form-group"><label for="industry">Industry</label><input id="industry" class="form-control" placeholder="e.g. Real Estate, E-commerce"></div>
+            <div class="form-group"><label for="website">Website</label><input id="website" class="form-control" placeholder="https://"></div>
+            <div class="form-group"><label for="phone">Business phone</label><input id="phone" class="form-control"></div>
+            <div class="form-group"><label for="email">Business email</label><input id="email" class="form-control" type="email"></div>
+            <div class="form-group"><label for="address">Address</label><input id="address" class="form-control"></div>
             <div class="grid grid-2">
-                <div class="form-group"><label>City</label><input id="city" class="form-control"></div>
-                <div class="form-group"><label>State</label><input id="state" class="form-control"></div>
-                <div class="form-group"><label>Country</label><input id="country" class="form-control" value="India"></div>
-                <div class="form-group"><label>Currency</label><input id="currency" class="form-control" value="INR"></div>
+                <div class="form-group"><label for="city">City</label><input id="city" class="form-control"></div>
+                <div class="form-group"><label for="state">State</label><input id="state" class="form-control"></div>
+                <div class="form-group"><label for="country">Country</label><input id="country" class="form-control" value="India"></div>
+                <div class="form-group"><label for="currency">Currency</label><input id="currency" class="form-control" value="INR"></div>
             </div>
             <button class="btn btn-primary" onclick="nextFromStep2()">Continue</button>
             <button class="btn btn-secondary" style="margin-top:8px;" onclick="skip()">Skip for now</button>
         `;
     } else if (state.step === 3) {
         el.innerHTML = `
-            <h1>Describe your business</h1>
+            <h2>Describe your business</h2>
             <p class="subtitle">Your AI assistant uses this to understand your business.</p>
-            <div class="form-group"><label>About your business</label><textarea id="about" class="form-control" rows="3"></textarea></div>
-            <div class="form-group"><label>Target customers</label><textarea id="target_customers" class="form-control" rows="2"></textarea></div>
-            <div class="form-group"><label>Unique selling points</label><textarea id="unique_selling_points" class="form-control" rows="2"></textarea></div>
+            <div class="form-group"><label for="about">About your business</label><textarea id="about" class="form-control" rows="3"></textarea></div>
+            <div class="form-group"><label for="target_customers">Target customers</label><textarea id="target_customers" class="form-control" rows="2"></textarea></div>
+            <div class="form-group"><label for="unique_selling_points">Unique selling points</label><textarea id="unique_selling_points" class="form-control" rows="2"></textarea></div>
             <button class="btn btn-primary" onclick="nextFromStep3()">Continue</button>
             <button class="btn btn-secondary" style="margin-top:8px;" onclick="skip()">Skip for now</button>
         `;
     } else if (state.step === 4) {
         el.innerHTML = `
-            <h1>Business hours</h1>
+            <h2>Business hours</h2>
             <p class="subtitle">When is your business open?</p>
             <div id="hours-list">${state.hours.map((h, i) => `
                 <div class="day-row">
                     <span class="day-name">${DAYS[h.day_of_week]}</span>
-                    <label><input type="checkbox" data-i="${i}" class="hr-open" ${h.is_open ? 'checked' : ''}> Open</label>
+                    <label for="ai_tone"><input type="checkbox" data-i="${i}" class="hr-open" ${h.is_open ? 'checked' : ''}> Open</label>
                     <input type="time" data-i="${i}" class="hr-start form-control" value="${h.open_time}" style="width:auto;">
                     <input type="time" data-i="${i}" class="hr-end form-control" value="${h.close_time}" style="width:auto;">
                 </div>
@@ -141,7 +150,7 @@ function renderStep() {
         `;
     } else if (state.step === 5) {
         el.innerHTML = `
-            <h1>Frequently asked questions</h1>
+            <h2>Frequently asked questions</h2>
             <p class="subtitle">These help your AI chatbot answer customer questions.</p>
             <div id="faq-list">${state.faqs.map((f, i) => `
                 <div class="faq-row">
@@ -155,7 +164,7 @@ function renderStep() {
         `;
     } else if (state.step === 6) {
         el.innerHTML = `
-            <h1>AI configuration</h1>
+            <h2>AI configuration</h2>
             <p class="subtitle">Choose a default tone for AI-generated replies and content. AI providers themselves (OpenAI, Gemini, Anthropic) are configured at the platform level by your administrator - your usage draws from your plan's AI credits.</p>
             <div class="form-group"><label>Preferred AI tone</label>
                 <select id="ai_tone" class="form-control">
@@ -170,7 +179,7 @@ function renderStep() {
         `;
     } else if (state.step === 7) {
         el.innerHTML = `
-            <h1>Choose your plan</h1>
+            <h2>Choose your plan</h2>
             <p class="subtitle">Start free. Upgrade anytime.</p>
             <div style="display:flex;flex-direction:column;gap:10px;">
                 ${state.plans.map(p => `

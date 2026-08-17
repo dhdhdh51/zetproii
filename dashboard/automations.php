@@ -11,7 +11,7 @@ $user = $currentUser;
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Automations — BharatSEO</title>
 <?php include dirname(__DIR__) . '/app/views/head-assets.php'; ?>
-<script src="https://unpkg.com/lucide@1.31.0/dist/umd/lucide.js" defer></script>
+<script src="https://unpkg.com/lucide@1.31.0/dist/umd/lucide.js" async></script>
 </head>
 <body>
 <script>window.__CSRF_TOKEN__ = <?= json_encode(Security::csrfToken()) ?>; window.__BASE__ = <?= json_encode(Url::basePath()) ?>;</script>
@@ -24,8 +24,8 @@ $user = $currentUser;
                 <h3 style="margin-top:0;">Create Automation Rule</h3>
                 <form id="rule-form">
                     <div class="grid grid-2">
-                        <div class="form-group"><label>Rule name</label><input id="r-name" class="form-control" required></div>
-                        <div class="form-group"><label>Trigger event</label>
+                        <div class="form-group"><label for="r-name">Rule name</label><input id="r-name" class="form-control" required></div>
+                        <div class="form-group"><label for="r-trigger">Trigger event</label>
                             <select id="r-trigger" class="form-control">
                                 <option value="lead.created">New lead created</option>
                                 <option value="lead.qualified">Lead becomes qualified</option>
@@ -36,7 +36,7 @@ $user = $currentUser;
                             </select>
                         </div>
                     </div>
-                    <div class="form-group"><label>Action</label>
+                    <div class="form-group"><label for="r-action-type">Action</label>
                         <select id="r-action-type" class="form-control">
                             <option value="send_email">Send welcome email</option>
                             <option value="create_task">Create follow-up task</option>

@@ -11,7 +11,7 @@ $user = $currentUser;
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Knowledge Base — BharatSEO</title>
 <?php include dirname(__DIR__) . '/app/views/head-assets.php'; ?>
-<script src="https://unpkg.com/lucide@1.31.0/dist/umd/lucide.js" defer></script>
+<script src="https://unpkg.com/lucide@1.31.0/dist/umd/lucide.js" async></script>
 </head>
 <body>
 <script>window.__CSRF_TOKEN__ = <?= json_encode(Security::csrfToken()) ?>; window.__BASE__ = <?= json_encode(Url::basePath()) ?>;</script>
@@ -24,22 +24,22 @@ $user = $currentUser;
                 <div class="card">
                     <h3 style="margin-top:0;">Add Text / FAQ Knowledge</h3>
                     <form id="text-form">
-                        <div class="form-group"><label>Title</label><input id="text-title" class="form-control" required></div>
-                        <div class="form-group"><label>Content</label><textarea id="text-content" class="form-control" rows="4" required></textarea></div>
+                        <div class="form-group"><label for="text-title">Title</label><input id="text-title" class="form-control" required></div>
+                        <div class="form-group"><label for="text-content">Content</label><textarea id="text-content" class="form-control" rows="4" required></textarea></div>
                         <button type="submit" class="btn btn-primary">Add Knowledge</button>
                     </form>
                 </div>
                 <div class="card">
                     <h3 style="margin-top:0;">Add Website URL</h3>
                     <form id="url-form">
-                        <div class="form-group"><label>URL</label><input id="url-input" type="url" class="form-control" placeholder="https://example.com/about" required></div>
+                        <div class="form-group"><label for="url-input">URL</label><input id="url-input" type="url" class="form-control" placeholder="https://example.com/about" required></div>
                         <button type="submit" class="btn btn-primary">Fetch & Add</button>
                     </form>
                     <hr style="margin:18px 0;border-color:var(--border);">
                     <h3>Upload Document</h3>
                     <form id="upload-form">
-                        <div class="form-group"><label>Title</label><input id="upload-title" class="form-control"></div>
-                        <div class="form-group"><label>File (PDF, TXT, DOCX, CSV)</label><input id="upload-file" type="file" class="form-control" required></div>
+                        <div class="form-group"><label for="upload-title">Title</label><input id="upload-title" class="form-control"></div>
+                        <div class="form-group"><label for="upload-file">File (PDF, TXT, DOCX, CSV)</label><input id="upload-file" type="file" class="form-control" required></div>
                         <button type="submit" class="btn btn-primary">Upload</button>
                     </form>
                 </div>

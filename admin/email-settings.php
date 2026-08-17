@@ -10,7 +10,7 @@ require_once __DIR__ . '/_init.php';
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Email Settings — Admin | BharatSEO</title>
 <?php include dirname(__DIR__) . '/app/views/head-assets.php'; ?>
-<script src="https://unpkg.com/lucide@1.31.0/dist/umd/lucide.js" defer></script>
+<script src="https://unpkg.com/lucide@1.31.0/dist/umd/lucide.js" async></script>
 </head>
 <body>
 <script>window.__CSRF_TOKEN__ = <?= json_encode(Security::csrfToken()) ?>; window.__BASE__ = <?= json_encode(Url::basePath()) ?>;</script>
@@ -18,22 +18,22 @@ require_once __DIR__ . '/_init.php';
     <?php include __DIR__ . '/partials/sidebar.php'; ?>
     <div class="main-content">
         <header class="topbar">
-            <div class="topbar-left"><button class="sidebar-toggle" id="sidebar-toggle"><i data-lucide="menu"></i></button><h2 style="font-size:17px;margin:0;">Email / SMTP Settings</h2></div>
-            <button class="theme-toggle"><i data-lucide="moon"></i></button>
+            <div class="topbar-left"><button class="sidebar-toggle" id="sidebar-toggle" aria-label="Toggle menu" aria-expanded="false"><i data-lucide="menu"></i></button><h1>Email / SMTP Settings</h1></div>
+            <button class="theme-toggle" type="button" aria-label="Switch between light and dark theme"><i data-lucide="sun-moon"></i></button>
         </header>
         <div class="page-body">
             <div class="card" style="max-width:640px;">
                 <form id="smtp-form">
                     <div class="grid grid-2">
-                        <div class="form-group"><label>SMTP Host</label><input id="smtp_host" class="form-control"></div>
-                        <div class="form-group"><label>SMTP Port</label><input id="smtp_port" type="number" class="form-control" value="587"></div>
-                        <div class="form-group"><label>SMTP Username</label><input id="smtp_username" class="form-control"></div>
-                        <div class="form-group"><label>SMTP Password</label><input id="smtp_password" type="password" class="form-control"></div>
-                        <div class="form-group"><label>Encryption</label>
+                        <div class="form-group"><label for="smtp_host">SMTP Host</label><input id="smtp_host" class="form-control"></div>
+                        <div class="form-group"><label for="smtp_port">SMTP Port</label><input id="smtp_port" type="number" class="form-control" value="587"></div>
+                        <div class="form-group"><label for="smtp_username">SMTP Username</label><input id="smtp_username" class="form-control"></div>
+                        <div class="form-group"><label for="smtp_password">SMTP Password</label><input id="smtp_password" type="password" class="form-control"></div>
+                        <div class="form-group"><label for="smtp_encryption">Encryption</label>
                             <select id="smtp_encryption" class="form-control"><option value="tls">TLS</option><option value="ssl">SSL</option><option value="none">None</option></select>
                         </div>
-                        <div class="form-group"><label>From Name</label><input id="smtp_from_name" class="form-control"></div>
-                        <div class="form-group"><label>From Email</label><input id="smtp_from_address" type="email" class="form-control"></div>
+                        <div class="form-group"><label for="smtp_from_name">From Name</label><input id="smtp_from_name" class="form-control"></div>
+                        <div class="form-group"><label for="smtp_from_address">From Email</label><input id="smtp_from_address" type="email" class="form-control"></div>
                     </div>
                     <button type="submit" class="btn btn-primary" style="width:auto;">Save Email Settings</button>
                 </form>

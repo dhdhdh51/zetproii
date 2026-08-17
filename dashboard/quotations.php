@@ -11,7 +11,7 @@ $user = $currentUser;
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Quotations — BharatSEO</title>
 <?php include dirname(__DIR__) . '/app/views/head-assets.php'; ?>
-<script src="https://unpkg.com/lucide@1.31.0/dist/umd/lucide.js" defer></script>
+<script src="https://unpkg.com/lucide@1.31.0/dist/umd/lucide.js" async></script>
 </head>
 <body>
 <script>window.__CSRF_TOKEN__ = <?= json_encode(Security::csrfToken()) ?>; window.__BASE__ = <?= json_encode(Url::basePath()) ?>;</script>
@@ -21,7 +21,7 @@ $user = $currentUser;
         <?php include __DIR__ . '/partials/topbar.php'; ?>
         <div class="page-body">
             <div class="card" style="margin-bottom:16px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;">
-                <input id="f-search" class="form-control" placeholder="Search quotations..." style="max-width:240px;">
+                <input id="f-search" class="form-control" placeholder="Search quotations..." style="max-width:240px;" aria-label="Search quotations">
                 <div style="display:flex;gap:10px;">
                     <button class="btn btn-secondary" style="width:auto;" id="btn-ai"><i data-lucide="sparkles" style="width:15px;height:15px;"></i> Generate with AI</button>
                     <button class="btn btn-primary" style="width:auto;" id="btn-new"><i data-lucide="plus" style="width:15px;height:15px;"></i> New Quotation</button>
@@ -44,7 +44,7 @@ $user = $currentUser;
     <div class="modal-box">
         <h2>Generate Quote with AI</h2>
         <p style="font-size:13px;color:var(--text-muted);">Uses your actual product/service catalog for pricing.</p>
-        <div class="form-group"><label>Customer requirement</label><textarea id="ai-requirement" class="form-control" rows="4"></textarea></div>
+        <div class="form-group"><label for="ai-requirement">Customer requirement</label><textarea id="ai-requirement" class="form-control" rows="4"></textarea></div>
         <div style="display:flex;gap:10px;">
             <button class="btn btn-secondary" onclick="document.getElementById('ai-modal').classList.remove('open')">Cancel</button>
             <button class="btn btn-primary" id="ai-submit">Generate</button>
@@ -58,7 +58,7 @@ $user = $currentUser;
         <form id="manual-form">
             <div id="items-list"></div>
             <button type="button" class="btn btn-secondary" onclick="addItemRow()" style="margin-bottom:12px;">+ Add Item</button>
-            <div class="form-group"><label>Notes</label><textarea id="m-notes" class="form-control" rows="2"></textarea></div>
+            <div class="form-group"><label for="m-notes">Notes</label><textarea id="m-notes" class="form-control" rows="2"></textarea></div>
             <div style="display:flex;gap:10px;">
                 <button type="button" class="btn btn-secondary" onclick="document.getElementById('manual-modal').classList.remove('open')">Cancel</button>
                 <button type="submit" class="btn btn-primary">Create Quotation</button>

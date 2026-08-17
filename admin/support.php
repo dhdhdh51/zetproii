@@ -10,7 +10,7 @@ require_once __DIR__ . '/_init.php';
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Support Tickets — Admin | BharatSEO</title>
 <?php include dirname(__DIR__) . '/app/views/head-assets.php'; ?>
-<script src="https://unpkg.com/lucide@1.31.0/dist/umd/lucide.js" defer></script>
+<script src="https://unpkg.com/lucide@1.31.0/dist/umd/lucide.js" async></script>
 </head>
 <body>
 <script>window.__CSRF_TOKEN__ = <?= json_encode(Security::csrfToken()) ?>; window.__BASE__ = <?= json_encode(Url::basePath()) ?>;</script>
@@ -18,12 +18,12 @@ require_once __DIR__ . '/_init.php';
     <?php include __DIR__ . '/partials/sidebar.php'; ?>
     <div class="main-content">
         <header class="topbar">
-            <div class="topbar-left"><button class="sidebar-toggle" id="sidebar-toggle"><i data-lucide="menu"></i></button><h2 style="font-size:17px;margin:0;">Support Tickets</h2></div>
-            <button class="theme-toggle"><i data-lucide="moon"></i></button>
+            <div class="topbar-left"><button class="sidebar-toggle" id="sidebar-toggle" aria-label="Toggle menu" aria-expanded="false"><i data-lucide="menu"></i></button><h1>Support Tickets</h1></div>
+            <button class="theme-toggle" type="button" aria-label="Switch between light and dark theme"><i data-lucide="sun-moon"></i></button>
         </header>
         <div class="page-body">
             <div class="card" style="margin-bottom:16px;">
-                <select id="f-status" class="form-control" style="max-width:200px;">
+                <select id="f-status" class="form-control" style="max-width:200px;" aria-label="Filter by status">
                     <option value="">All statuses</option><option value="open">Open</option><option value="in_progress">In Progress</option>
                     <option value="resolved">Resolved</option><option value="closed">Closed</option>
                 </select>
@@ -81,8 +81,8 @@ async function openTicket(id) {
         <p style="font-size:14px;">${t.description}</p>
         <hr style="margin:14px 0;border-color:var(--border);">
         <div>${t.replies.map(r => `<div style="padding:8px 0;border-bottom:1px solid var(--border);"><strong>${r.is_admin_reply ? 'Support Team' : (r.user_name||'User')}:</strong> ${r.message}</div>`).join('') || '<p style="color:var(--text-muted);font-size:13px;">No replies yet.</p>'}</div>
-        <div class="form-group" style="margin-top:12px;"><textarea id="reply-text" class="form-control" rows="2" placeholder="Reply to customer..."></textarea></div>
-        <select id="status-select" class="form-control" style="margin-bottom:10px;">
+        <div class="form-group" style="margin-top:12px;"><textarea id="reply-text" class="form-control" rows="2" placeholder="Reply to customer..." aria-label="Reply to customer"></textarea></div>
+        <select id="status-select" class="form-control" style="margin-bottom:10px;" aria-label="Status select">
             <option value="open" ${t.status==='open'?'selected':''}>Open</option><option value="in_progress" ${t.status==='in_progress'?'selected':''}>In Progress</option>
             <option value="resolved" ${t.status==='resolved'?'selected':''}>Resolved</option><option value="closed" ${t.status==='closed'?'selected':''}>Closed</option>
         </select>

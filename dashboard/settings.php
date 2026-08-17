@@ -12,7 +12,7 @@ $business = Database::fetchOne("SELECT * FROM businesses WHERE id = ?", [$active
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Settings — BharatSEO</title>
 <?php include dirname(__DIR__) . '/app/views/head-assets.php'; ?>
-<script src="https://unpkg.com/lucide@1.31.0/dist/umd/lucide.js" defer></script>
+<script src="https://unpkg.com/lucide@1.31.0/dist/umd/lucide.js" async></script>
 <style>
 .tabs { display: flex; gap: 6px; margin-bottom: 16px; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
 .tab-btn { padding: 10px 16px; background: none; border: none; cursor: pointer; font-size: 14px; font-weight: 600; color: var(--text-muted); border-bottom: 2px solid transparent; }
@@ -38,16 +38,16 @@ $business = Database::fetchOne("SELECT * FROM businesses WHERE id = ?", [$active
                 <div class="card">
                     <form id="business-form">
                         <div class="grid grid-2">
-                            <div class="form-group"><label>Business name</label><input id="b-name" class="form-control" value="<?= View::e($business['name']) ?>"></div>
-                            <div class="form-group"><label>Website</label><input id="b-website" class="form-control" value="<?= View::e($business['website'] ?? '') ?>"></div>
-                            <div class="form-group"><label>Phone</label><input id="b-phone" class="form-control" value="<?= View::e($business['phone'] ?? '') ?>"></div>
-                            <div class="form-group"><label>Email</label><input id="b-email" type="email" class="form-control" value="<?= View::e($business['email'] ?? '') ?>"></div>
-                            <div class="form-group"><label>City</label><input id="b-city" class="form-control" value="<?= View::e($business['city'] ?? '') ?>"></div>
-                            <div class="form-group"><label>State</label><input id="b-state" class="form-control" value="<?= View::e($business['state'] ?? '') ?>"></div>
-                            <div class="form-group"><label>Country</label><input id="b-country" class="form-control" value="<?= View::e($business['country'] ?? '') ?>"></div>
-                            <div class="form-group"><label>Currency</label><input id="b-currency" class="form-control" value="<?= View::e($business['currency']) ?>"></div>
+                            <div class="form-group"><label for="b-name">Business name</label><input id="b-name" class="form-control" value="<?= View::e($business['name']) ?>"></div>
+                            <div class="form-group"><label for="b-website">Website</label><input id="b-website" class="form-control" value="<?= View::e($business['website'] ?? '') ?>"></div>
+                            <div class="form-group"><label for="b-phone">Phone</label><input id="b-phone" class="form-control" value="<?= View::e($business['phone'] ?? '') ?>"></div>
+                            <div class="form-group"><label for="b-email">Email</label><input id="b-email" type="email" class="form-control" value="<?= View::e($business['email'] ?? '') ?>"></div>
+                            <div class="form-group"><label for="b-city">City</label><input id="b-city" class="form-control" value="<?= View::e($business['city'] ?? '') ?>"></div>
+                            <div class="form-group"><label for="b-state">State</label><input id="b-state" class="form-control" value="<?= View::e($business['state'] ?? '') ?>"></div>
+                            <div class="form-group"><label for="b-country">Country</label><input id="b-country" class="form-control" value="<?= View::e($business['country'] ?? '') ?>"></div>
+                            <div class="form-group"><label for="b-currency">Currency</label><input id="b-currency" class="form-control" value="<?= View::e($business['currency']) ?>"></div>
                         </div>
-                        <div class="form-group"><label>Address</label><input id="b-address" class="form-control" value="<?= View::e($business['address'] ?? '') ?>"></div>
+                        <div class="form-group"><label for="b-address">Address</label><input id="b-address" class="form-control" value="<?= View::e($business['address'] ?? '') ?>"></div>
                         <button type="submit" class="btn btn-primary" style="width:auto;">Save Business Profile</button>
                     </form>
                 </div>
@@ -58,9 +58,9 @@ $business = Database::fetchOne("SELECT * FROM businesses WHERE id = ?", [$active
                     <h3 style="margin-top:0;">Document Number Prefixes</h3>
                     <form id="prefix-form">
                         <div class="grid grid-3">
-                            <div class="form-group"><label>Invoice prefix</label><input id="p-invoice" class="form-control" placeholder="INV"></div>
-                            <div class="form-group"><label>Quote prefix</label><input id="p-quote" class="form-control" placeholder="QUO"></div>
-                            <div class="form-group"><label>Proposal prefix</label><input id="p-proposal" class="form-control" placeholder="PROP"></div>
+                            <div class="form-group"><label for="p-invoice">Invoice prefix</label><input id="p-invoice" class="form-control" placeholder="INV"></div>
+                            <div class="form-group"><label for="p-quote">Quote prefix</label><input id="p-quote" class="form-control" placeholder="QUO"></div>
+                            <div class="form-group"><label for="p-proposal">Proposal prefix</label><input id="p-proposal" class="form-control" placeholder="PROP"></div>
                         </div>
                         <button type="submit" class="btn btn-primary" style="width:auto;">Save Prefixes</button>
                     </form>
@@ -72,14 +72,14 @@ $business = Database::fetchOne("SELECT * FROM businesses WHERE id = ?", [$active
                     <h3 style="margin-top:0;">My Profile</h3>
                     <form id="profile-form">
                         <div class="grid grid-2">
-                            <div class="form-group"><label>Name</label><input id="u-name" class="form-control" value="<?= View::e($user['name']) ?>"></div>
-                            <div class="form-group"><label>Phone</label><input id="u-phone" class="form-control"></div>
+                            <div class="form-group"><label for="u-name">Name</label><input id="u-name" class="form-control" value="<?= View::e($user['name']) ?>"></div>
+                            <div class="form-group"><label for="u-phone">Phone</label><input id="u-phone" class="form-control"></div>
                         </div>
                         <hr style="margin:16px 0;border-color:var(--border);">
                         <h4>Change Password</h4>
                         <div class="grid grid-2">
-                            <div class="form-group"><label>Current password</label><input id="u-current-pw" type="password" class="form-control"></div>
-                            <div class="form-group"><label>New password</label><input id="u-new-pw" type="password" class="form-control"></div>
+                            <div class="form-group"><label for="u-current-pw">Current password</label><input id="u-current-pw" type="password" class="form-control"></div>
+                            <div class="form-group"><label for="u-new-pw">New password</label><input id="u-new-pw" type="password" class="form-control"></div>
                         </div>
                         <button type="submit" class="btn btn-primary" style="width:auto;">Save Profile</button>
                     </form>

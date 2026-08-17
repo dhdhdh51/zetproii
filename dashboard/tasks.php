@@ -11,7 +11,7 @@ $user = $currentUser;
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Tasks — BharatSEO</title>
 <?php include dirname(__DIR__) . '/app/views/head-assets.php'; ?>
-<script src="https://unpkg.com/lucide@1.31.0/dist/umd/lucide.js" defer></script>
+<script src="https://unpkg.com/lucide@1.31.0/dist/umd/lucide.js" async></script>
 </head>
 <body>
 <script>window.__CSRF_TOKEN__ = <?= json_encode(Security::csrfToken()) ?>; window.__BASE__ = <?= json_encode(Url::basePath()) ?>;</script>
@@ -22,8 +22,8 @@ $user = $currentUser;
         <div class="page-body">
             <div class="card" style="margin-bottom:16px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;">
                 <div style="display:flex;gap:10px;flex-wrap:wrap;">
-                    <input id="f-search" class="form-control" placeholder="Search tasks..." style="max-width:220px;">
-                    <select id="f-status" class="form-control" style="max-width:170px;">
+                    <input id="f-search" class="form-control" placeholder="Search tasks..." style="max-width:220px;" aria-label="Search tasks">
+                    <select id="f-status" class="form-control" style="max-width:170px;" aria-label="Filter by status">
                         <option value="">All statuses</option><option value="pending">Pending</option><option value="in_progress">In Progress</option>
                         <option value="completed">Completed</option><option value="cancelled">Cancelled</option>
                     </select>
@@ -47,11 +47,11 @@ $user = $currentUser;
     <div class="modal-box">
         <h2>Add Task</h2>
         <form id="task-form">
-            <div class="form-group"><label>Title</label><input id="t-title" class="form-control" required></div>
-            <div class="form-group"><label>Description</label><textarea id="t-desc" class="form-control" rows="2"></textarea></div>
+            <div class="form-group"><label for="t-title">Title</label><input id="t-title" class="form-control" required></div>
+            <div class="form-group"><label for="t-desc">Description</label><textarea id="t-desc" class="form-control" rows="2"></textarea></div>
             <div class="grid grid-2">
-                <div class="form-group"><label>Priority</label><select id="t-priority" class="form-control"><option value="low">Low</option><option value="medium" selected>Medium</option><option value="high">High</option></select></div>
-                <div class="form-group"><label>Due date</label><input id="t-due" type="datetime-local" class="form-control"></div>
+                <div class="form-group"><label for="t-priority">Priority</label><select id="t-priority" class="form-control"><option value="low">Low</option><option value="medium" selected>Medium</option><option value="high">High</option></select></div>
+                <div class="form-group"><label for="t-due">Due date</label><input id="t-due" type="datetime-local" class="form-control"></div>
             </div>
             <div style="display:flex;gap:10px;">
                 <button type="button" class="btn btn-secondary" onclick="document.getElementById('task-modal').classList.remove('open')">Cancel</button>

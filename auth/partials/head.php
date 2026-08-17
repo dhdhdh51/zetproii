@@ -46,4 +46,4 @@ $appName = (string) config('app.name', 'BharatSEO');
     })();
 </script>
 
-<script src="https://unpkg.com/lucide@1.31.0/dist/umd/lucide.js" defer></script>
+<script src="https://unpkg.com/lucide@1.31.0/dist/umd/lucide.js" async></script>

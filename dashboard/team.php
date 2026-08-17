@@ -11,7 +11,7 @@ $user = $currentUser;
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Team — BharatSEO</title>
 <?php include dirname(__DIR__) . '/app/views/head-assets.php'; ?>
-<script src="https://unpkg.com/lucide@1.31.0/dist/umd/lucide.js" defer></script>
+<script src="https://unpkg.com/lucide@1.31.0/dist/umd/lucide.js" async></script>
 </head>
 <body>
 <script>window.__CSRF_TOKEN__ = <?= json_encode(Security::csrfToken()) ?>; window.__BASE__ = <?= json_encode(Url::basePath()) ?>;</script>
@@ -24,8 +24,8 @@ $user = $currentUser;
                 <h3 style="margin-top:0;">Invite Team Member</h3>
                 <p style="font-size:13px;color:var(--text-muted);">The user must already have a BharatSEO account with this email.</p>
                 <form id="invite-form" style="display:flex;gap:10px;flex-wrap:wrap;">
-                    <input id="inv-email" type="email" class="form-control" placeholder="team@example.com" style="max-width:240px;" required>
-                    <select id="inv-role" class="form-control" style="max-width:180px;">
+                    <input id="inv-email" type="email" class="form-control" placeholder="team@example.com" style="max-width:240px;" required aria-label="team@example.com">
+                    <select id="inv-role" class="form-control" style="max-width:180px;" aria-label="Role">
                         <option value="MANAGER">Manager</option><option value="STAFF">Staff</option>
                     </select>
                     <button type="submit" class="btn btn-primary" style="width:auto;">Invite</button>
