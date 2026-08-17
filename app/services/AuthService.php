@@ -45,7 +45,7 @@ final class AuthService
 
             Database::commit();
 
-            EmailService::send(
+            $sent = EmailService::send(
                 $email,
                 'email_verification',
                 [
@@ -55,7 +55,36 @@ final class AuthService
                 ]
             );
 
-            return ['id' => $userId, 'uuid' => $uuid, 'name' => $name, 'email' => $email];
+            // If this server cannot deliver email at all, the user could never
+            // receive a verification link - and since login refuses 'pending'
+            // accounts, they would be locked out of their own account forever.
+            // A fresh install has no SMTP configured, so that is the default
+            // state. Activate the account instead of creating a dead one.
+            //
+            // Note this is deliberately keyed on "email delivery is not set up"
+            // rather than "the send failed": a transient SMTP failure on a
+            // properly configured server should still require verification,
+            // and the user can request a new link.
+            $requiresVerification = true;
+            if (!$sent && !EmailService::isConfigured()) {
+                Database::query(
+                    "UPDATE users SET status = 'active', email_verified_at = NOW() WHERE id = ?",
+                    [$userId]
+                );
+                $requiresVerification = false;
+                Logger::systemInfo(
+                    'Account activated without email verification: no SMTP is configured on this server',
+                    ['user_id' => $userId, 'email' => $email]
+                );
+            }
+
+            return [
+                'id' => $userId,
+                'uuid' => $uuid,
+                'name' => $name,
+                'email' => $email,
+                'requires_verification' => $requiresVerification,
+            ];
         } catch (\Throwable $e) {
             Database::rollBack();
             Logger::error('Registration failed: ' . $e->getMessage());
@@ -87,8 +116,31 @@ final class AuthService
         }
 
         if ($user['status'] === 'pending') {
-            RateLimitMiddleware::recordLoginAttempt($email, $ip, false);
-            Response::forbidden('Please verify your email before logging in.');
+            // The password was already verified above, so this is genuinely the
+            // account owner - they are only blocked by email verification.
+            if (!EmailService::isConfigured()) {
+                // Nothing on this server can deliver a verification email, so
+                // this account can never be verified through the normal flow.
+                // Refusing the login would lock the owner out permanently for a
+                // reason they cannot act on. Activate and let them in instead.
+                // This also heals accounts that were created before SMTP was
+                // recognised as unavailable.
+                Database::query(
+                    "UPDATE users SET status = 'active', email_verified_at = COALESCE(email_verified_at, NOW()) WHERE id = ?",
+                    [$user['id']]
+                );
+                $user['status'] = 'active';
+                Logger::systemInfo(
+                    'Activated a pending account at login: no SMTP is configured, so email verification is impossible',
+                    ['user_id' => (int) $user['id'], 'email' => $email]
+                );
+            } else {
+                RateLimitMiddleware::recordLoginAttempt($email, $ip, false);
+                Response::forbidden(
+                    'Please verify your email before logging in. Check your inbox for the '
+                    . 'verification link, or resend it using the link below.'
+                );
+            }
         }
 
         RateLimitMiddleware::recordLoginAttempt($email, $ip, true);
@@ -124,6 +176,61 @@ final class AuthService
             setcookie(session_name(), '', time() - 42000, $params['path'], $params['domain'], $params['secure'], $params['httponly']);
         }
         session_destroy();
+    }
+
+    /**
+     * Issues a fresh email-verification link for an account still pending.
+     *
+     * Returns the outcome so the caller can tell the user something truthful:
+     *   'sent'           a new link is on its way
+     *   'activated'      email delivery isn't set up here, so the account was
+     *                    activated directly instead of promising an email
+     *   'not_applicable' nothing to do (unknown email, or already verified) -
+     *                    reported to the user identically to 'sent' so this
+     *                    endpoint can't be used to discover registered emails
+     *   'failed'         SMTP is configured but the send failed
+     */
+    public function resendVerificationEmail(string $email): string
+    {
+        $email = Security::cleanEmail($email);
+        $user = Database::fetchOne(
+            "SELECT id, name, status FROM users WHERE email = ? AND deleted_at IS NULL",
+            [$email]
+        );
+
+        if ($user === null || $user['status'] !== 'pending') {
+            return 'not_applicable';
+        }
+
+        if (!EmailService::isConfigured()) {
+            Database::query(
+                "UPDATE users SET status = 'active', email_verified_at = COALESCE(email_verified_at, NOW()) WHERE id = ?",
+                [$user['id']]
+            );
+            Logger::systemInfo(
+                'Activated a pending account on verification resend: no SMTP is configured',
+                ['user_id' => (int) $user['id'], 'email' => $email]
+            );
+            return 'activated';
+        }
+
+        $token = Security::randomToken(32);
+        $ttlHours = (int) config('auth.email_verify_ttl_hours', 48);
+        Database::query(
+            "INSERT INTO email_verifications (user_id, token_hash, expires_at, created_at)
+             VALUES (?, ?, DATE_ADD(NOW(), INTERVAL ? HOUR), NOW())",
+            [$user['id'], hash('sha256', $token), $ttlHours]
+        );
+
+        $sent = EmailService::send($email, 'email_verification', [
+            'name' => $user['name'],
+            'verification_link' => rtrim((string) config('app.url'), '/') . '/auth/verify-email.php?token=' . $token,
+            'expiry_hours' => (string) $ttlHours,
+        ]);
+
+        AuditLogger::log((int) $user['id'], null, 'verification_email_resent', []);
+
+        return $sent ? 'sent' : 'failed';
     }
 
     public function requestPasswordReset(string $email): void

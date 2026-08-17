@@ -66,6 +66,19 @@ final class EmailService
     }
 
     /**
+     * Can this server actually deliver email at all?
+     *
+     * Callers need this to avoid creating states that depend on an email the
+     * user will never receive. On a fresh install nothing configures SMTP, so
+     * this returns false until an admin sets it up under Admin > Email / SMTP.
+     */
+    public static function isConfigured(): bool
+    {
+        [$config] = self::resolveSmtpConfig();
+        return $config !== null;
+    }
+
+    /**
      * SMTP settings can be configured by the admin from Admin > Settings >
      * Email (stored encrypted in `settings`), falling back to .env values
      * for local development.

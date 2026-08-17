@@ -52,7 +52,11 @@ const Api = (function () {
             throw err;
         }
 
-        if (res.status === 401) {
+        // A 401 normally means the session expired, so bounce to the login page.
+        // But on the login page itself a 401 just means "wrong password" - and
+        // redirecting there would reload the page and wipe what the user typed.
+        // Let the caller render the message inline instead.
+        if (res.status === 401 && !/\/auth\/(login|register|forgot-password|reset-password)\.php$/.test(window.location.pathname)) {
             Toast.error(json.message || 'Session expired. Please log in again.');
             setTimeout(() => { window.location.href = appBase() + '/auth/login.php'; }, 1200);
         }

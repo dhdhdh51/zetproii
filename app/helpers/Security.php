@@ -99,7 +99,7 @@ final class Security
             // Fail loudly in logs but do not crash - fall back to a
             // per-install derived key so the app still runs, though the
             // admin MUST set APP_KEY in .env for real deployments.
-            Logger::system('APP_KEY is not set in .env - encryption is insecure until configured.');
+            Logger::system('APP_KEY is not set in env.php - encryption is insecure until configured.');
             $appKey = 'insecure-default-key-change-me-now';
         }
         return hash('sha256', $appKey, true);

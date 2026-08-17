@@ -50,9 +50,24 @@ final class Logger
         self::log('app', 'info', $message, $context);
     }
 
+    /**
+     * A system-level FAILURE (DB unreachable, uncaught exception, PHP error).
+     * Logged at 'error' so it shows up in Admin > System Logs error filters.
+     * For things that are merely worth recording, use systemInfo().
+     */
     public static function system(string $message, array $context = []): void
     {
         self::log('system', 'error', $message, $context);
+    }
+
+    /**
+     * A notable system EVENT that is not a failure - e.g. an account being
+     * activated automatically because the server cannot send email. Kept at
+     * 'info' so it stays out of error reports while remaining auditable.
+     */
+    public static function systemInfo(string $message, array $context = []): void
+    {
+        self::log('system', 'info', $message, $context);
     }
 
     public static function ai(string $message, array $context = []): void

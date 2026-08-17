@@ -35,4 +35,10 @@ $user = $authService->register(
     $request->string('phone') ?: null
 );
 
-Response::success($user, 'Registration successful. Please check your email to verify your account.', 201);
+// Tell the user what will actually happen next. Promising a verification email
+// on a server with no SMTP configured is how accounts ended up unusable.
+$message = ($user['requires_verification'] ?? true)
+    ? 'Registration successful. Please check your email to verify your account.'
+    : 'Registration successful. Your account is ready — you can log in now.';
+
+Response::success($user, $message, 201);
