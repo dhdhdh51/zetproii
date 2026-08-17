@@ -55,25 +55,37 @@ If you used Option B, continue to Step 4 below to configure `.env` manually. If 
 
 ---
 
-## Step 4 — Configure the `.env` file (skip if you used the web installer)
+## Step 4 — Configure `env.php` (skip if you used the web installer)
 
-1. In **File Manager**, click the **Settings** gear icon (top right) and enable **Show Hidden Files (dotfiles)**.
-2. Find `.env.example` in your uploaded files, right-click it, choose **Copy**, and name the copy `.env`.
-3. Right-click the new `.env` file and choose **Edit** (or **Code Editor**). Fill in:
+> **Use `env.php`, not `.env`.** A `.env` file is plain text, so if your
+> `.htaccess` is missing or your host ignores it, anyone can open
+> `https://yourdomain.com/.env` and read your database password and `APP_KEY`.
+> `env.php` is PHP: the server executes it instead of printing it, so it can
+> never be read over the web. The installer creates `env.php` automatically.
+> (A legacy `.env` still works if you already have one — but convert it.)
 
+1. In **File Manager**, click **+ File** and name it `env.php`.
+2. Right-click `env.php` → **Edit** (or **Code Editor**) and paste:
+
+   ```php
+   <?php
+   return [
+       'APP_ENV'     => 'production',
+       'APP_DEBUG'   => 'false',
+       'APP_URL'     => 'https://yourdomain.com',
+
+       'DB_HOST'     => 'localhost',
+       'DB_DATABASE' => 'username_bharatai',
+       'DB_USERNAME' => 'username_dbuser',
+       'DB_PASSWORD' => 'your_db_password',
+
+       'APP_KEY'     => '',   // see below
+       'CRON_SECRET' => '',   // any long random string you make up
+   ];
    ```
-   APP_ENV=production
-   APP_DEBUG=false
-   APP_URL=https://yourdomain.com
 
-   DB_HOST=localhost
-   DB_DATABASE=username_bharatai
-   DB_USERNAME=username_dbuser
-   DB_PASSWORD=your_db_password
-
-   APP_KEY=          (see below)
-   CRON_SECRET=      (any long random string you make up)
-   ```
+   Every key from `.env.example` is supported — just write it as
+   `'KEY' => 'value',` instead of `KEY=value`.
 
 4. **Generate `APP_KEY`** — this encrypts AI provider keys and SMTP passwords at rest, so it's important. If your plan includes cPanel **Terminal**, run:
    ```bash
@@ -145,7 +157,9 @@ In **File Manager**, right-click each folder → **Change Permissions** → set 
 
 ## Post-deployment checklist
 
-- [ ] `.env` has `APP_ENV=production` and `APP_DEBUG=false`
+- [ ] `env.php` has `APP_ENV=production` and `APP_DEBUG=false`
+- [ ] No plain-text `.env` remains in the project root (convert it to `env.php`)
+- [ ] `/diagnose.php` shows no FAIL rows — then delete `diagnose.php` and `install.php`
 - [ ] `APP_KEY` is set and saved somewhere safe
 - [ ] Default admin password has been changed
 - [ ] At least one AI provider is configured with a real API key
@@ -164,8 +178,19 @@ Check `storage/logs/system-*.log`. Usually a missing/incorrect `.env` or databas
 **"Service temporarily unavailable" message.**
 Database connection failed — recheck `DB_HOST`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD` in `.env`, and confirm the database user was actually added to the database with privileges in cPanel's **MySQL Databases** page.
 
+**The homepage gives 404 or 403 (but `/auth/login.php` works).**
+Make sure `index.php` exists in the project root, next to `install.php`. That
+file *is* the homepage; without it the server has no directory index to serve.
+If it's missing, re-upload the project. Visit `/diagnose.php` — it checks this
+explicitly and tells you what's wrong.
+
 **Pretty URLs like `/pricing` give a 404.**
-Confirm the `.htaccess` file was actually uploaded (it's a hidden file — make sure "Show Hidden Files" was on during upload/extraction) and that it sits in the same folder as `public/`, `app/`, etc.
+The `.htaccess` file probably wasn't uploaded (it's a hidden file — turn on
+"Show Hidden Files" in File Manager settings before uploading/extracting), or
+your host runs `AllowOverride None`. The app detects this at runtime and falls
+back automatically: links point at `/pricing.php` instead of `/pricing`, and
+those work with no rewrite rules at all. `/diagnose.php` reports whether your
+`.htaccess` is actually being honoured.
 
 **AI features say "No AI provider is currently configured."**
 Log in as admin → **Admin → AI Providers** → enable a provider and paste in a real API key.

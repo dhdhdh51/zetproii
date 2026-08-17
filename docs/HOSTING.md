@@ -1,5 +1,14 @@
 # Hosting Guide — BharatAI Business OS
 
+> **Configuration file:** this project reads its settings from `env.php` (a PHP
+> file returning an array) in preference to a plain `.env`. Prefer `env.php` —
+> a `.env` is served as readable text by any host where `.htaccess` is missing
+> or ignored, which exposes your database password and `APP_KEY`. A `.php` file
+> is executed rather than printed, so it cannot leak. `install.php` writes
+> `env.php` for you. An existing `.env` still works, but convert it when you can.
+> See `docs/CPANEL_HOSTING.md` Step 4 for the exact format.
+
+
 This single guide covers **every common way to host** BharatAI Business OS. The app is plain PHP 8.2+ and MySQL 8+/MariaDB 10.5+ with no build step and no Composer/npm install required in production — so it runs anywhere PHP and MySQL run.
 
 Pick the section that matches your hosting situation:

@@ -6,19 +6,68 @@
  */
 final class Env
 {
-    private static bool $loaded = false;
+    /** Paths already processed, so repeated loads are cheap and idempotent. */
+    private static array $loaded = [];
+
+    /** True once any source actually supplied configuration. */
+    private static bool $haveConfig = false;
+
+    /**
+     * Loads configuration from a PHP file that returns an associative array.
+     *
+     * PREFER THIS OVER .env. A plain .env file is static text, so if the
+     * project's .htaccess is missing or ignored the web server will happily
+     * serve it - handing out the database password and APP_KEY to anyone who
+     * requests /.env. A .php file is always executed instead of echoed, so
+     * requesting /env.php directly returns nothing, on every host, with no
+     * .htaccess required.
+     */
+    public static function loadPhp(string $path): void
+    {
+        if (isset(self::$loaded[$path]) || !is_file($path)) {
+            return;
+        }
+        self::$loaded[$path] = true;
+
+        $values = require $path;
+        if (!is_array($values)) {
+            error_log("[BharatAI] {$path} must return an array of config values");
+            return;
+        }
+
+        foreach ($values as $name => $value) {
+            self::put((string) $name, is_bool($value) ? ($value ? 'true' : 'false') : (string) $value);
+        }
+        self::$haveConfig = true;
+    }
+
+    /** Did any configuration source (env.php or .env) actually load? */
+    public static function isConfigured(): bool
+    {
+        return self::$haveConfig;
+    }
+
+    private static function put(string $name, string $value): void
+    {
+        if ($name === '' || getenv($name) !== false) {
+            return; // never overwrite an already-set value: first source wins
+        }
+        putenv("{$name}={$value}");
+        $_ENV[$name] = $value;
+        $_SERVER[$name] = $value;
+    }
 
     public static function load(string $path): void
     {
-        if (self::$loaded) {
+        if (isset(self::$loaded[$path])) {
             return;
         }
-        self::$loaded = true;
+        self::$loaded[$path] = true;
 
         if (!is_file($path)) {
-            // In production, missing .env is a hard error - fail closed, not open.
-            if ((getenv('APP_ENV') ?: 'production') === 'production') {
-                error_log("[BharatAI] Missing .env file at {$path}");
+            // Only a problem if nothing else supplied config either.
+            if (!self::$haveConfig && (getenv('APP_ENV') ?: 'production') === 'production') {
+                error_log("[BharatAI] No configuration found (looked for env.php and {$path})");
             }
             return;
         }
@@ -52,11 +101,8 @@ final class Env
                 continue;
             }
 
-            if (getenv($name) === false) {
-                putenv("{$name}={$value}");
-                $_ENV[$name] = $value;
-                $_SERVER[$name] = $value;
-            }
+            self::put($name, $value);
+            self::$haveConfig = true;
         }
     }
 

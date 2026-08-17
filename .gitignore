@@ -1,5 +1,6 @@
 # Environment / secrets - never commit real credentials
 .env
+env.php
 
 # Installer lock file (created after successful install.php run)
 storage/.installed

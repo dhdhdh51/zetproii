@@ -6,6 +6,19 @@
 # Never serve directory listings
 Options -Indexes
 
+# The homepage is served by the real index.php at the project root, so it works
+# even without any rewrite rules. Stated explicitly in case the host's default
+# DirectoryIndex doesn't include index.php.
+DirectoryIndex index.php
+
+# Runtime probe: lets PHP verify at request time that this file is actually
+# being honoured. If .htaccess was never uploaded, or the host runs
+# AllowOverride None, this variable is simply absent and the app falls back to
+# rewrite-free URLs instead of emitting links that 404. See Url::rewriteActive().
+<IfModule mod_env.c>
+    SetEnv HTACCESS_ACTIVE 1
+</IfModule>
+
 # Protect sensitive files from ever being served directly
 <FilesMatch "^(\.env|composer\.json|composer\.lock|schema\.sql|seed\.sql|config\.php)$">
     Require all denied

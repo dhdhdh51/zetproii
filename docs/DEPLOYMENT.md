@@ -1,5 +1,14 @@
 # Deployment Guide
 
+> **Configuration file:** this project reads its settings from `env.php` (a PHP
+> file returning an array) in preference to a plain `.env`. Prefer `env.php` —
+> a `.env` is served as readable text by any host where `.htaccess` is missing
+> or ignored, which exposes your database password and `APP_KEY`. A `.php` file
+> is executed rather than printed, so it cannot leak. `install.php` writes
+> `env.php` for you. An existing `.env` still works, but convert it when you can.
+> See `docs/CPANEL_HOSTING.md` Step 4 for the exact format.
+
+
 BharatAI Business OS is plain PHP + MySQL. It runs on any host that gives you PHP 8.2+, MySQL 8+/MariaDB 10.5+, and Apache with `mod_rewrite`. No build step, no `npm install`, no Composer install required for production.
 
 ---
@@ -117,7 +126,9 @@ Provision an EC2 instance (Amazon Linux 2023 or Ubuntu), then follow the **Apach
 
 ## 4. Post-deployment checklist
 
-- [ ] `.env` has `APP_ENV=production` and `APP_DEBUG=false`
+- [ ] `env.php` has `APP_ENV=production` and `APP_DEBUG=false`
+- [ ] No plain-text `.env` remains in the project root (convert it to `env.php`)
+- [ ] `/diagnose.php` shows no FAIL rows — then delete `diagnose.php` and `install.php`
 - [ ] `APP_KEY` is set and backed up somewhere safe (losing it invalidates encrypted secrets)
 - [ ] Default admin password changed
 - [ ] At least one AI provider configured in **Admin > AI Providers** with a real API key

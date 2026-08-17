@@ -10,7 +10,7 @@
  *      its name/user/password here. This script only imports tables
  *      INTO that existing database.)
  *   3. Imports database/schema.sql then database/seed.sql
- *   4. Generates a real .env file for you (with a random APP_KEY)
+ *   4. Generates a real env.php config file for you (random APP_KEY)
  *   5. Lets you set your own admin email/password instead of using the
  *      default seeded bootstrap account
  *
@@ -49,7 +49,13 @@ function install_url(string $path = ''): string
     return install_base() . '/' . $p;
 }
 
-$envPath = $rootDir . '/.env';
+// Configuration is written as env.php (a PHP file returning an array) rather
+// than a plain .env. A .env is static text, so on any host where .htaccess is
+// missing or ignored the web server serves it verbatim and leaks the database
+// password and APP_KEY to whoever requests /.env. A .php file is executed, not
+// echoed, so it can never leak - no .htaccess required.
+$envPath = $rootDir . '/env.php';
+$legacyEnvPath = $rootDir . '/.env';
 $lockPath = $rootDir . '/storage/.installed';
 $schemaPath = $rootDir . '/database/schema.sql';
 $seedPath = $rootDir . '/database/seed.sql';
@@ -62,6 +68,13 @@ if (is_file($lockPath)) {
     exit;
 }
 
+// Which step the user just SUBMITTED (drives the handlers below), kept separate
+// from which step we RENDER. They must not be the same variable: a successful
+// step 2 advances the render target to 3, and if the step-3 handler keyed off
+// that it would run immediately on the same request with an empty admin form
+// and greet the user with "Please provide a name, valid email, and a password"
+// before they had typed anything.
+$submittedStep = $_SERVER['REQUEST_METHOD'] === 'POST' ? (string) ($_POST['step'] ?? '') : '';
 $step = $_POST['step'] ?? ($_GET['step'] ?? '1');
 $errors = [];
 $success = null;
@@ -69,7 +82,7 @@ $success = null;
 // ---------------------------------------------------------------------
 // Step 2: test DB connection + import schema/seed
 // ---------------------------------------------------------------------
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && $step === '2') {
+if ($submittedStep === '2') {
     $dbHost = trim($_POST['db_host'] ?? '');
     $dbPort = trim($_POST['db_port'] ?? '3306');
     $dbName = trim($_POST['db_name'] ?? '');
@@ -126,7 +139,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $step === '2') {
 
     if (empty($errors)) {
         // Store connection details in session for step 3 (admin account) +
-        // step 4 (.env write), so the user isn't asked twice.
+        // step 4 (env.php write), so the user isn't asked twice.
         $_SESSION['install_db'] = [
             'host' => $dbHost, 'port' => $dbPort, 'name' => $dbName,
             'user' => $dbUser, 'pass' => $dbPass, 'app_url' => rtrim($appUrl, '/'),
@@ -138,9 +151,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $step === '2') {
 }
 
 // ---------------------------------------------------------------------
-// Step 3: create the real admin account + write .env + lock installer
+// Step 3: create the real admin account + write env.php + lock installer
 // ---------------------------------------------------------------------
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && $step === '3') {
+if ($submittedStep === '3') {
     $dbInfo = $_SESSION['install_db'] ?? null;
     $adminName = trim($_POST['admin_name'] ?? '');
     $adminEmail = trim($_POST['admin_email'] ?? '');
@@ -177,10 +190,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $step === '3') {
                 )->execute([$uuid, $adminName, $adminEmail, $hash]);
             }
 
-            // Build the .env contents and attempt to write it.
+            // Build the env.php contents and attempt to write it.
             $appKey = bin2hex(random_bytes(32));
             $cronSecret = bin2hex(random_bytes(24));
-            $envContents = build_env_contents($rootDir, $dbInfo, $appKey, $cronSecret);
+            $envContents = build_env_php_contents(
+                build_env_contents($rootDir, $dbInfo, $appKey, $cronSecret)
+            );
 
             $envWritten = write_env_file($envPath, $envContents);
 
@@ -192,8 +207,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $step === '3') {
                 // they can finish the install and re-run this final step.
                 $_SESSION['install_env_contents'] = $envContents;
                 $errors[] = 'Your database and admin account were set up successfully, but the installer '
-                    . 'could not write the .env file (the web server does not have write permission on '
-                    . 'the project root). Please create the .env file manually using the contents shown below, '
+                    . 'could not write the env.php file (the web server does not have write permission on '
+                    . 'the project root). Please create the env.php file manually using the contents shown below, '
                     . 'then reload this page.';
                 $step = 'manual_env';
             } else {
@@ -420,7 +435,50 @@ function build_env_contents(string $rootDir, array $db, string $appKey, string $
 }
 
 /**
- * Writes the .env file, returning false (rather than emitting a warning
+ * Converts dotenv-style text into a PHP file that returns the same values as
+ * an array. Building the dotenv text first means .env.example stays the single
+ * place where the full set of configuration keys is defined.
+ */
+function build_env_php_contents(string $dotenv): string
+{
+    $out = "<?php\n"
+        . "/**\n"
+        . " * BharatAI Business OS - configuration.\n"
+        . " * Generated by install.php on " . date('c') . ".\n"
+        . " *\n"
+        . " * Stored as PHP (not .env) on purpose: a .php file is executed rather\n"
+        . " * than served as text, so these credentials cannot leak even if the\n"
+        . " * project's .htaccess is missing or ignored by the host.\n"
+        . " *\n"
+        . " * Edit the values below to change configuration. Keep this file private.\n"
+        . " */\n\n"
+        . "return [\n";
+
+    foreach (explode("\n", $dotenv) as $line) {
+        $line = trim($line);
+        if ($line === '' || str_starts_with($line, '#') || !str_contains($line, '=')) {
+            continue;
+        }
+        [$key, $value] = explode('=', $line, 2);
+        $key = trim($key);
+        $value = trim($value);
+        if (
+            (str_starts_with($value, '"') && str_ends_with($value, '"')) ||
+            (str_starts_with($value, "'") && str_ends_with($value, "'"))
+        ) {
+            $value = substr($value, 1, -1);
+        }
+        if ($key === '') {
+            continue;
+        }
+        $out .= '    ' . var_export($key, true) . ' => ' . var_export($value, true) . ",\n";
+    }
+
+    return $out . "];\n";
+}
+
+/**
+ * Writes the config file, returning false (rather than emitting a warning
  * and silently continuing) if the web server lacks write permission on
  * the project root - which is common on hardened VPS setups where the
  * document root is owned by a different user than the PHP process.
@@ -444,11 +502,12 @@ function check_requirements(): array
     }
     $checks['storage/ is writable'] = is_writable(__DIR__ . '/storage') || @mkdir(__DIR__ . '/storage', 0755, true);
     $checks['public/uploads/ is writable'] = is_writable(__DIR__ . '/public/uploads') || is_dir(__DIR__ . '/public/uploads');
-    $checks['.env does not already exist'] = !is_file(__DIR__ . '/.env');
-    // If the project root isn't writable we can't generate .env automatically.
+    $checks['No existing configuration (env.php / .env)'] =
+        !is_file(__DIR__ . '/env.php') && !is_file(__DIR__ . '/.env');
+    // If the project root isn't writable we can't generate env.php automatically.
     // Not fatal (the installer falls back to showing the contents for manual
     // creation), so this is reported separately as a warning-style check.
-    $checks['Project root is writable (for .env)'] = is_writable(__DIR__);
+    $checks['Project root is writable (for env.php)'] = is_writable(__DIR__);
     return $checks;
 }
 
@@ -515,8 +574,8 @@ function install_styles(): string
             <?php
             $checks = check_requirements();
             // This one is only a warning - the installer can still finish and
-            // will show you the .env contents to create manually instead.
-            $warnOnly = ['Project root is writable (for .env)'];
+            // will show you the env.php contents to create manually instead.
+            $warnOnly = ['Project root is writable (for env.php)'];
             $blockers = array_filter($checks, fn ($ok, $label) => !$ok && !in_array($label, $warnOnly, true), ARRAY_FILTER_USE_BOTH);
             $allOk = count($blockers) === 0;
             ?>
@@ -529,11 +588,11 @@ function install_styles(): string
                     </span>
                 </div>
             <?php endforeach; ?>
-            <?php if (!$checks['Project root is writable (for .env)']): ?>
-                <p class="help">⚠️ The project root isn't writable, so the installer won't be able to create <code>.env</code> automatically. That's fine — it will show you the exact contents to paste into a <code>.env</code> file yourself at the end.</p>
+            <?php if (!$checks['Project root is writable (for env.php)']): ?>
+                <p class="help">⚠️ The project root isn't writable, so the installer won't be able to create <code>env.php</code> automatically. That's fine — it will show you the exact contents to paste into an <code>env.php</code> file yourself at the end.</p>
             <?php endif; ?>
             <?php if (!$allOk): ?>
-                <p class="help">Please resolve the <strong>FAIL</strong> items above (or delete an existing .env file if this is a fresh install) before continuing.</p>
+                <p class="help">Please resolve the <strong>FAIL</strong> items above (or delete an existing env.php / .env file if this is a fresh install) before continuing.</p>
             <?php else: ?>
                 <a class="btn" href="?step=2">Continue &rarr;</a>
             <?php endif; ?>
@@ -579,17 +638,17 @@ function install_styles(): string
             </form>
 
         <?php elseif ($step === 'manual_env'): ?>
-            <h1>Almost there — create your <code>.env</code> file</h1>
-            <p>Your database tables and admin account are ready. The only remaining step is the <code>.env</code> configuration file, which the installer couldn't write automatically due to file permissions.</p>
-            <p><strong>Create a file named <code>.env</code> in the project root</strong> (the same folder as <code>install.php</code>) with exactly these contents:</p>
+            <h1>Almost there — create your <code>env.php</code> file</h1>
+            <p>Your database tables and admin account are ready. The only remaining step is the <code>env.php</code> configuration file, which the installer couldn't write automatically due to file permissions.</p>
+            <p><strong>Create a file named <code>env.php</code> in the project root</strong> (the same folder as <code>install.php</code>) with exactly these contents:</p>
             <textarea readonly style="width:100%;height:280px;font-family:monospace;font-size:12px;border:1px solid #e6e4f0;border-radius:8px;padding:12px;"><?= htmlspecialchars($_SESSION['install_env_contents'] ?? '', ENT_QUOTES) ?></textarea>
-            <p class="help">In cPanel File Manager: enable <em>Settings → Show Hidden Files</em>, click <em>+ File</em>, name it <code>.env</code>, then edit it and paste the above. Keep this page open until you've saved it — the <code>APP_KEY</code> above is unique and won't be shown again.</p>
+            <p class="help">In cPanel File Manager, click <em>+ File</em>, name it <code>env.php</code>, then edit it and paste the above. Keep this page open until you've saved it — the <code>APP_KEY</code> above is unique and won't be shown again.</p>
             <p class="help"><strong>Then:</strong> delete <code>install.php</code> from your server and go to the login page.</p>
-            <a class="btn" href="<?= install_url('auth/login.php') ?>">I've created .env — Go to Login &rarr;</a>
+            <a class="btn" href="<?= install_url('auth/login.php') ?>">I've created env.php — Go to Login &rarr;</a>
 
         <?php elseif ($step === 'done'): ?>
             <h1>🎉 Installation Complete!</h1>
-            <p>BharatAI Business OS has been installed successfully. Your <code>.env</code> file was generated automatically, and your admin account is ready.</p>
+            <p>BharatAI Business OS has been installed successfully. Your <code>env.php</code> config file was generated automatically, and your admin account is ready.</p>
             <?php if (!empty($_SESSION['install_lock_warning'])): ?>
                 <div class="error">Note: the installer couldn't create its lock file in <code>storage/</code>. Please make sure you delete <code>install.php</code> manually, since it can't self-disable.</div>
             <?php endif; ?>

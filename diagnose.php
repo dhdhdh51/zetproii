@@ -38,7 +38,17 @@ foreach (['pdo_mysql', 'curl', 'openssl', 'fileinfo', 'json', 'mbstring'] as $ex
 
 // ---------------------------------------------------------------- Files
 $root = __DIR__;
-row('.env file exists', is_file("$root/.env"), is_file("$root/.env") ? '' : 'Run install.php, or create .env from .env.example');
+$hasEnvPhp = is_file("$root/env.php");
+$hasDotEnv = is_file("$root/.env");
+row(
+    'Configuration file exists',
+    $hasEnvPhp || $hasDotEnv,
+    $hasEnvPhp ? 'env.php (recommended — cannot be leaked over HTTP)'
+        : ($hasDotEnv ? 'Using legacy .env' : 'Run install.php to generate env.php')
+);
+row('index.php present at project root', is_file("$root/index.php"),
+    is_file("$root/index.php") ? 'Homepage works without any rewrite rules'
+        : 'MISSING — the homepage will return 403/404. Re-upload the project.');
 row('database/schema.sql present', is_file("$root/database/schema.sql"));
 row('.htaccess present', is_file("$root/.htaccess"), is_file("$root/.htaccess") ? '' : 'Hidden file — make sure it was uploaded');
 foreach (['storage', 'storage/logs', 'storage/cache', 'storage/uploads', 'public/uploads'] as $d) {
@@ -117,8 +127,40 @@ if (function_exists('curl_init')) {
     }
 }
 row('Stylesheet reachable over HTTP', $assetStatus, $assetDetail);
-row('mod_rewrite available', in_array('mod_rewrite', function_exists('apache_get_modules') ? apache_get_modules() : [], true) ? true : 'warn',
-    function_exists('apache_get_modules') ? '' : 'Cannot detect (not running under mod_php) — assets still work via the built-in fallback');
+
+// Definitive runtime check: our .htaccess sets HTACCESS_ACTIVE, so this proves
+// whether the file is present AND honoured, rather than guessing from modules.
+$htActive = $bootOk ? Url::rewriteActive() : (isset($_SERVER['HTACCESS_ACTIVE']) || isset($_SERVER['REDIRECT_HTACCESS_ACTIVE']));
+row('.htaccess is being honoured by the server', $htActive ? true : 'warn',
+    $htActive
+        ? 'Pretty URLs like /features are active'
+        : 'Not active (missing file, or host uses AllowOverride None). The app '
+          . 'compensates automatically: the homepage is served by index.php and '
+          . 'marketing links point at /features.php etc. instead of /features.');
+
+// The single most damaging misconfiguration: a plain-text .env served publicly.
+if ($hasDotEnv) {
+    $envUrl = ($bootOk ? Url::absolute('.env') : '') ;
+    $leak = 'warn';
+    $leakDetail = 'Could not verify. Open ' . htmlspecialchars((string) $envUrl) . ' in a browser — you should NOT see your password.';
+    if ($envUrl !== '' && function_exists('curl_init')) {
+        $ch = curl_init($envUrl);
+        curl_setopt_array($ch, [CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => 8,
+            CURLOPT_SSL_VERIFYPEER => false, CURLOPT_SSL_VERIFYHOST => 0]);
+        $envBody = (string) curl_exec($ch);
+        curl_close($ch);
+        if (str_contains($envBody, 'DB_PASSWORD') || str_contains($envBody, 'APP_KEY')) {
+            $leak = false;
+            $leakDetail = 'CRITICAL: your .env is publicly downloadable — it exposes your database '
+                . 'password and APP_KEY. Fix now: run install.php again to generate env.php, or '
+                . 'rename .env to env.php and convert it to "<?php return [\'KEY\' => \'value\', ...];".';
+        } else {
+            $leak = true;
+            $leakDetail = 'Not downloadable over HTTP';
+        }
+    }
+    row('.env is not publicly readable', $leak, $leakDetail);
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">

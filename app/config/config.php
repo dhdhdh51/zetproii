@@ -8,8 +8,14 @@
 
 require_once __DIR__ . '/Env.php';
 
-// Load .env from project root (one level above /app/config)
-Env::load(dirname(__DIR__, 2) . '/.env');
+// Load configuration from the project root (two levels above /app/config).
+// env.php is preferred because a .php file can never be served as plain text,
+// so credentials stay private even if .htaccess is missing or ignored. A
+// legacy .env is still read afterwards, so existing installs keep working.
+// Whichever source is loaded first wins for any given key.
+$projectRoot = dirname(__DIR__, 2);
+Env::loadPhp($projectRoot . '/env.php');
+Env::load($projectRoot . '/.env');
 
 $config = [
     'app' => [
