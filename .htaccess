@@ -1,0 +1,43 @@
+# =====================================================================
+# BharatAI Business OS - root .htaccess
+# Works on Apache (cPanel shared hosting, VPS, EC2 + Apache).
+# =====================================================================
+
+# Never serve directory listings
+Options -Indexes
+
+# Protect sensitive files from ever being served directly
+<FilesMatch "^(\.env|composer\.json|composer\.lock|schema\.sql|seed\.sql|config\.php)$">
+    Require all denied
+</FilesMatch>
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Deny access to dot-files (.env, .git, etc.) and any file inside /app, /database, /storage
+    RewriteRule ^\.(?!well-known) - [F,L]
+    RewriteRule ^(app|database|storage|docs)/ - [F,L]
+
+    # Serve real files/directories (css, js, images, existing php pages) as-is
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+
+    # Public marketing site is served from /public; everything else maps
+    # to the matching folder (auth/, dashboard/, admin/, api/) already on disk.
+    RewriteRule ^$ public/index.php [L]
+    RewriteRule ^(.*)$ public/index.php?route=$1 [L,QSA]
+</IfModule>
+
+# ---- Security headers ----
+<IfModule mod_headers.c>
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always set X-XSS-Protection "1; mode=block"
+    Header unset X-Powered-By
+</IfModule>
+
+# ---- Never let PHP errors leak to output in production ----
+php_flag display_errors off
+php_flag log_errors on

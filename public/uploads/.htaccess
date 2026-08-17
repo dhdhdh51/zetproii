@@ -1,0 +1,23 @@
+# =====================================================================
+# Prevent ANY script execution inside the public uploads directory.
+# This is a defense-in-depth layer on top of extension validation in
+# the application (Security::isExtensionBlocked) and the fact that
+# uploaded filenames are randomized server-side (Security::safeFilename).
+# =====================================================================
+
+# Disable PHP execution (works with mod_php)
+<IfModule mod_php.c>
+    php_flag engine off
+</IfModule>
+<IfModule mod_php7.c>
+    php_flag engine off
+</IfModule>
+
+# Disable execution via handlers/CGI (covers php-fpm/suPHP/etc setups)
+<FilesMatch "\.(php|php3|php4|php5|php7|phtml|phar|pht|phps|cgi|pl|py|sh|exe|asp|aspx|jsp)$">
+    Require all denied
+</FilesMatch>
+
+Options -ExecCGI -Indexes
+RemoveHandler .php .phtml .php3 .php4 .php5 .php7 .phar
+RemoveType .php .phtml .php3 .php4 .php5 .php7 .phar

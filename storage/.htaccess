@@ -1,0 +1,5 @@
+# Deny all direct web access to /storage. Sensitive uploads (knowledge
+# base documents, business documents) are kept here, outside /public,
+# and served only through controlled download endpoints that verify
+# ownership (see api/business/download-file.php).
+Require all denied
