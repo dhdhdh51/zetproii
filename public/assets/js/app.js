@@ -93,28 +93,95 @@ const Toast = (function () {
     };
 })();
 
-// ---- Sidebar toggle (mobile) ----
 document.addEventListener('DOMContentLoaded', function () {
+    /* ---------------------------------------------------------- sidebar */
+    // Below 1024px the sidebar slides in over the content, so it needs a
+    // backdrop: without one, tapping the page can't dismiss it and the content
+    // underneath stays scrollable and clickable behind the overlay.
     const toggle = document.getElementById('sidebar-toggle');
     const sidebar = document.getElementById('app-sidebar');
+
     if (toggle && sidebar) {
-        toggle.addEventListener('click', () => sidebar.classList.toggle('open'));
+        let backdrop = document.querySelector('.sidebar-backdrop');
+        if (!backdrop) {
+            backdrop = document.createElement('div');
+            backdrop.className = 'sidebar-backdrop';
+            document.body.appendChild(backdrop);
+        }
+
+        const setOpen = (open) => {
+            sidebar.classList.toggle('open', open);
+            backdrop.classList.toggle('show', open);
+            toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+        };
+
+        toggle.addEventListener('click', () => setOpen(!sidebar.classList.contains('open')));
+        backdrop.addEventListener('click', () => setOpen(false));
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') { setOpen(false); }
+        });
+        // Following a link should never leave the overlay covering the new page.
+        sidebar.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => setOpen(false)));
     }
 
-    // ---- Theme toggle ----
-    const THEME_KEY = 'bharatai_theme';
-    function applyTheme(theme) {
+    /* ---------------------------------------------------------- theme */
+    // The theme lives in data-theme on <html> so CSS custom properties can be
+    // swapped wholesale. The key matches the inline snippet that applies the
+    // theme pre-paint, and the old key is migrated once so existing users keep
+    // the theme they had chosen.
+    const THEME_KEY = 'bharatseo-theme';
+    const LEGACY_THEME_KEY = 'bharatai_theme';
+
+    const readStored = () => {
+        try {
+            return localStorage.getItem(THEME_KEY) || localStorage.getItem(LEGACY_THEME_KEY);
+        } catch (e) {
+            return null;
+        }
+    };
+
+    const currentTheme = () => {
+        const explicit = document.documentElement.getAttribute('data-theme');
+        if (explicit) { return explicit; }
+        // The app defaults to light, so only an explicit OS dark preference
+        // plus no stored choice should start us in dark.
+        return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+    };
+
+    const applyTheme = (theme) => {
+        document.documentElement.setAttribute('data-theme', theme);
         document.body.classList.toggle('dark-mode', theme === 'dark');
+        try { localStorage.setItem(THEME_KEY, theme); } catch (e) { /* private mode */ }
+    };
+
+    const stored = readStored();
+    if (stored === 'light' || stored === 'dark') {
+        applyTheme(stored);
+    } else {
+        document.body.classList.toggle('dark-mode', currentTheme() === 'dark');
     }
-    const saved = localStorage.getItem(THEME_KEY) ||
-        (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-    applyTheme(saved);
+
     document.querySelectorAll('.theme-toggle').forEach((btn) => {
         btn.addEventListener('click', () => {
-            const current = document.body.classList.contains('dark-mode') ? 'dark' : 'light';
-            const next = current === 'dark' ? 'light' : 'dark';
-            applyTheme(next);
-            localStorage.setItem(THEME_KEY, next);
+            applyTheme(currentTheme() === 'dark' ? 'light' : 'dark');
+        });
+    });
+
+    /* ---------------------------------------------------------- tabs */
+    // Shared behaviour for every .tabs group, so individual pages don't each
+    // reimplement it. Panels are matched by data-tab -> data-panel.
+    document.querySelectorAll('.tabs').forEach((group) => {
+        group.addEventListener('click', (e) => {
+            const btn = e.target.closest('.tab-btn[data-tab]');
+            if (!btn) { return; }
+
+            const name = btn.getAttribute('data-tab');
+            group.querySelectorAll('.tab-btn').forEach((b) => b.classList.toggle('active', b === btn));
+
+            const scope = group.closest('.page-body') || document;
+            scope.querySelectorAll('[data-panel]').forEach((panel) => {
+                panel.classList.toggle('active', panel.getAttribute('data-panel') === name);
+            });
         });
     });
 

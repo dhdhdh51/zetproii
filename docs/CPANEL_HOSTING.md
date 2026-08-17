@@ -1,8 +1,8 @@
-# cPanel Hosting Guide — BharatAI Business OS
+# cPanel Hosting Guide — BharatSEO
 
 This guide is **only for cPanel shared hosting** deployments (Hostinger, GoDaddy, Bluehost, Namecheap, and most other shared hosting providers that use cPanel). No terminal/SSH access is required — everything below can be done through the cPanel web interface.
 
-BharatAI Business OS is plain PHP 8.2+ and MySQL 8+/MariaDB. There is no build step and nothing to `npm install` or `composer install` — you just upload the files and import one SQL file.
+BharatSEO is plain PHP 8.2+ and MySQL 8+/MariaDB. There is no build step and nothing to `npm install` or `composer install` — you just upload the files and import one SQL file.
 
 ---
 
@@ -18,7 +18,7 @@ Before starting, confirm your hosting plan has:
 ## Step 1 — Create the database
 
 1. Log in to cPanel and open **MySQL® Databases**.
-2. Under **Create New Database**, enter a name (e.g. `bharatai`) and click **Create Database**. cPanel will usually prefix it automatically, e.g. `username_bharatai`.
+2. Under **Create New Database**, enter a name (e.g. `bharatseo`) and click **Create Database**. cPanel will usually prefix it automatically, e.g. `username_bharatseo`.
 3. Under **MySQL Users → Add New User**, create a database user with a strong password.
 4. Under **Add User To Database**, add that user to the database you just created, and grant it **ALL PRIVILEGES**.
 5. Write down: database name, username, password, and host (almost always `localhost` on shared hosting).
@@ -49,7 +49,7 @@ Skip straight to Step 5 below and visit `https://yourdomain.com/install.php`. It
 2. Select your database in the left sidebar.
 3. Click the **Import** tab.
 4. Click **Choose File**, select `database/schema.sql` from the files you uploaded (or from your local copy), and click **Go**. Wait for it to finish — this creates all ~80 tables. (Note: this file only contains `CREATE TABLE IF NOT EXISTS` statements — it does **not** create the database itself, since you already created that in Step 1.)
-5. Repeat the **Import** step with `database/seed.sql` — this adds default roles, permissions, subscription plans, email templates, and a bootstrap admin account (`admin@bharatai.example` / `ChangeMe@123` — change this immediately after logging in).
+5. Repeat the **Import** step with `database/seed.sql` — this adds default roles, permissions, subscription plans, email templates, and a bootstrap admin account (`admin@bharatseo.example` / `ChangeMe@123` — change this immediately after logging in).
 
 If you used Option B, continue to Step 4 below to configure `.env` manually. If you used Option A (the installer), skip ahead to Step 6.
 
@@ -75,7 +75,7 @@ If you used Option B, continue to Step 4 below to configure `.env` manually. If 
        'APP_URL'     => 'https://yourdomain.com',
 
        'DB_HOST'     => 'localhost',
-       'DB_DATABASE' => 'username_bharatai',
+       'DB_DATABASE' => 'username_bharatseo',
        'DB_USERNAME' => 'username_dbuser',
        'DB_PASSWORD' => 'your_db_password',
 
@@ -99,7 +99,7 @@ If you used Option B, continue to Step 4 below to configure `.env` manually. If 
 
 ## Step 5 — Confirm the site loads
 
-Visit `https://yourdomain.com/` in your browser. You should see the BharatAI Business OS marketing homepage.
+Visit `https://yourdomain.com/` in your browser. You should see the BharatSEO marketing homepage.
 
 **If you get a 500 Internal Server Error:**
 - Open **File Manager → storage/logs/** and check the most recent `system-*.log` file for the actual error.
@@ -147,7 +147,7 @@ In **File Manager**, right-click each folder → **Change Permissions** → set 
 
 1. Visit `https://yourdomain.com/auth/login.php`.
 2. Log in with the seeded bootstrap admin account:
-   - Email: `admin@bharatai.example`
+   - Email: `admin@bharatseo.example`
    - Password: `ChangeMe@123`
 3. **Immediately** go to **Settings → My Account** and change this password.
 4. Go to **Admin → AI Providers** and add a real API key (OpenAI, Google Gemini, or Anthropic) so AI-powered features actually work.

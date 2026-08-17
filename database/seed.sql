@@ -1,5 +1,5 @@
 -- =====================================================================
--- BharatAI Business OS - Default Seed Data
+-- BharatSEO - Default Seed Data
 -- Run AFTER schema.sql: mysql -u root -p your_database < database/seed.sql
 --
 -- Contains: roles, permissions, role_permissions matrix, default lead
@@ -285,8 +285,8 @@ WHERE NOT EXISTS (
 
 -- ---------------- Core platform settings ----------------
 INSERT INTO settings (setting_key, setting_value, is_encrypted) VALUES
-('platform_name', 'BharatAI Business OS', 0),
-('platform_support_email', 'support@bharatai.example', 0),
+('platform_name', 'BharatSEO', 0),
+('platform_support_email', 'support@bharatseo.example', 0),
 ('default_currency', 'INR', 0),
 ('default_timezone', 'Asia/Kolkata', 0),
 ('trial_days', '14', 0),
@@ -297,13 +297,24 @@ INSERT INTO settings (setting_key, setting_value, is_encrypted) VALUES
 ON DUPLICATE KEY UPDATE setting_key = settings.setting_key;
 
 -- ---------------- Bootstrap SUPER_ADMIN account ----------------
+-- Rename the pre-BharatSEO bootstrap admin if it is still present. This runs
+-- before the INSERT below so re-importing the seed on an existing install
+-- renames that account rather than creating a second bootstrap admin.
+UPDATE users
+SET email = 'admin@bharatseo.example'
+WHERE email = 'admin@bharatai.example'
+  AND role = 'SUPER_ADMIN'
+  AND NOT EXISTS (
+      SELECT 1 FROM (SELECT 1 FROM users WHERE email = 'admin@bharatseo.example' LIMIT 1) AS already
+  );
+
 -- Default password: ChangeMe@123
 -- SECURITY: log in immediately and change this password. If you install via
 -- install.php you'll set your own admin email/password instead and this
 -- bootstrap row gets replaced automatically.
 INSERT INTO users (uuid, name, email, password_hash, role, status, email_verified_at)
-SELECT UUID(), 'Super Admin', 'admin@bharatai.example',
+SELECT UUID(), 'Super Admin', 'admin@bharatseo.example',
        '$2y$12$c7kCosotqCg2cHb1jlWvU.IEt0./F6CH9dydW660.DbGGrI1BGS6q',
        'SUPER_ADMIN', 'active', NOW()
 FROM (SELECT 1) AS dummy
-WHERE NOT EXISTS (SELECT 1 FROM (SELECT 1 FROM users WHERE email = 'admin@bharatai.example' LIMIT 1) AS existing_admin);
+WHERE NOT EXISTS (SELECT 1 FROM (SELECT 1 FROM users WHERE email = 'admin@bharatseo.example' LIMIT 1) AS existing_admin);

@@ -4,16 +4,12 @@ require_once dirname(__DIR__) . '/app/config/bootstrap.php';
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Forgot Password — BharatAI Business OS</title>
-<link rel="stylesheet" href="<?= asset('css/app.css') ?>">
-<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js" defer></script>
+<?php $pageTitle = 'Forgot Password'; include __DIR__ . '/partials/head.php'; ?>
 </head>
 <body>
 <div class="auth-shell">
     <div class="auth-card">
-        <a href="<?= url() ?>" class="auth-brand"><i data-lucide="sparkles"></i> BharatAI Business OS</a>
+        <a href="<?= url() ?>" class="auth-brand"><i data-lucide="trending-up"></i> BharatSEO</a>
         <h1>Forgot your password?</h1>
         <p class="subtitle">Enter your email and we'll send you a reset link</p>
 
@@ -45,7 +41,7 @@ document.getElementById('forgot-form').addEventListener('submit', async function
     submitBtn.textContent = 'Sending...';
 
     try {
-        const json = await Api.call('' + window.__BASE__ + '/api/auth/forgot-password.php', {
+        const json = await Api.call(appBase() + '/api/auth/forgot-password.php', {
             method: 'POST',
             body: { email: document.getElementById('email').value },
         });

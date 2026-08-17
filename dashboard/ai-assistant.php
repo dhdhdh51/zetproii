@@ -9,20 +9,20 @@ $user = $currentUser;
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI Assistant — BharatAI Business OS</title>
-<link rel="stylesheet" href="<?= asset('css/app.css') ?>">
-<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js" defer></script>
+<title>AI Assistant — BharatSEO</title>
+<?php include dirname(__DIR__) . '/app/views/head-assets.php'; ?>
+<script src="https://unpkg.com/lucide@1.31.0/dist/umd/lucide.js" defer></script>
 <style>
 .chat-shell { display: flex; height: calc(100vh - 64px - 40px); gap: 16px; }
 .chat-sidebar { width: 260px; flex-shrink: 0; overflow-y: auto; }
 .chat-sidebar-item { padding: 10px 12px; border-radius: 8px; font-size: 13.5px; cursor: pointer; margin-bottom: 4px; }
-.chat-sidebar-item:hover, .chat-sidebar-item.active { background: var(--color-bg); }
+.chat-sidebar-item:hover, .chat-sidebar-item.active { background: var(--bg); }
 .chat-main { flex: 1; display: flex; flex-direction: column; }
 .chat-messages { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 12px; }
 .chat-bubble { max-width: 75%; padding: 12px 16px; border-radius: 14px; font-size: 14.5px; line-height: 1.5; white-space: pre-wrap; }
-.chat-bubble.user { background: var(--color-primary); color: #fff; align-self: flex-end; }
-.chat-bubble.assistant { background: var(--color-bg); align-self: flex-start; }
-.chat-input-row { display: flex; gap: 10px; padding-top: 12px; border-top: 1px solid var(--color-border); }
+.chat-bubble.user { background: var(--brand-500); color: #fff; align-self: flex-end; }
+.chat-bubble.assistant { background: var(--bg); align-self: flex-start; }
+.chat-input-row { display: flex; gap: 10px; padding-top: 12px; border-top: 1px solid var(--border); }
 @media (max-width: 800px) { .chat-sidebar { display: none; } }
 </style>
 </head>
@@ -64,11 +64,11 @@ function escapeHtml(str) {
 }
 
 async function loadConversations() {
-    const json = await Api.call('' + window.__BASE__ + '/api/ai/conversations.php?business_id=' + businessId);
+    const json = await Api.call(appBase() + '/api/ai/conversations.php?business_id=' + businessId);
     if (!json.success) return;
     const list = document.getElementById('conversation-list');
     if (json.data.length === 0) {
-        list.innerHTML = '<p style="font-size:12.5px;color:var(--color-text-muted);">No conversations yet.</p>';
+        list.innerHTML = '<p style="font-size:12.5px;color:var(--text-muted);">No conversations yet.</p>';
         return;
     }
     list.innerHTML = json.data.map(c => `<div class="chat-sidebar-item ${c.id === activeConversationId ? 'active' : ''}" onclick="openConversation(${c.id})">${c.title || 'New conversation'}</div>`).join('');
@@ -77,7 +77,7 @@ async function loadConversations() {
 async function openConversation(id) {
     activeConversationId = id;
     loadConversations();
-    const json = await Api.call('' + window.__BASE__ + '/api/ai/messages.php?business_id=' + businessId + '&conversation_id=' + id);
+    const json = await Api.call(appBase() + '/api/ai/messages.php?business_id=' + businessId + '&conversation_id=' + id);
     const box = document.getElementById('chat-messages');
     if (!json.success || json.data.length === 0) {
         box.innerHTML = '<div class="empty-state">Start the conversation below.</div>';
@@ -88,7 +88,7 @@ async function openConversation(id) {
 }
 
 document.getElementById('btn-new-chat').addEventListener('click', async () => {
-    const json = await Api.call('' + window.__BASE__ + '/api/ai/conversations.php', { method: 'POST', body: { business_id: businessId } });
+    const json = await Api.call(appBase() + '/api/ai/conversations.php', { method: 'POST', body: { business_id: businessId } });
     if (json.success) {
         activeConversationId = json.data.id;
         document.getElementById('chat-messages').innerHTML = '<div class="empty-state">Start the conversation below.</div>';
@@ -102,7 +102,7 @@ async function sendMessage() {
     if (!text) return;
 
     if (!activeConversationId) {
-        const json = await Api.call('' + window.__BASE__ + '/api/ai/conversations.php', { method: 'POST', body: { business_id: businessId } });
+        const json = await Api.call(appBase() + '/api/ai/conversations.php', { method: 'POST', body: { business_id: businessId } });
         if (!json.success) { Toast.error(json.message); return; }
         activeConversationId = json.data.id;
     }
@@ -119,7 +119,7 @@ async function sendMessage() {
     box.scrollTop = box.scrollHeight;
 
     try {
-        const json = await Api.call('' + window.__BASE__ + '/api/ai/messages.php', {
+        const json = await Api.call(appBase() + '/api/ai/messages.php', {
             method: 'POST',
             body: { business_id: businessId, conversation_id: activeConversationId, message: text },
         });

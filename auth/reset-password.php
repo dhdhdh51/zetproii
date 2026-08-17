@@ -10,16 +10,12 @@ if ($token === '') {
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Reset Password — BharatAI Business OS</title>
-<link rel="stylesheet" href="<?= asset('css/app.css') ?>">
-<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js" defer></script>
+<?php $pageTitle = 'Reset Password'; include __DIR__ . '/partials/head.php'; ?>
 </head>
 <body>
 <div class="auth-shell">
     <div class="auth-card">
-        <a href="<?= url() ?>" class="auth-brand"><i data-lucide="sparkles"></i> BharatAI Business OS</a>
+        <a href="<?= url() ?>" class="auth-brand"><i data-lucide="trending-up"></i> BharatSEO</a>
         <h1>Set a new password</h1>
         <p class="subtitle">Choose a strong new password for your account</p>
 
@@ -61,7 +57,7 @@ document.getElementById('reset-form').addEventListener('submit', async function 
     submitBtn.textContent = 'Resetting...';
 
     try {
-        const json = await Api.call('' + window.__BASE__ + '/api/auth/reset-password.php', {
+        const json = await Api.call(appBase() + '/api/auth/reset-password.php', {
             method: 'POST',
             body: {
                 token: document.getElementById('token').value,

@@ -1,6 +1,6 @@
 <?php
-$pageTitle = 'Refund Policy — BharatAI Business OS';
-$pageDescription = 'Read the refund policy for BharatAI Business OS subscription plans.';
+$pageTitle = 'Refund Policy — BharatSEO';
+$pageDescription = 'Read the refund policy for BharatSEO subscription plans.';
 $canonicalUrl = rtrim((string) config('app.url'), '/') . '/refund-policy';
 ?>
 <!DOCTYPE html>

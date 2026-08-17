@@ -8,9 +8,9 @@ require_once __DIR__ . '/_init.php';
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI Providers — Admin | BharatAI Business OS</title>
-<link rel="stylesheet" href="<?= asset('css/app.css') ?>">
-<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js" defer></script>
+<title>AI Providers — Admin | BharatSEO</title>
+<?php include dirname(__DIR__) . '/app/views/head-assets.php'; ?>
+<script src="https://unpkg.com/lucide@1.31.0/dist/umd/lucide.js" defer></script>
 </head>
 <body>
 <script>window.__CSRF_TOKEN__ = <?= json_encode(Security::csrfToken()) ?>; window.__BASE__ = <?= json_encode(Url::basePath()) ?>;</script>
@@ -33,7 +33,7 @@ require_once __DIR__ . '/_init.php';
 <script src="<?= asset('js/app.js') ?>"></script>
 <script>
 async function loadProviders() {
-    const json = await Api.call('' + window.__BASE__ + '/api/admin/ai-providers.php');
+    const json = await Api.call(appBase() + '/api/admin/ai-providers.php');
     const container = document.getElementById('providers-container');
     if (!json.success) { container.innerHTML = '<div class="empty-state">Failed to load providers.</div>'; return; }
 
@@ -81,7 +81,7 @@ async function saveProvider(id) {
     const apiKey = document.querySelector(`.provider-api-key[data-provider="${id}"]`).value;
     if (apiKey) payload.api_key = apiKey;
 
-    const json = await Api.call('' + window.__BASE__ + '/api/admin/ai-providers.php', { method: 'POST', body: payload });
+    const json = await Api.call(appBase() + '/api/admin/ai-providers.php', { method: 'POST', body: payload });
     if (json.success) { Toast.success('Provider updated.'); loadProviders(); } else { Toast.error(json.message); }
 }
 

@@ -10,9 +10,9 @@ $appUrl = rtrim((string) config('app.url'), '/');
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI Chatbot — BharatAI Business OS</title>
-<link rel="stylesheet" href="<?= asset('css/app.css') ?>">
-<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js" defer></script>
+<title>AI Chatbot — BharatSEO</title>
+<?php include dirname(__DIR__) . '/app/views/head-assets.php'; ?>
+<script src="https://unpkg.com/lucide@1.31.0/dist/umd/lucide.js" defer></script>
 </head>
 <body>
 <script>window.__CSRF_TOKEN__ = <?= json_encode(Security::csrfToken()) ?>; window.__BASE__ = <?= json_encode(Url::basePath()) ?>;</script>
@@ -46,13 +46,13 @@ $appUrl = rtrim((string) config('app.url'), '/');
 
                 <div class="card">
                     <h3 style="margin-top:0;">Embed on Your Website</h3>
-                    <p style="color:var(--color-text-muted);font-size:14px;">Paste this snippet before the closing <code>&lt;/body&gt;</code> tag of your website.</p>
+                    <p style="color:var(--text-muted);font-size:14px;">Paste this snippet before the closing <code>&lt;/body&gt;</code> tag of your website.</p>
                     <div class="form-group">
                         <textarea id="embed-code" class="form-control" rows="3" readonly style="font-family:monospace;font-size:12.5px;"></textarea>
                     </div>
                     <button class="btn btn-secondary" id="copy-embed-btn"><i data-lucide="copy" style="width:15px;height:15px;"></i> Copy Code</button>
-                    <hr style="margin:20px 0;border-color:var(--color-border);">
-                    <p style="font-size:13px;color:var(--color-text-muted);">Your widget key: <code id="widget-key-display"></code></p>
+                    <hr style="margin:20px 0;border-color:var(--border);">
+                    <p style="font-size:13px;color:var(--text-muted);">Your widget key: <code id="widget-key-display"></code></p>
                 </div>
             </div>
         </div>
@@ -69,7 +69,7 @@ const widgetSrc = <?= json_encode(Url::absolute('public/assets/js/chat-widget.js
 let currentConfig = null;
 
 async function loadConfig() {
-    const json = await Api.call('' + window.__BASE__ + '/api/business/chatbot-config.php?business_id=' + businessId);
+    const json = await Api.call(appBase() + '/api/business/chatbot-config.php?business_id=' + businessId);
     if (!json.success) { Toast.error(json.message); return; }
     currentConfig = json.data;
     document.getElementById('bot_name').value = currentConfig.bot_name;
@@ -97,7 +97,7 @@ document.getElementById('chatbot-form').addEventListener('submit', async functio
         handoff_email: document.getElementById('handoff_email').value,
         is_active: document.getElementById('is_active').checked,
     };
-    const json = await Api.call('' + window.__BASE__ + '/api/business/chatbot-config.php', { method: 'POST', body: payload });
+    const json = await Api.call(appBase() + '/api/business/chatbot-config.php', { method: 'POST', body: payload });
     if (json.success) { Toast.success('Chatbot settings saved.'); loadConfig(); } else { Toast.error(json.message); }
 });
 

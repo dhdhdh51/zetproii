@@ -9,9 +9,9 @@ $user = $currentUser;
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard — BharatAI Business OS</title>
-<link rel="stylesheet" href="<?= asset('css/app.css') ?>">
-<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js" defer></script>
+<title>Dashboard — BharatSEO</title>
+<?php include dirname(__DIR__) . '/app/views/head-assets.php'; ?>
+<script src="https://unpkg.com/lucide@1.31.0/dist/umd/lucide.js" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
 </head>
 <body>
@@ -79,7 +79,7 @@ function widgetCard(title, value, icon) {
 }
 
 async function loadDashboard() {
-    const json = await Api.call('' + window.__BASE__ + '/api/analytics/dashboard.php?business_id=' + businessId);
+    const json = await Api.call(appBase() + '/api/analytics/dashboard.php?business_id=' + businessId);
     if (!json.success) { Toast.error(json.message || 'Failed to load dashboard.'); return; }
     const d = json.data;
     const w = d.widgets;

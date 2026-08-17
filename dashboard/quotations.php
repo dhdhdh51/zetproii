@@ -9,9 +9,9 @@ $user = $currentUser;
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Quotations — BharatAI Business OS</title>
-<link rel="stylesheet" href="<?= asset('css/app.css') ?>">
-<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js" defer></script>
+<title>Quotations — BharatSEO</title>
+<?php include dirname(__DIR__) . '/app/views/head-assets.php'; ?>
+<script src="https://unpkg.com/lucide@1.31.0/dist/umd/lucide.js" defer></script>
 </head>
 <body>
 <script>window.__CSRF_TOKEN__ = <?= json_encode(Security::csrfToken()) ?>; window.__BASE__ = <?= json_encode(Url::basePath()) ?>;</script>
@@ -43,7 +43,7 @@ $user = $currentUser;
 <div class="modal-overlay" id="ai-modal">
     <div class="modal-box">
         <h2>Generate Quote with AI</h2>
-        <p style="font-size:13px;color:var(--color-text-muted);">Uses your actual product/service catalog for pricing.</p>
+        <p style="font-size:13px;color:var(--text-muted);">Uses your actual product/service catalog for pricing.</p>
         <div class="form-group"><label>Customer requirement</label><textarea id="ai-requirement" class="form-control" rows="4"></textarea></div>
         <div style="display:flex;gap:10px;">
             <button class="btn btn-secondary" onclick="document.getElementById('ai-modal').classList.remove('open')">Cancel</button>
@@ -93,7 +93,7 @@ function addItemRow() {
 
 async function load(page = 1) {
     const params = new URLSearchParams({ business_id: businessId, page, search: document.getElementById('f-search').value });
-    const json = await Api.call('' + window.__BASE__ + '/api/business/quotations.php?' + params.toString());
+    const json = await Api.call(appBase() + '/api/business/quotations.php?' + params.toString());
     if (!json.success) { Toast.error(json.message); return; }
     document.getElementById('tbody').innerHTML = json.data.items.length === 0
         ? '<tr><td colspan="6"><div class="empty-state">No quotations yet.</div></td></tr>'
@@ -118,7 +118,7 @@ document.getElementById('ai-submit').addEventListener('click', async () => {
     const requirement = document.getElementById('ai-requirement').value.trim();
     if (!requirement) return;
     Toast.success('Generating with AI...');
-    const json = await Api.call('' + window.__BASE__ + '/api/ai/generate-quote.php', { method: 'POST', body: { business_id: businessId, requirement } });
+    const json = await Api.call(appBase() + '/api/ai/generate-quote.php', { method: 'POST', body: { business_id: businessId, requirement } });
     if (json.success) { Toast.success('Quote generated!'); document.getElementById('ai-modal').classList.remove('open'); load(1); }
     else { Toast.error(json.message || 'AI generation failed.'); }
 });
@@ -135,7 +135,7 @@ document.getElementById('manual-form').addEventListener('submit', async (e) => {
             tax_percent: row.querySelector('.item-tax').value,
         });
     });
-    const json = await Api.call('' + window.__BASE__ + '/api/business/quotations.php', { method: 'POST', body: { business_id: businessId, items, notes: document.getElementById('m-notes').value } });
+    const json = await Api.call(appBase() + '/api/business/quotations.php', { method: 'POST', body: { business_id: businessId, items, notes: document.getElementById('m-notes').value } });
     if (json.success) { Toast.success('Quotation created.'); document.getElementById('manual-modal').classList.remove('open'); load(1); }
     else { Toast.error(json.message); }
 });

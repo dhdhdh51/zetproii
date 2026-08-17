@@ -1,26 +1,39 @@
 <?php
-/** @var array $user */
-/** @var string $pageTitle */
+/**
+ * Dashboard topbar. Layout and colour come from app.css (.topbar and friends)
+ * rather than inline styles, so a theme change needs no template edits.
+ *
+ * @var array  $user
+ * @var string $pageTitle
+ */
+$initial = strtoupper(substr((string) ($user['name'] ?? 'U'), 0, 1));
 ?>
 <header class="topbar">
     <div class="topbar-left">
-        <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Toggle menu"><i data-lucide="menu"></i></button>
-        <h2 style="font-size:17px;margin:0;"><?= View::e($pageTitle ?? 'Dashboard') ?></h2>
+        <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Toggle menu" aria-expanded="false">
+            <i data-lucide="menu"></i>
+        </button>
+        <h2><?= View::e($pageTitle ?? 'Dashboard') ?></h2>
     </div>
-    <div style="display:flex;align-items:center;gap:12px;">
-        <button class="theme-toggle" aria-label="Toggle theme"><i data-lucide="moon"></i></button>
+
+    <div class="topbar-right">
+        <button class="theme-toggle" type="button" aria-label="Switch between light and dark theme">
+            <i data-lucide="sun-moon"></i>
+        </button>
+
         <div id="business-switcher" style="position:relative;"></div>
-        <div style="display:flex;align-items:center;gap:8px;">
-            <div style="width:34px;height:34px;border-radius:50%;background:var(--color-primary);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;">
-                <?= View::e(strtoupper(substr($user['name'] ?? 'U', 0, 1))) ?>
-            </div>
-            <button id="logout-btn" class="btn btn-secondary" style="width:auto;padding:8px 14px;font-size:13px;">Log Out</button>
-        </div>
+
+        <span class="topbar-avatar" title="<?= View::e($user['name'] ?? '') ?>"><?= View::e($initial) ?></span>
+
+        <button id="logout-btn" class="btn btn-secondary btn-sm">
+            <i data-lucide="log-out"></i> Log out
+        </button>
     </div>
 </header>
+
 <script>
 document.getElementById('logout-btn')?.addEventListener('click', async function () {
-    await Api.call('' + window.__BASE__ + '/api/auth/logout.php', { method: 'POST' });
-    window.location.href = '' + window.__BASE__ + '/auth/login.php';
+    await Api.call(appBase() + '/api/auth/logout.php', { method: 'POST' });
+    window.location.href = appBase() + '/auth/login.php';
 });
 </script>

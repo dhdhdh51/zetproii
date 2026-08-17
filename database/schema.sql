@@ -1,8 +1,8 @@
 -- =====================================================================
--- BharatAI Business OS - Full MySQL Schema
+-- BharatSEO - Full MySQL Schema
 -- Engine: InnoDB | Charset: utf8mb4 | Collation: utf8mb4_unicode_ci
 --
--- Import: mysql -u root -p bharatai < database/schema.sql
+-- Import: mysql -u root -p bharatseo < database/schema.sql
 --
 -- Design notes:
 --   - Every business-owned table carries business_id with FK + index.

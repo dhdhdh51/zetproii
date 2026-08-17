@@ -1,4 +1,4 @@
-# Hosting Guide — BharatAI Business OS
+# Hosting Guide — BharatSEO
 
 > **Configuration file:** this project reads its settings from `env.php` (a PHP
 > file returning an array) in preference to a plain `.env`. Prefer `env.php` —
@@ -9,7 +9,7 @@
 > See `docs/CPANEL_HOSTING.md` Step 4 for the exact format.
 
 
-This single guide covers **every common way to host** BharatAI Business OS. The app is plain PHP 8.2+ and MySQL 8+/MariaDB 10.5+ with no build step and no Composer/npm install required in production — so it runs anywhere PHP and MySQL run.
+This single guide covers **every common way to host** BharatSEO. The app is plain PHP 8.2+ and MySQL 8+/MariaDB 10.5+ with no build step and no Composer/npm install required in production — so it runs anywhere PHP and MySQL run.
 
 Pick the section that matches your hosting situation:
 
@@ -33,7 +33,7 @@ Pick the section that matches your hosting situation:
 The most common target for this app — zero terminal access required.
 
 1. **Create the database.**
-   cPanel → **MySQL® Databases** → create a database (e.g. `user_bharatai`) and a database user with **all privileges** on it. Note the DB name, username, password, and host (almost always `localhost`).
+   cPanel → **MySQL® Databases** → create a database (e.g. `user_bharatseo`) and a database user with **all privileges** on it. Note the DB name, username, password, and host (almost always `localhost`).
 
 2. **Upload the files.**
    Zip the project locally (exclude `.git/`), then in cPanel → **File Manager**, upload and extract the zip into the document root of the domain/subdomain you want to use (e.g. `public_html/` for the primary domain, or `public_html/appsubdomain/` for an addon domain). The project root — the folder containing `.htaccess`, `app/`, `public/`, etc. — **must be** the document root itself, not nested one level deeper.
@@ -71,7 +71,7 @@ The most common target for this app — zero terminal access required.
    `storage/` (and its `logs`, `uploads`, `cache`, `sessions` subfolders) and `public/uploads/` need to be writable by the web server. `755` is normally sufficient on cPanel; avoid `777`.
 
 8. **Log in and lock things down.**
-   Go to `/auth/login.php`, log in with the seeded admin (`admin@bharatai.example` / `ChangeMe@123`), and immediately change the password from **Settings → My Account**. Then go to **Admin → AI Providers** and add a real API key so AI features work.
+   Go to `/auth/login.php`, log in with the seeded admin (`admin@bharatseo.example` / `ChangeMe@123`), and immediately change the password from **Settings → My Account**. Then go to **Admin → AI Providers** and add a real API key so AI features work.
 
 ---
 
@@ -106,40 +106,40 @@ sudo systemctl enable apache2 mysql
 
 **Database:**
 ```bash
-sudo mysql -e "CREATE DATABASE bharatai CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
-sudo mysql -e "CREATE USER 'bharatai'@'localhost' IDENTIFIED BY 'CHANGE_ME_STRONG_PASSWORD';"
-sudo mysql -e "GRANT ALL PRIVILEGES ON bharatai.* TO 'bharatai'@'localhost'; FLUSH PRIVILEGES;"
+sudo mysql -e "CREATE DATABASE bharatseo CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+sudo mysql -e "CREATE USER 'bharatseo'@'localhost' IDENTIFIED BY 'CHANGE_ME_STRONG_PASSWORD';"
+sudo mysql -e "GRANT ALL PRIVILEGES ON bharatseo.* TO 'bharatseo'@'localhost'; FLUSH PRIVILEGES;"
 ```
 
 **Deploy the code:**
 ```bash
-sudo mkdir -p /var/www/bharatai
-# upload your project files into /var/www/bharatai (git clone, scp, or rsync)
-cd /var/www/bharatai
+sudo mkdir -p /var/www/bharatseo
+# upload your project files into /var/www/bharatseo (git clone, scp, or rsync)
+cd /var/www/bharatseo
 cp .env.example .env
 php -r "echo bin2hex(random_bytes(32));"   # copy into APP_KEY in .env
 nano .env   # fill in DB credentials, APP_URL, APP_ENV=production, APP_DEBUG=false
 
-mysql -u bharatai -p bharatai < database/schema.sql
-mysql -u bharatai -p bharatai < database/seed.sql
+mysql -u bharatseo -p bharatseo < database/schema.sql
+mysql -u bharatseo -p bharatseo < database/seed.sql
 ```
 
-**VirtualHost** (`/etc/apache2/sites-available/bharatai.conf`):
+**VirtualHost** (`/etc/apache2/sites-available/bharatseo.conf`):
 ```apache
 <VirtualHost *:80>
     ServerName yourdomain.com
     ServerAlias www.yourdomain.com
-    DocumentRoot /var/www/bharatai
-    <Directory /var/www/bharatai>
+    DocumentRoot /var/www/bharatseo
+    <Directory /var/www/bharatseo>
         AllowOverride All
         Require all granted
     </Directory>
-    ErrorLog ${APACHE_LOG_DIR}/bharatai_error.log
-    CustomLog ${APACHE_LOG_DIR}/bharatai_access.log combined
+    ErrorLog ${APACHE_LOG_DIR}/bharatseo_error.log
+    CustomLog ${APACHE_LOG_DIR}/bharatseo_access.log combined
 </VirtualHost>
 ```
 ```bash
-sudo a2ensite bharatai.conf
+sudo a2ensite bharatseo.conf
 sudo a2dissite 000-default.conf
 sudo systemctl reload apache2
 ```
@@ -153,8 +153,8 @@ After this succeeds, set `SESSION_SECURE_COOKIE=true` in `.env`.
 
 **Permissions:**
 ```bash
-sudo chown -R www-data:www-data /var/www/bharatai/storage /var/www/bharatai/public/uploads
-sudo chmod -R 755 /var/www/bharatai/storage /var/www/bharatai/public/uploads
+sudo chown -R www-data:www-data /var/www/bharatseo/storage /var/www/bharatseo/public/uploads
+sudo chmod -R 755 /var/www/bharatseo/storage /var/www/bharatseo/public/uploads
 ```
 
 **Cron** (as the same user Apache runs as, or root — the scripts only need PHP CLI + DB access):
@@ -162,12 +162,12 @@ sudo chmod -R 755 /var/www/bharatai/storage /var/www/bharatai/public/uploads
 sudo crontab -e
 ```
 ```
-*/15 * * * * php /var/www/bharatai/cron/run_automations.php
-*/5  * * * * php /var/www/bharatai/cron/send_scheduled_emails.php
-*/10 * * * * php /var/www/bharatai/cron/process_webhooks.php
-*/15 * * * * php /var/www/bharatai/cron/process_ai_jobs.php
-0    2 * * * php /var/www/bharatai/cron/cleanup_logs.php
-0    3 * * * php /var/www/bharatai/cron/cleanup_sessions.php
+*/15 * * * * php /var/www/bharatseo/cron/run_automations.php
+*/5  * * * * php /var/www/bharatseo/cron/send_scheduled_emails.php
+*/10 * * * * php /var/www/bharatseo/cron/process_webhooks.php
+*/15 * * * * php /var/www/bharatseo/cron/process_ai_jobs.php
+0    2 * * * php /var/www/bharatseo/cron/cleanup_logs.php
+0    3 * * * php /var/www/bharatseo/cron/cleanup_sessions.php
 ```
 
 ---
@@ -184,19 +184,19 @@ sudo mysql_secure_installation   # follow prompts to set root password, remove t
 
 **Database:**
 ```bash
-sudo mysql -u root -p -e "CREATE DATABASE bharatai CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
-sudo mysql -u root -p -e "CREATE USER 'bharatai'@'localhost' IDENTIFIED BY 'CHANGE_ME_STRONG_PASSWORD';"
-sudo mysql -u root -p -e "GRANT ALL PRIVILEGES ON bharatai.* TO 'bharatai'@'localhost'; FLUSH PRIVILEGES;"
+sudo mysql -u root -p -e "CREATE DATABASE bharatseo CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+sudo mysql -u root -p -e "CREATE USER 'bharatseo'@'localhost' IDENTIFIED BY 'CHANGE_ME_STRONG_PASSWORD';"
+sudo mysql -u root -p -e "GRANT ALL PRIVILEGES ON bharatseo.* TO 'bharatseo'@'localhost'; FLUSH PRIVILEGES;"
 ```
 
-**Deploy code to** `/var/www/bharatai` (same as the Ubuntu steps: upload, `.env`, import schema/seed).
+**Deploy code to** `/var/www/bharatseo` (same as the Ubuntu steps: upload, `.env`, import schema/seed).
 
-**Apache vhost** (`/etc/httpd/conf.d/bharatai.conf`):
+**Apache vhost** (`/etc/httpd/conf.d/bharatseo.conf`):
 ```apache
 <VirtualHost *:80>
     ServerName yourdomain.com
-    DocumentRoot /var/www/bharatai
-    <Directory /var/www/bharatai>
+    DocumentRoot /var/www/bharatseo
+    <Directory /var/www/bharatseo>
         AllowOverride All
         Require all granted
     </Directory>
@@ -208,9 +208,9 @@ sudo systemctl restart httpd
 
 **SELinux** (enabled by default on RHEL-family distros) — allow Apache to write to storage/uploads:
 ```bash
-sudo semanage fcontext -a -t httpd_sys_rw_content_t "/var/www/bharatai/storage(/.*)?"
-sudo semanage fcontext -a -t httpd_sys_rw_content_t "/var/www/bharatai/public/uploads(/.*)?"
-sudo restorecon -Rv /var/www/bharatai/storage /var/www/bharatai/public/uploads
+sudo semanage fcontext -a -t httpd_sys_rw_content_t "/var/www/bharatseo/storage(/.*)?"
+sudo semanage fcontext -a -t httpd_sys_rw_content_t "/var/www/bharatseo/public/uploads(/.*)?"
+sudo restorecon -Rv /var/www/bharatseo/storage /var/www/bharatseo/public/uploads
 ```
 
 **Firewall:**
@@ -238,12 +238,12 @@ Since this app has no front controller framework (routing is handled by `.htacce
 sudo apt install -y nginx php8.2-fpm php8.2-mysql php8.2-curl php8.2-mbstring php8.2-fileinfo
 ```
 
-**Site config** (`/etc/nginx/sites-available/bharatai`):
+**Site config** (`/etc/nginx/sites-available/bharatseo`):
 ```nginx
 server {
     listen 80;
     server_name yourdomain.com www.yourdomain.com;
-    root /var/www/bharatai;
+    root /var/www/bharatseo;
     index index.php;
 
     # Block direct access to sensitive paths
@@ -277,7 +277,7 @@ server {
 }
 ```
 ```bash
-sudo ln -s /etc/nginx/sites-available/bharatai /etc/nginx/sites-enabled/
+sudo ln -s /etc/nginx/sites-available/bharatseo /etc/nginx/sites-enabled/
 sudo nginx -t && sudo systemctl reload nginx
 ```
 
@@ -351,8 +351,8 @@ services:
     image: mariadb:11
     environment:
       MYSQL_ROOT_PASSWORD: change_me
-      MYSQL_DATABASE: bharatai
-      MYSQL_USER: bharatai
+      MYSQL_DATABASE: bharatseo
+      MYSQL_USER: bharatseo
       MYSQL_PASSWORD: change_me_too
     volumes:
       - db_data:/var/lib/mysql
@@ -427,7 +427,7 @@ If CLI cron isn't available on your host, every script also accepts `?key=YOUR_C
 
 - [ ] `.env` has `APP_ENV=production` and `APP_DEBUG=false`
 - [ ] `APP_KEY` is set and backed up securely
-- [ ] Default admin password (`admin@bharatai.example` / `ChangeMe@123`) has been changed
+- [ ] Default admin password (`admin@bharatseo.example` / `ChangeMe@123`) has been changed
 - [ ] At least one AI provider is configured in **Admin → AI Providers** with a real API key
 - [ ] SMTP is configured in **Admin → Email/SMTP Settings** (check `email_logs` / **Admin → System Logs** if emails don't arrive)
 - [ ] Cron jobs are installed and `cron_logs` shows recent successful runs

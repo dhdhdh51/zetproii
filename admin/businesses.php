@@ -8,9 +8,9 @@ require_once __DIR__ . '/_init.php';
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Businesses — Admin | BharatAI Business OS</title>
-<link rel="stylesheet" href="<?= asset('css/app.css') ?>">
-<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js" defer></script>
+<title>Businesses — Admin | BharatSEO</title>
+<?php include dirname(__DIR__) . '/app/views/head-assets.php'; ?>
+<script src="https://unpkg.com/lucide@1.31.0/dist/umd/lucide.js" defer></script>
 </head>
 <body>
 <script>window.__CSRF_TOKEN__ = <?= json_encode(Security::csrfToken()) ?>; window.__BASE__ = <?= json_encode(Url::basePath()) ?>;</script>
@@ -50,7 +50,7 @@ function statusBadge(s) {
 
 async function loadBusinesses(page = 1) {
     const params = new URLSearchParams({ page, search: document.getElementById('f-search').value, status: document.getElementById('f-status').value });
-    const json = await Api.call('' + window.__BASE__ + '/api/admin/businesses.php?' + params.toString());
+    const json = await Api.call(appBase() + '/api/admin/businesses.php?' + params.toString());
     if (!json.success) { Toast.error(json.message); return; }
     const tbody = document.getElementById('biz-tbody');
     tbody.innerHTML = json.data.items.length === 0
@@ -58,7 +58,7 @@ async function loadBusinesses(page = 1) {
         : json.data.items.map(b => `
         <tr>
             <td><strong>${b.name}</strong></td>
-            <td>${b.owner_name || '-'}<br><small style="color:var(--color-text-muted);">${b.owner_email || ''}</small></td>
+            <td>${b.owner_name || '-'}<br><small style="color:var(--text-muted);">${b.owner_email || ''}</small></td>
             <td>${b.plan_name || '-'}</td>
             <td>${statusBadge(b.status)}</td>
             <td>${new Date(b.created_at).toLocaleDateString()}</td>
@@ -80,7 +80,7 @@ async function loadBusinesses(page = 1) {
 
 async function setStatus(id, status) {
     if (!status) return;
-    const json = await Api.call('' + window.__BASE__ + '/api/admin/businesses.php', { method: 'POST', body: { id, status } });
+    const json = await Api.call(appBase() + '/api/admin/businesses.php', { method: 'POST', body: { id, status } });
     if (json.success) { Toast.success('Business updated.'); loadBusinesses(); } else { Toast.error(json.message); }
 }
 

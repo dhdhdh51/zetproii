@@ -30,24 +30,24 @@ $plans = Database::fetchAll("SELECT * FROM plans WHERE is_active = 1 ORDER BY so
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Welcome — Set Up Your Business | BharatAI Business OS</title>
-<link rel="stylesheet" href="<?= asset('css/app.css') ?>">
-<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js" defer></script>
+<title>Welcome — Set Up Your Business | BharatSEO</title>
+<?php include dirname(__DIR__) . '/app/views/head-assets.php'; ?>
+<script src="https://unpkg.com/lucide@1.31.0/dist/umd/lucide.js" defer></script>
 <style>
 .wizard-shell { max-width: 640px; margin: 40px auto; padding: 0 20px; }
 .wizard-steps { display: flex; gap: 6px; margin-bottom: 28px; }
-.wizard-steps .dot { flex: 1; height: 6px; border-radius: 999px; background: var(--color-border); }
-.wizard-steps .dot.active { background: var(--color-primary); }
-.wizard-card { background: var(--color-surface); border-radius: 16px; padding: 32px; box-shadow: var(--shadow); }
-.day-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--color-border); }
+.wizard-steps .dot { flex: 1; height: 6px; border-radius: 999px; background: var(--border); }
+.wizard-steps .dot.active { background: var(--brand-500); }
+.wizard-card { background: var(--surface); border-radius: 16px; padding: 32px; box-shadow: var(--shadow); }
+.day-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border); }
 .day-row label.day-name { width: 100px; font-weight: 600; font-size: 14px; }
-.faq-row { border: 1px solid var(--color-border); border-radius: 10px; padding: 14px; margin-bottom: 12px; }
+.faq-row { border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 12px; }
 </style>
 </head>
 <body>
 <script>window.__CSRF_TOKEN__ = <?= json_encode(Security::csrfToken()) ?>; window.__BASE__ = <?= json_encode(Url::basePath()) ?>;</script>
 <div class="wizard-shell">
-    <a href="<?= url() ?>" class="auth-brand"><i data-lucide="sparkles"></i> BharatAI Business OS</a>
+    <a href="<?= url() ?>" class="auth-brand"><i data-lucide="trending-up"></i> BharatSEO</a>
     <div class="wizard-steps" id="wizard-steps"></div>
     <div class="wizard-card" id="wizard-content"></div>
 </div>
@@ -75,7 +75,7 @@ function renderSteps() {
 
 async function ensureBusiness(name) {
     if (state.businessId) return state.businessId;
-    const json = await Api.call('' + window.__BASE__ + '/api/business/create.php', { method: 'POST', body: { name } });
+    const json = await Api.call(appBase() + '/api/business/create.php', { method: 'POST', body: { name } });
     if (!json.success) { Toast.error(json.message); throw new Error(json.message); }
     state.businessId = json.data.id;
     state.business = json.data;
@@ -84,7 +84,7 @@ async function ensureBusiness(name) {
 
 async function saveStep(step, fields) {
     await ensureBusiness(fields.name || state.business?.name || (document.getElementById('biz_name')?.value) || 'My Business');
-    const json = await Api.call('' + window.__BASE__ + '/api/business/onboarding.php', {
+    const json = await Api.call(appBase() + '/api/business/onboarding.php', {
         method: 'POST',
         body: { business_id: state.businessId, step, fields },
     });
@@ -174,7 +174,7 @@ function renderStep() {
             <p class="subtitle">Start free. Upgrade anytime.</p>
             <div style="display:flex;flex-direction:column;gap:10px;">
                 ${state.plans.map(p => `
-                    <label style="display:flex;align-items:center;justify-content:space-between;border:1px solid var(--color-border);border-radius:10px;padding:14px;cursor:pointer;">
+                    <label style="display:flex;align-items:center;justify-content:space-between;border:1px solid var(--border);border-radius:10px;padding:14px;cursor:pointer;">
                         <span><input type="radio" name="plan" value="${p.slug}" ${p.slug === 'free' ? 'checked' : ''}> <strong>${p.name}</strong></span>
                         <span>${Number(p.price_monthly) === 0 ? 'Free' : '₹' + Number(p.price_monthly).toLocaleString() + '/mo'}</span>
                     </label>
@@ -235,7 +235,7 @@ async function nextFromStep5() {
 
 async function nextFromStep6() {
     const tone = document.getElementById('ai_tone').value;
-    await Api.call('' + window.__BASE__ + '/api/business/settings-save.php', {
+    await Api.call(appBase() + '/api/business/settings-save.php', {
         method: 'POST',
         body: { business_id: state.businessId, settings: { ai_default_tone: tone } },
     });
@@ -246,7 +246,7 @@ async function nextFromStep6() {
 async function finishOnboarding() {
     const planSlug = document.querySelector('input[name="plan"]:checked')?.value || 'free';
     await saveStep(7, { plan: planSlug });
-    window.location.href = '' + window.__BASE__ + '/dashboard/index.php';
+    window.location.href = appBase() + '/dashboard/index.php';
 }
 
 function skip() {

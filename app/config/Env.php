@@ -31,7 +31,7 @@ final class Env
 
         $values = require $path;
         if (!is_array($values)) {
-            error_log("[BharatAI] {$path} must return an array of config values");
+            error_log("[BharatSEO] {$path} must return an array of config values");
             return;
         }
 
@@ -67,7 +67,7 @@ final class Env
         if (!is_file($path)) {
             // Only a problem if nothing else supplied config either.
             if (!self::$haveConfig && (getenv('APP_ENV') ?: 'production') === 'production') {
-                error_log("[BharatAI] No configuration found (looked for env.php and {$path})");
+                error_log("[BharatSEO] No configuration found (looked for env.php and {$path})");
             }
             return;
         }

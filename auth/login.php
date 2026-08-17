@@ -10,16 +10,12 @@ if (!empty($_SESSION['user_id'])) {
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Log In — BharatAI Business OS</title>
-<link rel="stylesheet" href="<?= asset('css/app.css') ?>">
-<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js" defer></script>
+<?php $pageTitle = 'Log In'; include __DIR__ . '/partials/head.php'; ?>
 </head>
 <body>
 <div class="auth-shell">
     <div class="auth-card">
-        <a href="<?= url() ?>" class="auth-brand"><i data-lucide="sparkles"></i> BharatAI Business OS</a>
+        <a href="<?= url() ?>" class="auth-brand"><i data-lucide="trending-up"></i> BharatSEO</a>
         <h1>Welcome back</h1>
         <p class="subtitle">Log in to your account to continue</p>
 

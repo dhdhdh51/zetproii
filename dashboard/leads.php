@@ -9,9 +9,9 @@ $user = $currentUser;
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Leads — BharatAI Business OS</title>
-<link rel="stylesheet" href="<?= asset('css/app.css') ?>">
-<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js" defer></script>
+<title>Leads — BharatSEO</title>
+<?php include dirname(__DIR__) . '/app/views/head-assets.php'; ?>
+<script src="https://unpkg.com/lucide@1.31.0/dist/umd/lucide.js" defer></script>
 </head>
 <body>
 <script>window.__CSRF_TOKEN__ = <?= json_encode(Security::csrfToken()) ?>; window.__BASE__ = <?= json_encode(Url::basePath()) ?>;</script>
@@ -101,7 +101,7 @@ let meta = { statuses: [], sources: [], tags: [], team_members: [] };
 let currentPage = 1;
 
 async function loadMeta() {
-    const json = await Api.call('' + window.__BASE__ + '/api/leads/meta.php?business_id=' + businessId);
+    const json = await Api.call(appBase() + '/api/leads/meta.php?business_id=' + businessId);
     if (!json.success) return;
     meta = json.data;
     const statusOpts = meta.statuses.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
@@ -134,7 +134,7 @@ async function loadLeads(page = 1) {
         date_from: document.getElementById('f-date-from').value,
         date_to: document.getElementById('f-date-to').value,
     });
-    const json = await Api.call('' + window.__BASE__ + '/api/leads/index.php?' + params.toString());
+    const json = await Api.call(appBase() + '/api/leads/index.php?' + params.toString());
     if (!json.success) { Toast.error(json.message); return; }
 
     const tbody = document.getElementById('leads-tbody');
@@ -143,7 +143,7 @@ async function loadLeads(page = 1) {
     } else {
         tbody.innerHTML = json.data.items.map(l => `
             <tr>
-                <td><a href="#" onclick="openLeadDetail(${l.id});return false;"><strong>${l.name}</strong></a><br><span style="font-size:12px;color:var(--color-text-muted)">${l.email || l.phone || ''}</span></td>
+                <td><a href="#" onclick="openLeadDetail(${l.id});return false;"><strong>${l.name}</strong></a><br><span style="font-size:12px;color:var(--text-muted)">${l.email || l.phone || ''}</span></td>
                 <td>${l.company || '-'}</td>
                 <td>${statusBadge(l)}</td>
                 <td>${priorityBadge(l.priority)}</td>
@@ -219,7 +219,7 @@ document.getElementById('lead-form').addEventListener('submit', async function (
         budget: document.getElementById('lead-budget').value,
     };
 
-    const url = id ? '' + window.__BASE__ + '/api/leads/detail.php' : '' + window.__BASE__ + '/api/leads/index.php';
+    const url = id ? appBase() + '/api/leads/detail.php' : appBase() + '/api/leads/index.php';
     if (id) payload.id = id;
     const json = await Api.call(url, { method: id ? 'PUT' : 'POST', body: payload });
     if (json.success) {
@@ -232,12 +232,12 @@ document.getElementById('lead-form').addEventListener('submit', async function (
 });
 
 async function openLeadDetail(id) {
-    const json = await Api.call('' + window.__BASE__ + '/api/leads/detail.php?business_id=' + businessId + '&id=' + id);
+    const json = await Api.call(appBase() + '/api/leads/detail.php?business_id=' + businessId + '&id=' + id);
     if (!json.success) { Toast.error(json.message); return; }
     const l = json.data;
     document.getElementById('lead-detail-content').innerHTML = `
         <h2>${l.name}</h2>
-        <p style="color:var(--color-text-muted);">${l.email || ''} ${l.phone ? '· ' + l.phone : ''}</p>
+        <p style="color:var(--text-muted);">${l.email || ''} ${l.phone ? '· ' + l.phone : ''}</p>
         <div style="display:flex;gap:8px;margin:10px 0;">${statusBadge(l)}${priorityBadge(l.priority)}</div>
         <p><strong>Requirement:</strong> ${l.requirement || '-'}</p>
         <p><strong>Budget:</strong> ${l.budget || '-'}</p>
@@ -246,11 +246,11 @@ async function openLeadDetail(id) {
             <button class="btn btn-secondary" style="width:auto;" onclick="convertLead(${l.id})">Convert to Customer</button>
         </div>
         <h3 style="font-size:15px;">Notes</h3>
-        <div id="lead-notes-list">${(l.notes || []).map(n => `<div class="card" style="margin-bottom:8px;padding:12px;"><p style="margin:0;font-size:14px;">${n.note}</p><small style="color:var(--color-text-muted);">${n.user_name || ''} · ${new Date(n.created_at).toLocaleString()}</small></div>`).join('') || '<p style="color:var(--color-text-muted);font-size:14px;">No notes yet.</p>'}</div>
+        <div id="lead-notes-list">${(l.notes || []).map(n => `<div class="card" style="margin-bottom:8px;padding:12px;"><p style="margin:0;font-size:14px;">${n.note}</p><small style="color:var(--text-muted);">${n.user_name || ''} · ${new Date(n.created_at).toLocaleString()}</small></div>`).join('') || '<p style="color:var(--text-muted);font-size:14px;">No notes yet.</p>'}</div>
         <div class="form-group" style="margin-top:10px;"><textarea id="new-note-text" class="form-control" placeholder="Add a note..." rows="2"></textarea></div>
         <button class="btn btn-secondary" onclick="addLeadNote(${l.id})">Add Note</button>
         <h3 style="font-size:15px;margin-top:16px;">Activity</h3>
-        <div>${(l.activities || []).map(a => `<div style="padding:6px 0;font-size:13px;border-bottom:1px solid var(--color-border);">${a.description || a.activity_type} <span style="color:var(--color-text-muted);">· ${new Date(a.created_at).toLocaleString()}</span></div>`).join('') || '<p style="color:var(--color-text-muted);font-size:14px;">No activity yet.</p>'}</div>
+        <div>${(l.activities || []).map(a => `<div style="padding:6px 0;font-size:13px;border-bottom:1px solid var(--border);">${a.description || a.activity_type} <span style="color:var(--text-muted);">· ${new Date(a.created_at).toLocaleString()}</span></div>`).join('') || '<p style="color:var(--text-muted);font-size:14px;">No activity yet.</p>'}</div>
         <button class="btn btn-secondary" style="margin-top:16px;" onclick="document.getElementById('lead-detail-modal').classList.remove('open')">Close</button>
     `;
     document.getElementById('lead-detail-modal').classList.add('open');
@@ -260,19 +260,19 @@ async function openLeadDetail(id) {
 async function addLeadNote(leadId) {
     const note = document.getElementById('new-note-text').value.trim();
     if (!note) return;
-    const json = await Api.call('' + window.__BASE__ + '/api/leads/notes.php', { method: 'POST', body: { business_id: businessId, lead_id: leadId, note } });
+    const json = await Api.call(appBase() + '/api/leads/notes.php', { method: 'POST', body: { business_id: businessId, lead_id: leadId, note } });
     if (json.success) { Toast.success('Note added.'); openLeadDetail(leadId); } else { Toast.error(json.message); }
 }
 
 async function convertLead(leadId) {
-    const json = await Api.call('' + window.__BASE__ + '/api/leads/convert.php', { method: 'POST', body: { business_id: businessId, lead_id: leadId } });
+    const json = await Api.call(appBase() + '/api/leads/convert.php', { method: 'POST', body: { business_id: businessId, lead_id: leadId } });
     if (json.success) { Toast.success('Converted to customer.'); document.getElementById('lead-detail-modal').classList.remove('open'); loadLeads(currentPage); }
     else { Toast.error(json.message); }
 }
 
 async function qualifyLead(leadId) {
     Toast.success('Running AI qualification...');
-    const json = await Api.call('' + window.__BASE__ + '/api/ai/qualify-lead.php', { method: 'POST', body: { business_id: businessId, lead_id: leadId } });
+    const json = await Api.call(appBase() + '/api/ai/qualify-lead.php', { method: 'POST', body: { business_id: businessId, lead_id: leadId } });
     if (json.success) { Toast.success('Lead qualified by AI.'); openLeadDetail(leadId); loadLeads(currentPage); }
     else { Toast.error(json.message || 'AI qualification failed.'); }
 }

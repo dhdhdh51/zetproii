@@ -9,9 +9,9 @@ $user = $currentUser;
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Customers — BharatAI Business OS</title>
-<link rel="stylesheet" href="<?= asset('css/app.css') ?>">
-<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js" defer></script>
+<title>Customers — BharatSEO</title>
+<?php include dirname(__DIR__) . '/app/views/head-assets.php'; ?>
+<script src="https://unpkg.com/lucide@1.31.0/dist/umd/lucide.js" defer></script>
 </head>
 <body>
 <script>window.__CSRF_TOKEN__ = <?= json_encode(Security::csrfToken()) ?>; window.__BASE__ = <?= json_encode(Url::basePath()) ?>;</script>
@@ -77,7 +77,7 @@ let currentPage = 1;
 async function loadCustomers(page = 1) {
     currentPage = page;
     const params = new URLSearchParams({ business_id: businessId, page, search: document.getElementById('f-search').value });
-    const json = await Api.call('' + window.__BASE__ + '/api/crm/customers.php?' + params.toString());
+    const json = await Api.call(appBase() + '/api/crm/customers.php?' + params.toString());
     if (!json.success) { Toast.error(json.message); return; }
 
     const tbody = document.getElementById('customers-tbody');
@@ -144,7 +144,7 @@ document.getElementById('customer-form').addEventListener('submit', async functi
         state: document.getElementById('c-state').value,
         address: document.getElementById('c-address').value,
     };
-    const url = id ? '' + window.__BASE__ + '/api/crm/customer-detail.php' : '' + window.__BASE__ + '/api/crm/customers.php';
+    const url = id ? appBase() + '/api/crm/customer-detail.php' : appBase() + '/api/crm/customers.php';
     if (id) payload.id = id;
     const json = await Api.call(url, { method: id ? 'PUT' : 'POST', body: payload });
     if (json.success) { Toast.success(json.message); closeCustomerModal(); loadCustomers(currentPage); }
@@ -152,23 +152,23 @@ document.getElementById('customer-form').addEventListener('submit', async functi
 });
 
 async function openCustomerDetail(id) {
-    const json = await Api.call('' + window.__BASE__ + '/api/crm/customer-detail.php?business_id=' + businessId + '&id=' + id);
+    const json = await Api.call(appBase() + '/api/crm/customer-detail.php?business_id=' + businessId + '&id=' + id);
     if (!json.success) { Toast.error(json.message); return; }
     const c = json.data;
     document.getElementById('customer-detail-content').innerHTML = `
         <h2>${c.name}</h2>
-        <p style="color:var(--color-text-muted);">${c.email || ''} ${c.phone ? '· ' + c.phone : ''}</p>
+        <p style="color:var(--text-muted);">${c.email || ''} ${c.phone ? '· ' + c.phone : ''}</p>
         <div class="grid grid-3" style="margin:14px 0;">
             <div class="card"><div class="card-title">Proposals</div><p class="card-value">${c.proposals.length}</p></div>
             <div class="card"><div class="card-title">Quotations</div><p class="card-value">${c.quotations.length}</p></div>
             <div class="card"><div class="card-title">Invoices</div><p class="card-value">${c.invoices.length}</p></div>
         </div>
         <h3 style="font-size:15px;">Notes</h3>
-        <div id="customer-notes-list">${(c.notes || []).map(n => `<div class="card" style="margin-bottom:8px;padding:12px;"><p style="margin:0;font-size:14px;">${n.note}</p><small style="color:var(--color-text-muted);">${n.user_name || ''} · ${new Date(n.created_at).toLocaleString()}</small></div>`).join('') || '<p style="color:var(--color-text-muted);font-size:14px;">No notes yet.</p>'}</div>
+        <div id="customer-notes-list">${(c.notes || []).map(n => `<div class="card" style="margin-bottom:8px;padding:12px;"><p style="margin:0;font-size:14px;">${n.note}</p><small style="color:var(--text-muted);">${n.user_name || ''} · ${new Date(n.created_at).toLocaleString()}</small></div>`).join('') || '<p style="color:var(--text-muted);font-size:14px;">No notes yet.</p>'}</div>
         <div class="form-group" style="margin-top:10px;"><textarea id="new-customer-note" class="form-control" placeholder="Add a note..." rows="2"></textarea></div>
         <button class="btn btn-secondary" onclick="addCustomerNote(${c.id})">Add Note</button>
         <h3 style="font-size:15px;margin-top:16px;">Activity Timeline</h3>
-        <div>${(c.activities || []).map(a => `<div style="padding:6px 0;font-size:13px;border-bottom:1px solid var(--color-border);">${a.activity_type} <span style="color:var(--color-text-muted);">· ${new Date(a.created_at).toLocaleString()}</span></div>`).join('') || '<p style="color:var(--color-text-muted);font-size:14px;">No activity yet.</p>'}</div>
+        <div>${(c.activities || []).map(a => `<div style="padding:6px 0;font-size:13px;border-bottom:1px solid var(--border);">${a.activity_type} <span style="color:var(--text-muted);">· ${new Date(a.created_at).toLocaleString()}</span></div>`).join('') || '<p style="color:var(--text-muted);font-size:14px;">No activity yet.</p>'}</div>
         <button class="btn btn-secondary" style="margin-top:16px;" onclick="document.getElementById('customer-detail-modal').classList.remove('open')">Close</button>
     `;
     document.getElementById('customer-detail-modal').classList.add('open');
@@ -177,7 +177,7 @@ async function openCustomerDetail(id) {
 async function addCustomerNote(customerId) {
     const note = document.getElementById('new-customer-note').value.trim();
     if (!note) return;
-    const json = await Api.call('' + window.__BASE__ + '/api/crm/customer-notes.php', { method: 'POST', body: { business_id: businessId, customer_id: customerId, note } });
+    const json = await Api.call(appBase() + '/api/crm/customer-notes.php', { method: 'POST', body: { business_id: businessId, customer_id: customerId, note } });
     if (json.success) { Toast.success('Note added.'); openCustomerDetail(customerId); } else { Toast.error(json.message); }
 }
 

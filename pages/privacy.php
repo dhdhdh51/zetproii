@@ -1,6 +1,6 @@
 <?php
-$pageTitle = 'Privacy Policy — BharatAI Business OS';
-$pageDescription = 'Read the BharatAI Business OS privacy policy covering data collection, usage, storage and your rights.';
+$pageTitle = 'Privacy Policy — BharatSEO';
+$pageDescription = 'Read the BharatSEO privacy policy covering data collection, usage, storage and your rights.';
 $canonicalUrl = rtrim((string) config('app.url'), '/') . '/privacy';
 ?>
 <!DOCTYPE html>

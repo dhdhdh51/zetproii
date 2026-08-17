@@ -9,9 +9,9 @@ $user = $currentUser;
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Billing — BharatAI Business OS</title>
-<link rel="stylesheet" href="<?= asset('css/app.css') ?>">
-<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js" defer></script>
+<title>Billing — BharatSEO</title>
+<?php include dirname(__DIR__) . '/app/views/head-assets.php'; ?>
+<script src="https://unpkg.com/lucide@1.31.0/dist/umd/lucide.js" defer></script>
 </head>
 <body>
 <script>window.__CSRF_TOKEN__ = <?= json_encode(Security::csrfToken()) ?>; window.__BASE__ = <?= json_encode(Url::basePath()) ?>;</script>
@@ -50,7 +50,7 @@ $user = $currentUser;
 const businessId = <?= (int) $activeBusiness['id'] ?>;
 
 async function loadBilling() {
-    const json = await Api.call('' + window.__BASE__ + '/api/billing/subscription.php?business_id=' + businessId);
+    const json = await Api.call(appBase() + '/api/billing/subscription.php?business_id=' + businessId);
     if (!json.success) { Toast.error(json.message); return; }
     const { subscription, usage, plans } = json.data;
 
@@ -59,7 +59,7 @@ async function loadBilling() {
             <div>
                 <div class="card-title">Current Plan</div>
                 <p class="card-value">${subscription.plan_name} <span class="badge badge-${subscription.status === 'active' ? 'green' : 'yellow'}">${subscription.status}</span></p>
-                <p style="font-size:13px;color:var(--color-text-muted);">Renews: ${subscription.current_period_end ? new Date(subscription.current_period_end).toLocaleDateString() : 'N/A'}</p>
+                <p style="font-size:13px;color:var(--text-muted);">Renews: ${subscription.current_period_end ? new Date(subscription.current_period_end).toLocaleDateString() : 'N/A'}</p>
             </div>
         </div>
     ` : '<div class="empty-state">No active subscription.</div>';
@@ -69,10 +69,10 @@ async function loadBilling() {
             <div class="card-title">${key.replace(/_/g, ' ')}</div>
             <p class="card-value">${val.limit === 'unlimited' ? 'Unlimited' : `${val.used} / ${val.limit}`}</p>
         </div>
-    `).join('') || '<p style="color:var(--color-text-muted);">No usage data yet.</p>';
+    `).join('') || '<p style="color:var(--text-muted);">No usage data yet.</p>';
 
     document.getElementById('plans-grid').innerHTML = plans.map(p => `
-        <div class="card" style="${subscription && subscription.plan_slug === p.slug ? 'border-color:var(--color-primary);' : ''}">
+        <div class="card" style="${subscription && subscription.plan_slug === p.slug ? 'border-color:var(--brand-500);' : ''}">
             <h3 style="margin-top:0;">${p.name}</h3>
             <p class="card-value">${Number(p.price_monthly) === 0 ? 'Free' : '₹' + Number(p.price_monthly).toLocaleString() + '/mo'}</p>
             <button class="btn ${subscription && subscription.plan_slug === p.slug ? 'btn-secondary' : 'btn-primary'}" style="margin-top:10px;" onclick="choosePlan('${p.slug}', ${p.price_monthly})" ${subscription && subscription.plan_slug === p.slug ? 'disabled' : ''}>
@@ -84,7 +84,7 @@ async function loadBilling() {
 
 async function choosePlan(slug, priceMonthly) {
     if (Number(priceMonthly) === 0) {
-        const json = await Api.call('' + window.__BASE__ + '/api/billing/subscription.php', { method: 'POST', body: { business_id: businessId, plan_slug: slug, billing_cycle: 'monthly' } });
+        const json = await Api.call(appBase() + '/api/billing/subscription.php', { method: 'POST', body: { business_id: businessId, plan_slug: slug, billing_cycle: 'monthly' } });
         if (json.success) { Toast.success('Plan updated.'); loadBilling(); } else { Toast.error(json.message); }
         return;
     }
@@ -93,7 +93,7 @@ async function choosePlan(slug, priceMonthly) {
     // integration (Razorpay Checkout.js / Stripe Elements) is loaded
     // conditionally based on which gateway the admin has enabled.
     Toast.success('Preparing checkout...');
-    const orderJson = await Api.call('' + window.__BASE__ + '/api/billing/create-payment.php', { method: 'POST', body: { business_id: businessId, plan_slug: slug, billing_cycle: 'monthly' } });
+    const orderJson = await Api.call(appBase() + '/api/billing/create-payment.php', { method: 'POST', body: { business_id: businessId, plan_slug: slug, billing_cycle: 'monthly' } });
     if (!orderJson.success) { Toast.error(orderJson.message); return; }
     Toast.success('Redirecting to secure checkout...');
     // In production this opens the gateway's checkout UI using orderJson.data
@@ -107,7 +107,7 @@ function paymentStatusBadge(s) {
 }
 
 async function loadPaymentHistory() {
-    const json = await Api.call('' + window.__BASE__ + '/api/billing/payment-history.php?business_id=' + businessId);
+    const json = await Api.call(appBase() + '/api/billing/payment-history.php?business_id=' + businessId);
     const tbody = document.getElementById('payments-tbody');
     if (!json.success) { tbody.innerHTML = '<tr><td colspan="4"><div class="empty-state">Failed to load payment history.</div></td></tr>'; return; }
     tbody.innerHTML = json.data.items.length === 0

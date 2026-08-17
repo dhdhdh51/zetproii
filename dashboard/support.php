@@ -9,9 +9,9 @@ $user = $currentUser;
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Support — BharatAI Business OS</title>
-<link rel="stylesheet" href="<?= asset('css/app.css') ?>">
-<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js" defer></script>
+<title>Support — BharatSEO</title>
+<?php include dirname(__DIR__) . '/app/views/head-assets.php'; ?>
+<script src="https://unpkg.com/lucide@1.31.0/dist/umd/lucide.js" defer></script>
 </head>
 <body>
 <script>window.__CSRF_TOKEN__ = <?= json_encode(Security::csrfToken()) ?>; window.__BASE__ = <?= json_encode(Url::basePath()) ?>;</script>
@@ -53,20 +53,20 @@ function statusBadge(s) {
 }
 
 async function loadTickets() {
-    const json = await Api.call('' + window.__BASE__ + '/api/business/support-tickets.php');
+    const json = await Api.call(appBase() + '/api/business/support-tickets.php');
     const list = document.getElementById('tickets-list');
     if (!json.success || json.data.length === 0) { list.innerHTML = '<div class="empty-state">No support tickets yet.</div>'; return; }
     list.innerHTML = json.data.map(t => `
         <div class="card" style="margin-bottom:10px;cursor:pointer;" onclick="openTicket(${t.id})">
             <div style="display:flex;justify-content:space-between;"><strong>${t.subject}</strong>${statusBadge(t.status)}</div>
-            <p style="font-size:13px;color:var(--color-text-muted);margin:6px 0 0;">${new Date(t.created_at).toLocaleString()}</p>
+            <p style="font-size:13px;color:var(--text-muted);margin:6px 0 0;">${new Date(t.created_at).toLocaleString()}</p>
         </div>
     `).join('');
 }
 
 document.getElementById('ticket-form').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const json = await Api.call('' + window.__BASE__ + '/api/business/support-tickets.php', {
+    const json = await Api.call(appBase() + '/api/business/support-tickets.php', {
         method: 'POST',
         body: { business_id: businessId, subject: document.getElementById('t-subject').value, description: document.getElementById('t-desc').value, priority: document.getElementById('t-priority').value },
     });
@@ -74,15 +74,15 @@ document.getElementById('ticket-form').addEventListener('submit', async (e) => {
 });
 
 async function openTicket(id) {
-    const json = await Api.call('' + window.__BASE__ + '/api/business/support-ticket-detail.php?id=' + id);
+    const json = await Api.call(appBase() + '/api/business/support-ticket-detail.php?id=' + id);
     if (!json.success) { Toast.error(json.message); return; }
     const t = json.data;
     document.getElementById('ticket-detail-content').innerHTML = `
         <h2>${t.subject}</h2>
         <p>${statusBadge(t.status)}</p>
         <p style="font-size:14px;">${t.description}</p>
-        <hr style="margin:14px 0;border-color:var(--color-border);">
-        <div>${t.replies.map(r => `<div style="padding:8px 0;border-bottom:1px solid var(--color-border);"><strong>${r.is_admin_reply ? 'Support Team' : 'You'}:</strong> ${r.message}<br><small style="color:var(--color-text-muted);">${new Date(r.created_at).toLocaleString()}</small></div>`).join('') || '<p style="color:var(--color-text-muted);font-size:13px;">No replies yet.</p>'}</div>
+        <hr style="margin:14px 0;border-color:var(--border);">
+        <div>${t.replies.map(r => `<div style="padding:8px 0;border-bottom:1px solid var(--border);"><strong>${r.is_admin_reply ? 'Support Team' : 'You'}:</strong> ${r.message}<br><small style="color:var(--text-muted);">${new Date(r.created_at).toLocaleString()}</small></div>`).join('') || '<p style="color:var(--text-muted);font-size:13px;">No replies yet.</p>'}</div>
         <div class="form-group" style="margin-top:12px;"><textarea id="reply-text" class="form-control" rows="2" placeholder="Add a reply..."></textarea></div>
         <button class="btn btn-secondary" onclick="sendReply(${t.id})">Send Reply</button>
         <button class="btn btn-secondary" style="margin-top:8px;" onclick="document.getElementById('ticket-detail-modal').classList.remove('open')">Close</button>
@@ -93,7 +93,7 @@ async function openTicket(id) {
 async function sendReply(ticketId) {
     const message = document.getElementById('reply-text').value.trim();
     if (!message) return;
-    const json = await Api.call('' + window.__BASE__ + '/api/business/support-ticket-detail.php', { method: 'POST', body: { id: ticketId, message } });
+    const json = await Api.call(appBase() + '/api/business/support-ticket-detail.php', { method: 'POST', body: { id: ticketId, message } });
     if (json.success) { Toast.success('Reply sent.'); openTicket(ticketId); } else { Toast.error(json.message); }
 }
 

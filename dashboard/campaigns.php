@@ -9,9 +9,9 @@ $user = $currentUser;
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Campaigns — BharatAI Business OS</title>
-<link rel="stylesheet" href="<?= asset('css/app.css') ?>">
-<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js" defer></script>
+<title>Campaigns — BharatSEO</title>
+<?php include dirname(__DIR__) . '/app/views/head-assets.php'; ?>
+<script src="https://unpkg.com/lucide@1.31.0/dist/umd/lucide.js" defer></script>
 </head>
 <body>
 <script>window.__CSRF_TOKEN__ = <?= json_encode(Security::csrfToken()) ?>; window.__BASE__ = <?= json_encode(Url::basePath()) ?>;</script>
@@ -63,7 +63,7 @@ function statusBadge(s) {
 }
 
 async function load() {
-    const json = await Api.call('' + window.__BASE__ + '/api/business/campaigns.php?business_id=' + businessId);
+    const json = await Api.call(appBase() + '/api/business/campaigns.php?business_id=' + businessId);
     if (!json.success) { Toast.error(json.message); return; }
     document.getElementById('tbody').innerHTML = json.data.length === 0
         ? '<tr><td colspan="6"><div class="empty-state">No campaigns yet.</div></td></tr>'
@@ -78,7 +78,7 @@ document.getElementById('btn-new').addEventListener('click', () => document.getE
 
 document.getElementById('campaign-form').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const json = await Api.call('' + window.__BASE__ + '/api/business/campaigns.php', {
+    const json = await Api.call(appBase() + '/api/business/campaigns.php', {
         method: 'POST',
         body: { business_id: businessId, name: document.getElementById('c-name').value, recipient_type: document.getElementById('c-recipients').value, subject: document.getElementById('c-subject').value, body: document.getElementById('c-body').value },
     });
@@ -89,7 +89,7 @@ document.getElementById('campaign-form').addEventListener('submit', async (e) =>
 async function sendCampaign(id) {
     if (!confirm('Send this campaign now to all recipients?')) return;
     Toast.success('Sending campaign...');
-    const json = await Api.call('' + window.__BASE__ + '/api/business/campaign-send.php', { method: 'POST', body: { business_id: businessId, campaign_id: id } });
+    const json = await Api.call(appBase() + '/api/business/campaign-send.php', { method: 'POST', body: { business_id: businessId, campaign_id: id } });
     if (json.success) { Toast.success(`Campaign sent to ${json.data.sent_count} recipients.`); load(); } else { Toast.error(json.message); }
 }
 

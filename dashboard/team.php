@@ -9,9 +9,9 @@ $user = $currentUser;
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Team — BharatAI Business OS</title>
-<link rel="stylesheet" href="<?= asset('css/app.css') ?>">
-<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js" defer></script>
+<title>Team — BharatSEO</title>
+<?php include dirname(__DIR__) . '/app/views/head-assets.php'; ?>
+<script src="https://unpkg.com/lucide@1.31.0/dist/umd/lucide.js" defer></script>
 </head>
 <body>
 <script>window.__CSRF_TOKEN__ = <?= json_encode(Security::csrfToken()) ?>; window.__BASE__ = <?= json_encode(Url::basePath()) ?>;</script>
@@ -22,7 +22,7 @@ $user = $currentUser;
         <div class="page-body">
             <div class="card" style="margin-bottom:16px;">
                 <h3 style="margin-top:0;">Invite Team Member</h3>
-                <p style="font-size:13px;color:var(--color-text-muted);">The user must already have a BharatAI account with this email.</p>
+                <p style="font-size:13px;color:var(--text-muted);">The user must already have a BharatSEO account with this email.</p>
                 <form id="invite-form" style="display:flex;gap:10px;flex-wrap:wrap;">
                     <input id="inv-email" type="email" class="form-control" placeholder="team@example.com" style="max-width:240px;" required>
                     <select id="inv-role" class="form-control" style="max-width:180px;">
@@ -49,7 +49,7 @@ $user = $currentUser;
 const businessId = <?= (int) $activeBusiness['id'] ?>;
 
 async function load() {
-    const json = await Api.call('' + window.__BASE__ + '/api/business/team.php?business_id=' + businessId);
+    const json = await Api.call(appBase() + '/api/business/team.php?business_id=' + businessId);
     if (!json.success) { Toast.error(json.message); return; }
     const rows = [`<tr><td>${json.data.owner.name}</td><td>${json.data.owner.email}</td><td><span class="badge badge-blue">Owner</span></td><td><span class="badge badge-green">active</span></td><td></td></tr>`]
         .concat(json.data.members.map(m => `<tr>
@@ -62,7 +62,7 @@ async function load() {
 
 document.getElementById('invite-form').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const json = await Api.call('' + window.__BASE__ + '/api/business/team.php', {
+    const json = await Api.call(appBase() + '/api/business/team.php', {
         method: 'POST',
         body: { business_id: businessId, email: document.getElementById('inv-email').value, role: document.getElementById('inv-role').value },
     });
@@ -71,7 +71,7 @@ document.getElementById('invite-form').addEventListener('submit', async (e) => {
 
 async function removeMember(id) {
     if (!confirm('Remove this team member?')) return;
-    const json = await Api.call('' + window.__BASE__ + '/api/business/team.php', { method: 'DELETE', body: { business_id: businessId, member_id: id } });
+    const json = await Api.call(appBase() + '/api/business/team.php', { method: 'DELETE', body: { business_id: businessId, member_id: id } });
     if (json.success) { Toast.success('Removed.'); load(); } else { Toast.error(json.message); }
 }
 

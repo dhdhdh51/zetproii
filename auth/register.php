@@ -9,16 +9,12 @@ if (!empty($_SESSION['user_id'])) {
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Create Your Account — BharatAI Business OS</title>
-<link rel="stylesheet" href="<?= asset('css/app.css') ?>">
-<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js" defer></script>
+<?php $pageTitle = 'Create Your Account'; include __DIR__ . '/partials/head.php'; ?>
 </head>
 <body>
 <div class="auth-shell">
     <div class="auth-card">
-        <a href="<?= url() ?>" class="auth-brand"><i data-lucide="sparkles"></i> BharatAI Business OS</a>
+        <a href="<?= url() ?>" class="auth-brand"><i data-lucide="trending-up"></i> BharatSEO</a>
         <h1>Create your account</h1>
         <p class="subtitle">Start automating your business today — free</p>
 
@@ -81,7 +77,7 @@ document.getElementById('register-form').addEventListener('submit', async functi
     };
 
     try {
-        const json = await Api.call('' + window.__BASE__ + '/api/auth/register.php', { method: 'POST', body: payload });
+        const json = await Api.call(appBase() + '/api/auth/register.php', { method: 'POST', body: payload });
         if (json.success) {
             document.querySelector('.auth-card').innerHTML =
                 '<div class="auth-brand"><i data-lucide="mail-check"></i> Check your email</div>' +

@@ -9,9 +9,9 @@ $user = $currentUser;
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Automations — BharatAI Business OS</title>
-<link rel="stylesheet" href="<?= asset('css/app.css') ?>">
-<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js" defer></script>
+<title>Automations — BharatSEO</title>
+<?php include dirname(__DIR__) . '/app/views/head-assets.php'; ?>
+<script src="https://unpkg.com/lucide@1.31.0/dist/umd/lucide.js" defer></script>
 </head>
 <body>
 <script>window.__CSRF_TOKEN__ = <?= json_encode(Security::csrfToken()) ?>; window.__BASE__ = <?= json_encode(Url::basePath()) ?>;</script>
@@ -65,7 +65,7 @@ $user = $currentUser;
 const businessId = <?= (int) $activeBusiness['id'] ?>;
 
 async function load() {
-    const json = await Api.call('' + window.__BASE__ + '/api/business/automations.php?business_id=' + businessId);
+    const json = await Api.call(appBase() + '/api/business/automations.php?business_id=' + businessId);
     if (!json.success) { Toast.error(json.message); return; }
     document.getElementById('tbody').innerHTML = json.data.length === 0
         ? '<tr><td colspan="5"><div class="empty-state">No automation rules yet.</div></td></tr>'
@@ -81,7 +81,7 @@ document.getElementById('rule-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     const actionType = document.getElementById('r-action-type').value;
     const actions = [{ type: actionType, title: 'Follow up', due_in_hours: 24, in_hours: 48, template: 'lead_notification' }];
-    const json = await Api.call('' + window.__BASE__ + '/api/business/automations.php', {
+    const json = await Api.call(appBase() + '/api/business/automations.php', {
         method: 'POST',
         body: { business_id: businessId, name: document.getElementById('r-name').value, trigger_event: document.getElementById('r-trigger').value, actions },
     });
@@ -89,13 +89,13 @@ document.getElementById('rule-form').addEventListener('submit', async (e) => {
 });
 
 async function toggleRule(id, active) {
-    const json = await Api.call('' + window.__BASE__ + '/api/business/automations.php', { method: 'PUT', body: { business_id: businessId, id, is_active: active } });
+    const json = await Api.call(appBase() + '/api/business/automations.php', { method: 'PUT', body: { business_id: businessId, id, is_active: active } });
     if (json.success) { Toast.success('Rule updated.'); } else { Toast.error(json.message); }
 }
 
 async function deleteRule(id) {
     if (!confirm('Delete this rule?')) return;
-    const json = await Api.call('' + window.__BASE__ + '/api/business/automations.php', { method: 'DELETE', body: { business_id: businessId, id } });
+    const json = await Api.call(appBase() + '/api/business/automations.php', { method: 'DELETE', body: { business_id: businessId, id } });
     if (json.success) { Toast.success('Rule deleted.'); load(); } else { Toast.error(json.message); }
 }
 

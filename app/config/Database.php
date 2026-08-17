@@ -9,8 +9,24 @@ final class Database
 {
     private static ?PDO $instance = null;
 
+    /**
+     * Set once a connection attempt has failed, so later calls fail fast.
+     *
+     * WHY: the failure path logs, and Logger tries to persist entries to the
+     * system_logs table, which calls back into connection(). With $instance
+     * still null that started a fresh connection attempt, which failed, which
+     * logged again - recursing until PHP died with "Allowed memory size
+     * exhausted" and served an empty 500. One unreachable database was enough
+     * to burn the whole memory limit on a single request.
+     */
+    private static bool $connectionFailed = false;
+
     public static function connection(): PDO
     {
+        if (self::$connectionFailed) {
+            throw new RuntimeException('Database connection is unavailable.');
+        }
+
         if (self::$instance === null) {
             $host    = config('db.host');
             $port    = config('db.port');
@@ -46,22 +62,76 @@ final class Database
                 ]);
                 self::$instance->exec("SET time_zone = '{$tzOffset}'");
             } catch (PDOException $e) {
+                // Flag before logging: Logger's DB persistence calls back in here.
+                self::$connectionFailed = true;
+
                 Logger::system('Database connection failed: ' . $e->getMessage());
+
                 if (config('app.debug')) {
                     throw $e;
                 }
-                http_response_code(503);
-                echo json_encode([
-                    'success' => false,
-                    'data'    => null,
-                    'message' => 'Service temporarily unavailable. Please try again later.',
-                    'errors'  => [],
-                ]);
-                exit;
+
+                self::renderUnavailable();
             }
         }
 
         return self::$instance;
+    }
+
+    /**
+     * Emits a 503 and stops. Answers in the format the caller can use: JSON for
+     * API/AJAX callers, a minimal self-contained HTML page for a browser.
+     *
+     * Previously this always echoed JSON, so a visitor whose site had wrong
+     * database credentials was shown a raw `{"success":false,...}` blob.
+     */
+    private static function renderUnavailable(): never
+    {
+        if (!headers_sent()) {
+            http_response_code(503);
+            header('Retry-After: 60');
+        }
+
+        $path = (string) ($_SERVER['REQUEST_URI'] ?? '');
+        $accept = (string) ($_SERVER['HTTP_ACCEPT'] ?? '');
+        $wantsJson = str_contains($path, '/api/')
+            || str_contains($accept, 'application/json')
+            || strtolower((string) ($_SERVER['HTTP_X_REQUESTED_WITH'] ?? '')) === 'xmlhttprequest';
+
+        if ($wantsJson) {
+            if (!headers_sent()) {
+                header('Content-Type: application/json; charset=utf-8');
+            }
+            echo json_encode([
+                'success' => false,
+                'data'    => null,
+                'message' => 'Service temporarily unavailable. Please try again later.',
+                'errors'  => [],
+            ]);
+            exit;
+        }
+
+        if (!headers_sent()) {
+            header('Content-Type: text/html; charset=utf-8');
+        }
+        // Deliberately inlined: the stylesheet may itself be unreachable, and a
+        // database outage should never depend on another request succeeding.
+        echo '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">'
+            . '<meta name="viewport" content="width=device-width,initial-scale=1">'
+            . '<title>Temporarily unavailable</title><style>'
+            . 'body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;'
+            . 'background:#06060c;color:#f4f5fb;font-family:Inter,Segoe UI,system-ui,sans-serif;padding:24px;}'
+            . '.b{max-width:460px;text-align:center;}'
+            . 'h1{font-size:1.4rem;margin:0 0 10px;}'
+            . 'p{color:#9ba1b8;line-height:1.6;margin:0 0 8px;}'
+            . 'code{background:rgba(255,255,255,.08);padding:2px 6px;border-radius:5px;font-size:.85em;}'
+            . '</style></head><body><div class="b">'
+            . '<h1>We can&rsquo;t reach the database</h1>'
+            . '<p>The site is up, but it could not connect to its database, so nothing can be loaded right now.</p>'
+            . '<p>If you administer this site: check the database settings in <code>env.php</code>, '
+            . 'then open <code>diagnose.php</code> for a full check.</p>'
+            . '</div></body></html>';
+        exit;
     }
 
     /**

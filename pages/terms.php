@@ -1,6 +1,6 @@
 <?php
-$pageTitle = 'Terms of Service — BharatAI Business OS';
-$pageDescription = 'Read the terms of service for using BharatAI Business OS.';
+$pageTitle = 'Terms of Service — BharatSEO';
+$pageDescription = 'Read the terms of service for using BharatSEO.';
 $canonicalUrl = rtrim((string) config('app.url'), '/') . '/terms';
 ?>
 <!DOCTYPE html>
@@ -17,7 +17,7 @@ $canonicalUrl = rtrim((string) config('app.url'), '/') . '/terms';
             <p><em>Last updated: <?= date('F j, Y') ?></em></p>
 
             <h2>1. Acceptance of Terms</h2>
-            <p>By creating an account or using BharatAI Business OS, you agree to these Terms of Service.</p>
+            <p>By creating an account or using BharatSEO, you agree to these Terms of Service.</p>
 
             <h2>2. Account Responsibilities</h2>
             <p>You are responsible for maintaining the confidentiality of your account credentials and for all activity that occurs under your account.</p>

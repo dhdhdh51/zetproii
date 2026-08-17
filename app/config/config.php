@@ -19,7 +19,7 @@ Env::load($projectRoot . '/.env');
 
 $config = [
     'app' => [
-        'name'       => Env::get('APP_NAME', 'BharatAI Business OS'),
+        'name'       => Env::get('APP_NAME', 'BharatSEO'),
         'env'        => Env::get('APP_ENV', 'production'),
         'debug'      => Env::getBool('APP_DEBUG', false),
         'url'        => rtrim((string) Env::get('APP_URL', 'http://localhost'), '/'),
@@ -35,6 +35,10 @@ $config = [
     'db' => [
         'host'    => Env::get('DB_HOST', '127.0.0.1'),
         'port'    => Env::getInt('DB_PORT', 3306),
+        // Deliberately still 'bharatai' after the BharatSEO rename: this is the
+        // fallback used when DB_DATABASE is absent, and some existing installs
+        // have a database with exactly that name. Renaming the default would
+        // point them at a database that does not exist.
         'database'=> Env::get('DB_DATABASE', 'bharatai'),
         'username'=> Env::get('DB_USERNAME', 'root'),
         'password'=> Env::get('DB_PASSWORD', ''),
@@ -66,7 +70,7 @@ $config = [
         'password'   => Env::get('MAIL_PASSWORD', ''),
         'encryption' => Env::get('MAIL_ENCRYPTION', 'tls'),
         'from_address' => Env::get('MAIL_FROM_ADDRESS', 'no-reply@localhost'),
-        'from_name'    => Env::get('MAIL_FROM_NAME', 'BharatAI Business OS'),
+        'from_name'    => Env::get('MAIL_FROM_NAME', 'BharatSEO'),
     ],
 
     'ai' => [

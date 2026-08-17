@@ -1,6 +1,6 @@
 <?php
-$pageTitle = 'Contact Us — BharatAI Business OS';
-$pageDescription = 'Get in touch with the BharatAI Business OS team. We would love to hear from you.';
+$pageTitle = 'Contact Us — BharatSEO';
+$pageDescription = 'Get in touch with the BharatSEO team. We would love to hear from you.';
 $canonicalUrl = rtrim((string) config('app.url'), '/') . '/contact';
 ?>
 <!DOCTYPE html>
@@ -12,16 +12,41 @@ $canonicalUrl = rtrim((string) config('app.url'), '/') . '/contact';
 <?php include __DIR__ . '/partials/nav.php'; ?>
 
 <main>
-    <section class="hero" style="padding-bottom:0;">
+    <section class="hero" style="padding-bottom:8px;">
+        <div class="aurora" aria-hidden="true"></div>
+        <div class="grid-overlay" aria-hidden="true"></div>
         <div class="container">
+            <span class="eyebrow">Contact</span>
             <h1>Get in <span class="highlight">touch</span></h1>
             <p class="lead">Questions, feedback, or partnership ideas — send us a message and we'll respond as soon as we can.</p>
         </div>
     </section>
 
-    <section>
+    <section class="section" style="padding-top:16px;">
         <div class="container">
-            <div class="card form-card">
+            <div class="grid grid-3" style="align-items:start;">
+                <div class="card reveal">
+                    <div class="icon-wrap"><i data-lucide="message-square"></i></div>
+                    <h3>Product questions</h3>
+                    <p>Not sure whether BharatSEO fits your business? Describe your setup and we'll tell you honestly.</p>
+                </div>
+                <div class="card reveal">
+                    <div class="icon-wrap"><i data-lucide="life-buoy"></i></div>
+                    <h3>Existing customer?</h3>
+                    <p>Support tickets raised from inside your dashboard reach us faster and arrive with your account context attached.</p>
+                </div>
+                <div class="card reveal">
+                    <div class="icon-wrap"><i data-lucide="handshake"></i></div>
+                    <h3>Agencies &amp; partners</h3>
+                    <p>Managing SEO for several clients? Tell us how you work — agency mode is shaped by this feedback.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" style="padding-top:0;">
+        <div class="container" style="max-width:680px;">
+            <div class="form-card reveal">
                 <div id="contact-form-msg" class="form-msg"></div>
                 <form id="contact-form">
                     <div class="form-group">

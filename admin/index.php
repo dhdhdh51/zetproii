@@ -8,9 +8,9 @@ require_once __DIR__ . '/_init.php';
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin Dashboard — BharatAI Business OS</title>
-<link rel="stylesheet" href="<?= asset('css/app.css') ?>">
-<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js" defer></script>
+<title>Admin Dashboard — BharatSEO</title>
+<?php include dirname(__DIR__) . '/app/views/head-assets.php'; ?>
+<script src="https://unpkg.com/lucide@1.31.0/dist/umd/lucide.js" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
 </head>
 <body>
@@ -36,7 +36,7 @@ require_once __DIR__ . '/_init.php';
 <script src="<?= asset('js/app.js') ?>"></script>
 <script>
 async function loadDashboard() {
-    const json = await Api.call('' + window.__BASE__ + '/api/admin/dashboard.php');
+    const json = await Api.call(appBase() + '/api/admin/dashboard.php');
     if (!json.success) { Toast.error(json.message); return; }
     const d = json.data;
     document.getElementById('metrics-grid').innerHTML = [

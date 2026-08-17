@@ -5,8 +5,8 @@
  * marketing business, if one is configured. Shows a clean empty state
  * rather than fabricated posts when none exist yet.
  */
-$pageTitle = 'Blog — BharatAI Business OS';
-$pageDescription = 'Insights on AI automation, CRM, and growing your small business with BharatAI Business OS.';
+$pageTitle = 'Blog — BharatSEO';
+$pageDescription = 'Insights on AI automation, CRM, and growing your small business with BharatSEO.';
 $canonicalUrl = rtrim((string) config('app.url'), '/') . '/blog';
 
 $posts = [];
@@ -28,14 +28,17 @@ try {
 <?php include __DIR__ . '/partials/nav.php'; ?>
 
 <main>
-    <section class="hero" style="padding-bottom:20px;">
+    <section class="hero" style="padding-bottom:24px;">
+        <div class="aurora" aria-hidden="true"></div>
+        <div class="grid-overlay" aria-hidden="true"></div>
         <div class="container">
-            <h1>The <span class="highlight">BharatAI</span> Blog</h1>
-            <p class="lead">Practical guidance on AI automation, CRM and growing your business.</p>
+            <span class="eyebrow">Blog</span>
+            <h1>The <span class="highlight">BharatSEO</span> blog</h1>
+            <p class="lead">Practical guidance on ranking, AI content and turning search traffic into customers.</p>
         </div>
     </section>
 
-    <section>
+    <section class="section" style="padding-top:16px;">
         <div class="container">
             <?php if (empty($posts)): ?>
                 <div class="placeholder-note">
@@ -44,7 +47,7 @@ try {
             <?php else: ?>
                 <div class="grid grid-3">
                     <?php foreach ($posts as $post): ?>
-                    <div class="card">
+                    <div class="card reveal">
                         <h3><?= View::e($post['title']) ?></h3>
                         <p><?= View::e($post['meta_description'] ?? '') ?></p>
                         <p style="font-size:13px;margin-top:10px;">

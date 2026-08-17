@@ -9,9 +9,9 @@ $user = $currentUser;
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Invoices — BharatAI Business OS</title>
-<link rel="stylesheet" href="<?= asset('css/app.css') ?>">
-<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js" defer></script>
+<title>Invoices — BharatSEO</title>
+<?php include dirname(__DIR__) . '/app/views/head-assets.php'; ?>
+<script src="https://unpkg.com/lucide@1.31.0/dist/umd/lucide.js" defer></script>
 </head>
 <body>
 <script>window.__CSRF_TOKEN__ = <?= json_encode(Security::csrfToken()) ?>; window.__BASE__ = <?= json_encode(Url::basePath()) ?>;</script>
@@ -86,7 +86,7 @@ function addItemRow() {
 
 async function load(page = 1) {
     const params = new URLSearchParams({ business_id: businessId, page, search: document.getElementById('f-search').value });
-    const json = await Api.call('' + window.__BASE__ + '/api/business/invoices.php?' + params.toString());
+    const json = await Api.call(appBase() + '/api/business/invoices.php?' + params.toString());
     if (!json.success) { Toast.error(json.message); return; }
     document.getElementById('tbody').innerHTML = json.data.items.length === 0
         ? '<tr><td colspan="7"><div class="empty-state">No invoices yet.</div></td></tr>'
@@ -116,7 +116,7 @@ document.getElementById('manual-form').addEventListener('submit', async (e) => {
         const row = el.closest('div');
         items.push({ name: el.value, quantity: row.querySelector('.item-qty').value, unit_price: row.querySelector('.item-price').value, tax_percent: row.querySelector('.item-tax').value });
     });
-    const json = await Api.call('' + window.__BASE__ + '/api/business/invoices.php', { method: 'POST', body: { business_id: businessId, items, due_date: document.getElementById('m-due').value } });
+    const json = await Api.call(appBase() + '/api/business/invoices.php', { method: 'POST', body: { business_id: businessId, items, due_date: document.getElementById('m-due').value } });
     if (json.success) { Toast.success('Invoice created.'); document.getElementById('manual-modal').classList.remove('open'); load(1); }
     else { Toast.error(json.message); }
 });
@@ -128,7 +128,7 @@ function openPayment(id) {
 document.getElementById('payment-submit').addEventListener('click', async () => {
     const invoiceId = document.getElementById('payment-invoice-id').value;
     const amount = document.getElementById('payment-amount').value;
-    const json = await Api.call('' + window.__BASE__ + '/api/business/invoice-payment.php', { method: 'POST', body: { business_id: businessId, invoice_id: invoiceId, amount } });
+    const json = await Api.call(appBase() + '/api/business/invoice-payment.php', { method: 'POST', body: { business_id: businessId, invoice_id: invoiceId, amount } });
     if (json.success) { Toast.success('Payment recorded.'); document.getElementById('payment-modal').classList.remove('open'); load(1); }
     else { Toast.error(json.message); }
 });

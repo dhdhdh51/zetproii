@@ -88,6 +88,9 @@ if (session_status() === PHP_SESSION_NONE) {
     ]);
     ini_set('session.use_strict_mode', '1');
     ini_set('session.sid_length', '48');
+    // Kept as-is through the BharatSEO rename on purpose: the session cookie
+    // name is an identifier, not a label. Changing it would invalidate every
+    // active session and sign all users out for no benefit.
     session_name('bharatai_session');
     session_start();
 

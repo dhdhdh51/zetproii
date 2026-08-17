@@ -1,5 +1,5 @@
 <?php
-$pageTitle = 'Page Not Found — BharatAI Business OS';
+$pageTitle = 'Page not found — BharatSEO';
 $pageDescription = 'The page you are looking for could not be found.';
 $canonicalUrl = rtrim((string) config('app.url'), '/') . '/404';
 ?>
@@ -10,13 +10,23 @@ $canonicalUrl = rtrim((string) config('app.url'), '/') . '/404';
 </head>
 <body>
 <?php include __DIR__ . '/partials/nav.php'; ?>
+
 <main>
-    <section style="text-align:center;padding:100px 20px;">
-        <h1 style="font-size:64px;margin-bottom:8px;">404</h1>
-        <p class="lead">This page doesn't exist. Let's get you back on track.</p>
-        <a href="<?= url() ?>" class="btn btn-primary">Go Home</a>
+    <section class="hero">
+        <div class="aurora" aria-hidden="true"></div>
+        <div class="grid-overlay" aria-hidden="true"></div>
+        <div class="container">
+            <div class="error-code">404</div>
+            <h1>This page doesn't exist</h1>
+            <p class="lead" style="margin-left:auto;margin-right:auto;">The link may be out of date, or the address might have a typo. Here's the way back.</p>
+            <div class="hero-actions">
+                <a href="<?= url() ?>" class="btn btn-primary btn-lg"><i data-lucide="home"></i> Go to homepage</a>
+                <a href="<?= url('features') ?>" class="btn btn-ghost btn-lg">Browse features</a>
+            </div>
+        </div>
     </section>
 </main>
+
 <?php include __DIR__ . '/partials/footer.php'; ?>
 </body>
 </html>

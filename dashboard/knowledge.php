@@ -9,9 +9,9 @@ $user = $currentUser;
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Knowledge Base — BharatAI Business OS</title>
-<link rel="stylesheet" href="<?= asset('css/app.css') ?>">
-<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js" defer></script>
+<title>Knowledge Base — BharatSEO</title>
+<?php include dirname(__DIR__) . '/app/views/head-assets.php'; ?>
+<script src="https://unpkg.com/lucide@1.31.0/dist/umd/lucide.js" defer></script>
 </head>
 <body>
 <script>window.__CSRF_TOKEN__ = <?= json_encode(Security::csrfToken()) ?>; window.__BASE__ = <?= json_encode(Url::basePath()) ?>;</script>
@@ -35,7 +35,7 @@ $user = $currentUser;
                         <div class="form-group"><label>URL</label><input id="url-input" type="url" class="form-control" placeholder="https://example.com/about" required></div>
                         <button type="submit" class="btn btn-primary">Fetch & Add</button>
                     </form>
-                    <hr style="margin:18px 0;border-color:var(--color-border);">
+                    <hr style="margin:18px 0;border-color:var(--border);">
                     <h3>Upload Document</h3>
                     <form id="upload-form">
                         <div class="form-group"><label>Title</label><input id="upload-title" class="form-control"></div>
@@ -68,7 +68,7 @@ function statusBadge(s) {
 }
 
 async function loadSources() {
-    const json = await Api.call('' + window.__BASE__ + '/api/knowledge/index.php?business_id=' + businessId);
+    const json = await Api.call(appBase() + '/api/knowledge/index.php?business_id=' + businessId);
     const tbody = document.getElementById('sources-tbody');
     if (!json.success) { Toast.error(json.message); return; }
     if (json.data.length === 0) {
@@ -89,13 +89,13 @@ async function loadSources() {
 }
 
 async function deleteSource(id) {
-    const json = await Api.call('' + window.__BASE__ + '/api/knowledge/index.php', { method: 'DELETE', body: { business_id: businessId, id } });
+    const json = await Api.call(appBase() + '/api/knowledge/index.php', { method: 'DELETE', body: { business_id: businessId, id } });
     if (json.success) { Toast.success('Removed.'); loadSources(); } else { Toast.error(json.message); }
 }
 
 document.getElementById('text-form').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const json = await Api.call('' + window.__BASE__ + '/api/knowledge/index.php', {
+    const json = await Api.call(appBase() + '/api/knowledge/index.php', {
         method: 'POST',
         body: { business_id: businessId, type: 'text', title: document.getElementById('text-title').value, content: document.getElementById('text-content').value },
     });
@@ -104,7 +104,7 @@ document.getElementById('text-form').addEventListener('submit', async (e) => {
 
 document.getElementById('url-form').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const json = await Api.call('' + window.__BASE__ + '/api/knowledge/index.php', {
+    const json = await Api.call(appBase() + '/api/knowledge/index.php', {
         method: 'POST',
         body: { business_id: businessId, type: 'url', url: document.getElementById('url-input').value },
     });
@@ -120,7 +120,7 @@ document.getElementById('upload-form').addEventListener('submit', async (e) => {
     formData.append('title', document.getElementById('upload-title').value);
     formData.append('file', fileInput.files[0]);
 
-    const res = await fetch('' + window.__BASE__ + '/api/knowledge/upload.php', {
+    const res = await fetch(appBase() + '/api/knowledge/upload.php', {
         method: 'POST', body: formData, headers: { 'X-CSRF-Token': window.__CSRF_TOKEN__ }, credentials: 'same-origin',
     });
     const json = await res.json();

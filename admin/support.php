@@ -8,9 +8,9 @@ require_once __DIR__ . '/_init.php';
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Support Tickets — Admin | BharatAI Business OS</title>
-<link rel="stylesheet" href="<?= asset('css/app.css') ?>">
-<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js" defer></script>
+<title>Support Tickets — Admin | BharatSEO</title>
+<?php include dirname(__DIR__) . '/app/views/head-assets.php'; ?>
+<script src="https://unpkg.com/lucide@1.31.0/dist/umd/lucide.js" defer></script>
 </head>
 <body>
 <script>window.__CSRF_TOKEN__ = <?= json_encode(Security::csrfToken()) ?>; window.__BASE__ = <?= json_encode(Url::basePath()) ?>;</script>
@@ -52,7 +52,7 @@ function statusBadge(s) {
 
 async function load(page = 1) {
     const params = new URLSearchParams({ page, status: document.getElementById('f-status').value });
-    const json = await Api.call('' + window.__BASE__ + '/api/admin/support-tickets.php?' + params.toString());
+    const json = await Api.call(appBase() + '/api/admin/support-tickets.php?' + params.toString());
     if (!json.success) { Toast.error(json.message); return; }
     document.getElementById('tbody').innerHTML = json.data.items.length === 0
         ? '<tr><td colspan="6"><div class="empty-state">No tickets found.</div></td></tr>'
@@ -72,15 +72,15 @@ async function load(page = 1) {
 document.getElementById('f-status').addEventListener('change', () => load(1));
 
 async function openTicket(id) {
-    const json = await Api.call('' + window.__BASE__ + '/api/admin/support-tickets.php?id=' + id);
+    const json = await Api.call(appBase() + '/api/admin/support-tickets.php?id=' + id);
     if (!json.success) { Toast.error(json.message); return; }
     const t = json.data;
     document.getElementById('ticket-modal-content').innerHTML = `
         <h2>${t.subject}</h2>
         <p>${statusBadge(t.status)} <span class="badge badge-gray">${t.priority}</span></p>
         <p style="font-size:14px;">${t.description}</p>
-        <hr style="margin:14px 0;border-color:var(--color-border);">
-        <div>${t.replies.map(r => `<div style="padding:8px 0;border-bottom:1px solid var(--color-border);"><strong>${r.is_admin_reply ? 'Support Team' : (r.user_name||'User')}:</strong> ${r.message}</div>`).join('') || '<p style="color:var(--color-text-muted);font-size:13px;">No replies yet.</p>'}</div>
+        <hr style="margin:14px 0;border-color:var(--border);">
+        <div>${t.replies.map(r => `<div style="padding:8px 0;border-bottom:1px solid var(--border);"><strong>${r.is_admin_reply ? 'Support Team' : (r.user_name||'User')}:</strong> ${r.message}</div>`).join('') || '<p style="color:var(--text-muted);font-size:13px;">No replies yet.</p>'}</div>
         <div class="form-group" style="margin-top:12px;"><textarea id="reply-text" class="form-control" rows="2" placeholder="Reply to customer..."></textarea></div>
         <select id="status-select" class="form-control" style="margin-bottom:10px;">
             <option value="open" ${t.status==='open'?'selected':''}>Open</option><option value="in_progress" ${t.status==='in_progress'?'selected':''}>In Progress</option>
@@ -93,7 +93,7 @@ async function openTicket(id) {
 }
 
 async function saveTicket(id) {
-    const json = await Api.call('' + window.__BASE__ + '/api/admin/support-tickets.php', {
+    const json = await Api.call(appBase() + '/api/admin/support-tickets.php', {
         method: 'POST',
         body: { id, reply: document.getElementById('reply-text').value, status: document.getElementById('status-select').value },
     });

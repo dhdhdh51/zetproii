@@ -1,4 +1,4 @@
-# BharatAI Business OS
+# BharatSEO
 
 AI-powered business automation platform for small businesses, agencies, and freelancers. Built entirely in **native PHP 8.2+** and **MySQL 8+** — no Node.js, no Laravel, no Composer packages required to run in production. Deploys to cPanel shared hosting, a plain Apache VPS, or AWS EC2 by uploading files and importing one SQL file.
 
@@ -45,7 +45,7 @@ AI-powered business automation platform for small businesses, agencies, and free
 
 ### Option A — Web installer (recommended for shared hosting / cPanel)
 
-1. Create an empty MySQL database yourself first (e.g. via cPanel → **MySQL® Databases**, or `CREATE DATABASE bharatai;` if you have shell access). The installer never creates a database for you — it only imports tables into one you already made.
+1. Create an empty MySQL database yourself first (e.g. via cPanel → **MySQL® Databases**, or `CREATE DATABASE bharatseo;` if you have shell access). The installer never creates a database for you — it only imports tables into one you already made.
 2. Upload the project files, then visit `https://yourdomain.com/install.php` in your browser.
 3. Follow the 3-step wizard: it checks server requirements, connects to your database and imports `schema.sql`/`seed.sql`, then lets you create your own admin login and automatically writes a working `.env` file (with a random `APP_KEY` generated for you).
 4. **Delete `install.php` from the server once it reports success** (it also self-locks via `storage/.installed` so it won't run twice, but deleting it is still the safest option).
@@ -59,12 +59,12 @@ AI-powered business automation platform for small businesses, agencies, and free
    ```
 2. Create an empty database yourself (schema.sql/seed.sql only contain `CREATE TABLE IF NOT EXISTS` and `INSERT` statements — they never issue `CREATE DATABASE`, so you must create it first):
    ```sql
-   CREATE DATABASE bharatai CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+   CREATE DATABASE bharatseo CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
    ```
    Then import the schema and seed data into it:
    ```bash
-   mysql -u your_user -p bharatai < database/schema.sql
-   mysql -u your_user -p bharatai < database/seed.sql
+   mysql -u your_user -p bharatseo < database/schema.sql
+   mysql -u your_user -p bharatseo < database/seed.sql
    ```
 3. Serve the app (for local testing only — see `docs/DEPLOYMENT.md` for production Apache config):
    ```bash
@@ -76,7 +76,7 @@ AI-powered business automation platform for small businesses, agencies, and free
    ```
 4. Visit `http://localhost:8000/` for the marketing site, or `http://localhost:8000/auth/register.php` to create your first account.
 5. Log in to the admin panel with the bootstrap account seeded in `database/seed.sql`:
-   - Email: `admin@bharatai.example`
+   - Email: `admin@bharatseo.example`
    - Password: `ChangeMe@123`
    - **Change this password immediately after first login.**
 6. As an admin, go to **Admin > AI Providers** and add your OpenAI/Gemini/Anthropic API key to enable AI features platform-wide.

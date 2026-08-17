@@ -32,8 +32,8 @@ try {
     foreach ($failedLogs as $log) {
         $signature = hash_hmac('sha256', $log['payload'], $log['secret']);
         $result = HttpClient::postJson($log['target_url'], json_decode($log['payload'], true) ?: [], [
-            'X-BharatAI-Signature: ' . $signature,
-            'X-BharatAI-Event: ' . $log['event'],
+            'X-BharatSEO-Signature: ' . $signature,
+            'X-BharatSEO-Event: ' . $log['event'],
         ], 10);
 
         $success = $result['status'] >= 200 && $result['status'] < 300;

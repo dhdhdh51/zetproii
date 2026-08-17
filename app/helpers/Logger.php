@@ -9,6 +9,9 @@ final class Logger
 {
     private const CHANNELS = ['app', 'system', 'ai', 'email', 'payment', 'webhook', 'security', 'cron'];
 
+    /** True while a log line is being written to the database - see log(). */
+    private static bool $persisting = false;
+
     public static function log(string $channel, string $level, string $message, array $context = []): void
     {
         if (!in_array($channel, self::CHANNELS, true)) {
@@ -33,6 +36,18 @@ final class Logger
 
         // Best-effort DB persistence for admin-visible logs. Never let a
         // logging failure break the request.
+        //
+        // The guard makes this non-reentrant. Persisting a log line touches the
+        // database, and anything that fails down there logs - which would come
+        // straight back here and try to persist again. That cycle (connection
+        // failure -> log -> connect -> failure) once recursed until PHP hit its
+        // memory limit and returned an empty 500. The file write above always
+        // happens, so nothing is lost by skipping the nested DB write.
+        if (self::$persisting) {
+            return;
+        }
+
+        self::$persisting = true;
         try {
             if (class_exists('Database') && $channel !== 'system_bootstrap') {
                 Database::query(
@@ -42,6 +57,8 @@ final class Logger
             }
         } catch (\Throwable $e) {
             // swallow - file log above already captured it
+        } finally {
+            self::$persisting = false;
         }
     }
 

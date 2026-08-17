@@ -1,6 +1,6 @@
 <?php
 /**
- * BharatAI Business OS — Installation Diagnostic
+ * BharatSEO — Installation Diagnostic
  *
  * Visit this page in a browser if anything looks wrong (unstyled pages,
  * 404s, database errors). It reports exactly what the server is doing so
@@ -167,7 +167,7 @@ if ($hasDotEnv) {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Installation Diagnostic — BharatAI Business OS</title>
+<title>Installation Diagnostic — BharatSEO</title>
 <style>
     body{font-family:-apple-system,Segoe UI,Roboto,sans-serif;background:#f5f6fb;margin:0;color:#1e1b2e;}
     .wrap{max-width:860px;margin:40px auto;padding:0 20px;}
@@ -188,7 +188,7 @@ if ($hasDotEnv) {
 <div class="wrap">
     <div class="card">
         <h1>Installation Diagnostic</h1>
-        <p class="sub">BharatAI Business OS — server health check</p>
+        <p class="sub">BharatSEO — server health check</p>
 
         <?php if ($fail === 0): ?>
             <div class="banner good"><strong>All critical checks passed.</strong> Your installation looks healthy<?= $warnCount ? " ({$warnCount} warning" . ($warnCount > 1 ? 's' : '') . ')' : '' ?>. Please delete <code>diagnose.php</code> now.</div>

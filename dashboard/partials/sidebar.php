@@ -22,7 +22,7 @@ $navItems = [
 ];
 ?>
 <aside class="sidebar" id="app-sidebar">
-    <a href="<?= url('dashboard/index.php') ?>" class="sidebar-brand"><i data-lucide="sparkles"></i> BharatAI OS</a>
+    <a href="<?= url('dashboard/index.php') ?>" class="sidebar-brand"><i data-lucide="trending-up"></i> BharatSEO</a>
     <nav class="sidebar-nav">
         <?php foreach ($navItems as $item): ?>
         <a href="<?= View::e($item['href']) ?>" class="<?= $activePage === $item['key'] ? 'active' : '' ?>">

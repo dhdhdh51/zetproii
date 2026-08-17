@@ -9,7 +9,7 @@
 > See `docs/CPANEL_HOSTING.md` Step 4 for the exact format.
 
 
-BharatAI Business OS is plain PHP + MySQL. It runs on any host that gives you PHP 8.2+, MySQL 8+/MariaDB 10.5+, and Apache with `mod_rewrite`. No build step, no `npm install`, no Composer install required for production.
+BharatSEO is plain PHP + MySQL. It runs on any host that gives you PHP 8.2+, MySQL 8+/MariaDB 10.5+, and Apache with `mod_rewrite`. No build step, no `npm install`, no Composer install required for production.
 
 ---
 
@@ -56,7 +56,7 @@ BharatAI Business OS is plain PHP + MySQL. It runs on any host that gives you PH
    Ensure `/storage` (and its subfolders `logs`, `uploads`, `cache`, `sessions`) and `/public/uploads` are writable by the web server user, typically `755` for directories is sufficient on cPanel (avoid `777` unless your host specifically requires it).
 
 8. **Log in and change the default admin password.**
-   Visit `/auth/login.php`, log in with `admin@bharatai.example` / `ChangeMe@123`, and immediately change the password from **Settings > My Account**.
+   Visit `/auth/login.php`, log in with `admin@bharatseo.example` / `ChangeMe@123`, and immediately change the password from **Settings > My Account**.
 
 ---
 
@@ -69,12 +69,12 @@ sudo apt install apache2 mysql-server php8.2 php8.2-mysql php8.2-curl php8.2-mbs
 sudo a2enmod rewrite headers
 sudo systemctl restart apache2
 
-sudo mysql -e "CREATE DATABASE bharatai CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
-sudo mysql -e "CREATE USER 'bharatai'@'localhost' IDENTIFIED BY 'CHANGE_ME';"
-sudo mysql -e "GRANT ALL PRIVILEGES ON bharatai.* TO 'bharatai'@'localhost'; FLUSH PRIVILEGES;"
+sudo mysql -e "CREATE DATABASE bharatseo CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+sudo mysql -e "CREATE USER 'bharatseo'@'localhost' IDENTIFIED BY 'CHANGE_ME';"
+sudo mysql -e "GRANT ALL PRIVILEGES ON bharatseo.* TO 'bharatseo'@'localhost'; FLUSH PRIVILEGES;"
 
-mysql -u bharatai -p bharatai < database/schema.sql
-mysql -u bharatai -p bharatai < database/seed.sql
+mysql -u bharatseo -p bharatseo < database/schema.sql
+mysql -u bharatseo -p bharatseo < database/seed.sql
 ```
 
 Point an Apache VirtualHost at the project root (the folder containing `.htaccess`):
@@ -82,13 +82,13 @@ Point an Apache VirtualHost at the project root (the folder containing `.htacces
 ```apache
 <VirtualHost *:80>
     ServerName yourdomain.com
-    DocumentRoot /var/www/bharatai
-    <Directory /var/www/bharatai>
+    DocumentRoot /var/www/bharatseo
+    <Directory /var/www/bharatseo>
         AllowOverride All
         Require all granted
     </Directory>
-    ErrorLog ${APACHE_LOG_DIR}/bharatai_error.log
-    CustomLog ${APACHE_LOG_DIR}/bharatai_access.log combined
+    ErrorLog ${APACHE_LOG_DIR}/bharatseo_error.log
+    CustomLog ${APACHE_LOG_DIR}/bharatseo_access.log combined
 </VirtualHost>
 ```
 
@@ -98,17 +98,17 @@ Then set up HTTPS with Let's Encrypt (`certbot --apache`), configure `.env` as i
 crontab -e
 ```
 ```
-*/15 * * * * php /var/www/bharatai/cron/run_automations.php
-*/5  * * * * php /var/www/bharatai/cron/send_scheduled_emails.php
-*/10 * * * * php /var/www/bharatai/cron/process_webhooks.php
-*/15 * * * * php /var/www/bharatai/cron/process_ai_jobs.php
-0    2 * * * php /var/www/bharatai/cron/cleanup_logs.php
-0    3 * * * php /var/www/bharatai/cron/cleanup_sessions.php
+*/15 * * * * php /var/www/bharatseo/cron/run_automations.php
+*/5  * * * * php /var/www/bharatseo/cron/send_scheduled_emails.php
+*/10 * * * * php /var/www/bharatseo/cron/process_webhooks.php
+*/15 * * * * php /var/www/bharatseo/cron/process_ai_jobs.php
+0    2 * * * php /var/www/bharatseo/cron/cleanup_logs.php
+0    3 * * * php /var/www/bharatseo/cron/cleanup_sessions.php
 ```
 
 Ensure the web server user (`www-data`) owns/can write to `/storage` and `/public/uploads`:
 ```bash
-sudo chown -R www-data:www-data /var/www/bharatai/storage /var/www/bharatai/public/uploads
+sudo chown -R www-data:www-data /var/www/bharatseo/storage /var/www/bharatseo/public/uploads
 ```
 
 ---

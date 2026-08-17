@@ -98,8 +98,8 @@ final class ApiKeyService
             $logId = (int) Database::lastInsertId();
 
             $result = HttpClient::postJson($webhook['target_url'], json_decode($body, true), [
-                'X-BharatAI-Signature: ' . $signature,
-                'X-BharatAI-Event: ' . $event,
+                'X-BharatSEO-Signature: ' . $signature,
+                'X-BharatSEO-Event: ' . $event,
             ], 10);
 
             Database::query(

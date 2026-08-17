@@ -70,7 +70,10 @@ final class Security
 
     public static function generateApiKey(): string
     {
-        return 'bak_' . bin2hex(random_bytes(24)); // bharatai key
+        // The 'bak_' prefix is part of the public API-key format. Customers may
+        // already have keys issued with it and integrations may match on it, so
+        // it is intentionally unchanged by the BharatSEO rename.
+        return 'bak_' . bin2hex(random_bytes(24));
     }
 
     // ---------------- Passwords ----------------

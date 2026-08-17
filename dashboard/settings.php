@@ -10,13 +10,13 @@ $business = Database::fetchOne("SELECT * FROM businesses WHERE id = ?", [$active
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Settings — BharatAI Business OS</title>
-<link rel="stylesheet" href="<?= asset('css/app.css') ?>">
-<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js" defer></script>
+<title>Settings — BharatSEO</title>
+<?php include dirname(__DIR__) . '/app/views/head-assets.php'; ?>
+<script src="https://unpkg.com/lucide@1.31.0/dist/umd/lucide.js" defer></script>
 <style>
-.tabs { display: flex; gap: 6px; margin-bottom: 16px; border-bottom: 1px solid var(--color-border); flex-wrap: wrap; }
-.tab-btn { padding: 10px 16px; background: none; border: none; cursor: pointer; font-size: 14px; font-weight: 600; color: var(--color-text-muted); border-bottom: 2px solid transparent; }
-.tab-btn.active { color: var(--color-primary); border-bottom-color: var(--color-primary); }
+.tabs { display: flex; gap: 6px; margin-bottom: 16px; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+.tab-btn { padding: 10px 16px; background: none; border: none; cursor: pointer; font-size: 14px; font-weight: 600; color: var(--text-muted); border-bottom: 2px solid transparent; }
+.tab-btn.active { color: var(--brand-500); border-bottom-color: var(--brand-500); }
 .tab-panel { display: none; }
 .tab-panel.active { display: block; }
 </style>
@@ -75,7 +75,7 @@ $business = Database::fetchOne("SELECT * FROM businesses WHERE id = ?", [$active
                             <div class="form-group"><label>Name</label><input id="u-name" class="form-control" value="<?= View::e($user['name']) ?>"></div>
                             <div class="form-group"><label>Phone</label><input id="u-phone" class="form-control"></div>
                         </div>
-                        <hr style="margin:16px 0;border-color:var(--color-border);">
+                        <hr style="margin:16px 0;border-color:var(--border);">
                         <h4>Change Password</h4>
                         <div class="grid grid-2">
                             <div class="form-group"><label>Current password</label><input id="u-current-pw" type="password" class="form-control"></div>
@@ -102,7 +102,7 @@ document.querySelectorAll('.tab-btn').forEach(btn => btn.addEventListener('click
 
 document.getElementById('business-form').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const json = await Api.call('' + window.__BASE__ + '/api/business/update.php', {
+    const json = await Api.call(appBase() + '/api/business/update.php', {
         method: 'POST',
         body: {
             business_id: businessId, name: document.getElementById('b-name').value, website: document.getElementById('b-website').value,
@@ -116,7 +116,7 @@ document.getElementById('business-form').addEventListener('submit', async (e) =>
 
 document.getElementById('prefix-form').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const json = await Api.call('' + window.__BASE__ + '/api/business/settings-save.php', {
+    const json = await Api.call(appBase() + '/api/business/settings-save.php', {
         method: 'POST',
         body: { business_id: businessId, settings: { invoice_prefix: document.getElementById('p-invoice').value, quote_prefix: document.getElementById('p-quote').value, proposal_prefix: document.getElementById('p-proposal').value } },
     });
@@ -125,7 +125,7 @@ document.getElementById('prefix-form').addEventListener('submit', async (e) => {
 
 document.getElementById('profile-form').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const json = await Api.call('' + window.__BASE__ + '/api/settings/user-profile.php', {
+    const json = await Api.call(appBase() + '/api/settings/user-profile.php', {
         method: 'POST',
         body: {
             name: document.getElementById('u-name').value, phone: document.getElementById('u-phone').value,
