@@ -178,11 +178,12 @@ function generate_uuid4(): string
 }
 
 /**
- * Runs a .sql file against $pdo, splitting on statement-terminating
- * semicolons while respecting string literals, so multi-statement files
- * (schema.sql / seed.sql) work with PDO's single-statement exec().
- * This script never issues CREATE DATABASE or DROP DATABASE - it only
- * creates tables/rows inside the database you already provided.
+ * Runs a .sql file against $pdo, stripping comments and splitting on
+ * statement-terminating semicolons while respecting string literals,
+ * so multi-statement files (schema.sql / seed.sql) work with PDO's
+ * single-statement exec(). This script never issues CREATE DATABASE
+ * or DROP DATABASE - it only creates tables/rows inside the database
+ * you already provided.
  */
 function run_sql_file(PDO $pdo, string $path): void
 {
@@ -191,14 +192,82 @@ function run_sql_file(PDO $pdo, string $path): void
         throw new RuntimeException("Unable to read {$path}");
     }
 
+    $sql = strip_sql_comments($sql);
     $statements = split_sql_statements($sql);
+
     foreach ($statements as $statement) {
         $statement = trim($statement);
-        if ($statement === '' || str_starts_with($statement, '--')) {
+        if ($statement === '') {
             continue;
         }
-        $pdo->exec($statement);
+        try {
+            $pdo->exec($statement);
+        } catch (\Throwable $e) {
+            $preview = substr(preg_replace('/\s+/', ' ', $statement), 0, 120);
+            throw new RuntimeException("SQL error near: \"{$preview}...\" - " . $e->getMessage(), 0, $e);
+        }
     }
+}
+
+/**
+ * Removes `-- line comments` and `/* block comments *\/` that live
+ * OUTSIDE of string literals, without disturbing semicolons, quotes,
+ * or comment-like text that happens to appear inside a string value.
+ * This runs BEFORE statement splitting so a comment block sitting
+ * between two statements (e.g. a "-- SECTION 3: ..." banner comment
+ * directly above a CREATE TABLE) can never get glued onto the next
+ * statement and cause it to be skipped.
+ */
+function strip_sql_comments(string $sql): string
+{
+    $result = '';
+    $len = strlen($sql);
+    $inString = false;
+    $stringChar = '';
+
+    for ($i = 0; $i < $len; $i++) {
+        $char = $sql[$i];
+        $next = $i + 1 < $len ? $sql[$i + 1] : '';
+
+        if ($inString) {
+            $result .= $char;
+            if ($char === $stringChar && ($i === 0 || $sql[$i - 1] !== '\\')) {
+                $inString = false;
+            }
+            continue;
+        }
+
+        if ($char === "'" || $char === '"') {
+            $inString = true;
+            $stringChar = $char;
+            $result .= $char;
+            continue;
+        }
+
+        // Line comment: -- ... (to end of line)
+        if ($char === '-' && $next === '-') {
+            while ($i < $len && $sql[$i] !== "\n") {
+                $i++;
+            }
+            $result .= "\n";
+            continue;
+        }
+
+        // Block comment: /* ... */
+        if ($char === '/' && $next === '*') {
+            $i += 2;
+            while ($i < $len && !($sql[$i] === '*' && ($i + 1 < $len && $sql[$i + 1] === '/'))) {
+                $i++;
+            }
+            $i++; // consume the trailing '/'
+            $result .= ' ';
+            continue;
+        }
+
+        $result .= $char;
+    }
+
+    return $result;
 }
 
 /** @return string[] */
