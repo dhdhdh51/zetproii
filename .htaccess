@@ -18,14 +18,19 @@ Options -Indexes
     RewriteRule ^\.(?!well-known) - [F,L]
     RewriteRule ^(app|database|storage|docs)/ - [F,L]
 
-    # Serve real files/directories (css, js, images, existing php pages) as-is
+    # Homepage: must be handled BEFORE the -d directory check below, because
+    # for the root URL REQUEST_FILENAME resolves to the document root itself
+    # (a real directory) - which would otherwise short-circuit to Apache's
+    # DirectoryIndex and 403, since there is no index.php at the project root.
+    RewriteRule ^$ public/index.php [L]
+
+    # Serve real files/directories (css, js, images, existing php pages,
+    # and the auth/ dashboard/ admin/ api/ cron/ folders) as-is.
     RewriteCond %{REQUEST_FILENAME} -f [OR]
     RewriteCond %{REQUEST_FILENAME} -d
     RewriteRule ^ - [L]
 
-    # Public marketing site is served from /public; everything else maps
-    # to the matching folder (auth/, dashboard/, admin/, api/) already on disk.
-    RewriteRule ^$ public/index.php [L]
+    # Everything else is a marketing-site pretty URL -> /public router.
     RewriteRule ^(.*)$ public/index.php?route=$1 [L,QSA]
 </IfModule>
 

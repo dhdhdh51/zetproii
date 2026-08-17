@@ -147,17 +147,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $step === '3') {
                 )->execute([$uuid, $adminName, $adminEmail, $hash]);
             }
 
-            // Write the real .env file.
+            // Build the .env contents and attempt to write it.
             $appKey = bin2hex(random_bytes(32));
             $cronSecret = bin2hex(random_bytes(24));
-            write_env_file($envPath, $dbInfo, $appKey, $cronSecret);
+            $envContents = build_env_contents($rootDir, $dbInfo, $appKey, $cronSecret);
 
-            // Lock the installer so it can't be run again.
-            @mkdir(dirname($lockPath), 0755, true);
-            file_put_contents($lockPath, "Installed on " . date('c') . "\n");
+            $envWritten = write_env_file($envPath, $envContents);
 
-            unset($_SESSION['install_db']);
-            $step = 'done';
+            if (!$envWritten) {
+                // The web server user can't write to the project root (common
+                // on hardened/VPS setups). Do NOT pretend the install
+                // succeeded and do NOT create the lock file - instead show
+                // the user the exact file contents to paste in manually, so
+                // they can finish the install and re-run this final step.
+                $_SESSION['install_env_contents'] = $envContents;
+                $errors[] = 'Your database and admin account were set up successfully, but the installer '
+                    . 'could not write the .env file (the web server does not have write permission on '
+                    . 'the project root). Please create the .env file manually using the contents shown below, '
+                    . 'then reload this page.';
+                $step = 'manual_env';
+            } else {
+                // Only lock the installer once EVERYTHING succeeded.
+                @mkdir(dirname($lockPath), 0755, true);
+                if (@file_put_contents($lockPath, "Installed on " . date('c') . "\n") === false) {
+                    // Non-fatal: install is complete, we just couldn't drop the
+                    // lock marker. Warn the user to delete install.php manually.
+                    $_SESSION['install_lock_warning'] = true;
+                }
+                unset($_SESSION['install_db'], $_SESSION['install_env_contents']);
+                $step = 'done';
+            }
         } catch (\Throwable $e) {
             $errors[] = 'Failed to finalize installation: ' . $e->getMessage();
             $step = '3';
@@ -309,10 +328,17 @@ function split_sql_statements(string $sql): array
     return $statements;
 }
 
-function write_env_file(string $envPath, array $db, string $appKey, string $cronSecret): void
+/**
+ * Builds the full .env file contents (based on .env.example when
+ * available, so any keys added to the example are preserved).
+ */
+function build_env_contents(string $rootDir, array $db, string $appKey, string $cronSecret): string
 {
-    $examplePath = dirname($envPath) . '/.env.example';
+    $examplePath = $rootDir . '/.env.example';
     $template = is_file($examplePath) ? (string) file_get_contents($examplePath) : '';
+
+    // If the site is being served over HTTPS, enable the secure-cookie flag.
+    $isHttps = str_starts_with(strtolower($db['app_url']), 'https://');
 
     $replacements = [
         '/^APP_ENV=.*/m' => 'APP_ENV=production',
@@ -325,21 +351,40 @@ function write_env_file(string $envPath, array $db, string $appKey, string $cron
         '/^DB_USERNAME=.*/m' => 'DB_USERNAME=' . $db['user'],
         '/^DB_PASSWORD=.*/m' => 'DB_PASSWORD=' . $db['pass'],
         '/^CRON_SECRET=.*/m' => 'CRON_SECRET=' . $cronSecret,
+        '/^SESSION_SECURE_COOKIE=.*/m' => 'SESSION_SECURE_COOKIE=' . ($isHttps ? 'true' : 'false'),
     ];
 
     if ($template !== '') {
-        $content = preg_replace(array_keys($replacements), array_values($replacements), $template);
-    } else {
-        // .env.example missing - write a minimal working .env directly.
-        $content = "APP_NAME=\"BharatAI Business OS\"\n" .
-            "APP_ENV=production\nAPP_DEBUG=false\nAPP_URL={$db['app_url']}\nAPP_KEY={$appKey}\n\n" .
-            "DB_HOST={$db['host']}\nDB_PORT={$db['port']}\nDB_DATABASE={$db['name']}\n" .
-            "DB_USERNAME={$db['user']}\nDB_PASSWORD={$db['pass']}\nDB_CHARSET=utf8mb4\n\n" .
-            "SESSION_SECURE_COOKIE=true\nCRON_SECRET={$cronSecret}\n";
+        return (string) preg_replace(array_keys($replacements), array_values($replacements), $template);
     }
 
-    file_put_contents($envPath, $content);
+    // .env.example missing - build a minimal working .env directly.
+    return "APP_NAME=\"BharatAI Business OS\"\n" .
+        "APP_ENV=production\nAPP_DEBUG=false\nAPP_URL={$db['app_url']}\nAPP_KEY={$appKey}\n" .
+        "APP_TIMEZONE=Asia/Kolkata\nAPP_LOCALE=en\n\n" .
+        "DB_HOST={$db['host']}\nDB_PORT={$db['port']}\nDB_DATABASE={$db['name']}\n" .
+        "DB_USERNAME={$db['user']}\nDB_PASSWORD={$db['pass']}\nDB_CHARSET=utf8mb4\n\n" .
+        "SESSION_SECURE_COOKIE=" . ($isHttps ? 'true' : 'false') . "\n" .
+        "SESSION_LIFETIME=120\nCSRF_TOKEN_TTL=3600\n" .
+        "LOGIN_MAX_ATTEMPTS=5\nLOGIN_LOCKOUT_MINUTES=15\n\n" .
+        "CRON_SECRET={$cronSecret}\n\n" .
+        "MAX_UPLOAD_SIZE_MB=25\nUPLOAD_PATH=storage/uploads\n";
+}
+
+/**
+ * Writes the .env file, returning false (rather than emitting a warning
+ * and silently continuing) if the web server lacks write permission on
+ * the project root - which is common on hardened VPS setups where the
+ * document root is owned by a different user than the PHP process.
+ */
+function write_env_file(string $envPath, string $contents): bool
+{
+    $bytes = @file_put_contents($envPath, $contents);
+    if ($bytes === false || $bytes === 0) {
+        return false;
+    }
     @chmod($envPath, 0640);
+    return true;
 }
 
 function check_requirements(): array
@@ -352,6 +397,10 @@ function check_requirements(): array
     $checks['storage/ is writable'] = is_writable(__DIR__ . '/storage') || @mkdir(__DIR__ . '/storage', 0755, true);
     $checks['public/uploads/ is writable'] = is_writable(__DIR__ . '/public/uploads') || is_dir(__DIR__ . '/public/uploads');
     $checks['.env does not already exist'] = !is_file(__DIR__ . '/.env');
+    // If the project root isn't writable we can't generate .env automatically.
+    // Not fatal (the installer falls back to showing the contents for manual
+    // creation), so this is reported separately as a warning-style check.
+    $checks['Project root is writable (for .env)'] = is_writable(__DIR__);
     return $checks;
 }
 
@@ -415,12 +464,28 @@ function install_styles(): string
         <?php if ($step === '1'): ?>
             <h1>Step 1 of 3 — System Requirements</h1>
             <p>Checking that your server meets the requirements to run BharatAI Business OS.</p>
-            <?php $checks = check_requirements(); $allOk = !in_array(false, $checks, true); ?>
+            <?php
+            $checks = check_requirements();
+            // This one is only a warning - the installer can still finish and
+            // will show you the .env contents to create manually instead.
+            $warnOnly = ['Project root is writable (for .env)'];
+            $blockers = array_filter($checks, fn ($ok, $label) => !$ok && !in_array($label, $warnOnly, true), ARRAY_FILTER_USE_BOTH);
+            $allOk = count($blockers) === 0;
+            ?>
             <?php foreach ($checks as $label => $ok): ?>
-                <div class="check"><span><?= htmlspecialchars($label) ?></span><span class="<?= $ok ? 'ok' : 'fail' ?>"><?= $ok ? 'OK' : 'FAIL' ?></span></div>
+                <?php $isWarn = in_array($label, $warnOnly, true); ?>
+                <div class="check">
+                    <span><?= htmlspecialchars($label) ?></span>
+                    <span class="<?= $ok ? 'ok' : ($isWarn ? '' : 'fail') ?>" <?= (!$ok && $isWarn) ? 'style="color:#b45309;font-weight:700;"' : '' ?>>
+                        <?= $ok ? 'OK' : ($isWarn ? 'WARN' : 'FAIL') ?>
+                    </span>
+                </div>
             <?php endforeach; ?>
+            <?php if (!$checks['Project root is writable (for .env)']): ?>
+                <p class="help">⚠️ The project root isn't writable, so the installer won't be able to create <code>.env</code> automatically. That's fine — it will show you the exact contents to paste into a <code>.env</code> file yourself at the end.</p>
+            <?php endif; ?>
             <?php if (!$allOk): ?>
-                <p class="help">Please resolve the failed checks above (or delete an existing .env file if this is a fresh install) before continuing.</p>
+                <p class="help">Please resolve the <strong>FAIL</strong> items above (or delete an existing .env file if this is a fresh install) before continuing.</p>
             <?php else: ?>
                 <a class="btn" href="?step=2">Continue &rarr;</a>
             <?php endif; ?>
@@ -459,9 +524,21 @@ function install_styles(): string
                 <button class="btn" type="submit">Finish Installation</button>
             </form>
 
+        <?php elseif ($step === 'manual_env'): ?>
+            <h1>Almost there — create your <code>.env</code> file</h1>
+            <p>Your database tables and admin account are ready. The only remaining step is the <code>.env</code> configuration file, which the installer couldn't write automatically due to file permissions.</p>
+            <p><strong>Create a file named <code>.env</code> in the project root</strong> (the same folder as <code>install.php</code>) with exactly these contents:</p>
+            <textarea readonly style="width:100%;height:280px;font-family:monospace;font-size:12px;border:1px solid #e6e4f0;border-radius:8px;padding:12px;"><?= htmlspecialchars($_SESSION['install_env_contents'] ?? '', ENT_QUOTES) ?></textarea>
+            <p class="help">In cPanel File Manager: enable <em>Settings → Show Hidden Files</em>, click <em>+ File</em>, name it <code>.env</code>, then edit it and paste the above. Keep this page open until you've saved it — the <code>APP_KEY</code> above is unique and won't be shown again.</p>
+            <p class="help"><strong>Then:</strong> delete <code>install.php</code> from your server and go to the login page.</p>
+            <a class="btn" href="/auth/login.php">I've created .env — Go to Login &rarr;</a>
+
         <?php elseif ($step === 'done'): ?>
             <h1>🎉 Installation Complete!</h1>
             <p>BharatAI Business OS has been installed successfully. Your <code>.env</code> file was generated automatically, and your admin account is ready.</p>
+            <?php if (!empty($_SESSION['install_lock_warning'])): ?>
+                <div class="error">Note: the installer couldn't create its lock file in <code>storage/</code>. Please make sure you delete <code>install.php</code> manually, since it can't self-disable.</div>
+            <?php endif; ?>
             <p><strong>Important:</strong> For security, please delete <code>install.php</code> from your server now.</p>
             <a class="btn" href="/auth/login.php">Go to Login &rarr;</a>
         <?php endif; ?>
