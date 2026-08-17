@@ -41,17 +41,27 @@ AI-powered business automation platform for small businesses, agencies, and free
 /docs         Additional documentation
 ```
 
-## Quick start (local development)
+## Quick start
+
+### Option A — Web installer (recommended for shared hosting / cPanel)
+
+1. Create an empty MySQL database yourself first (e.g. via cPanel → **MySQL® Databases**, or `CREATE DATABASE bharatai;` if you have shell access). The installer never creates a database for you — it only imports tables into one you already made.
+2. Upload the project files, then visit `https://yourdomain.com/install.php` in your browser.
+3. Follow the 3-step wizard: it checks server requirements, connects to your database and imports `schema.sql`/`seed.sql`, then lets you create your own admin login and automatically writes a working `.env` file (with a random `APP_KEY` generated for you).
+4. **Delete `install.php` from the server once it reports success** (it also self-locks via `storage/.installed` so it won't run twice, but deleting it is still the safest option).
+
+### Option B — Manual setup (for local development / VPS)
 
 1. Copy `.env.example` to `.env` and fill in your database credentials and a random `APP_KEY`:
    ```bash
    cp .env.example .env
    php -r "echo bin2hex(random_bytes(32));"   # paste the output as APP_KEY
    ```
-2. Create the database and import the schema + seed data:
+2. Create an empty database yourself (schema.sql/seed.sql only contain `CREATE TABLE IF NOT EXISTS` and `INSERT` statements — they never issue `CREATE DATABASE`, so you must create it first):
    ```sql
    CREATE DATABASE bharatai CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
    ```
+   Then import the schema and seed data into it:
    ```bash
    mysql -u your_user -p bharatai < database/schema.sql
    mysql -u your_user -p bharatai < database/seed.sql

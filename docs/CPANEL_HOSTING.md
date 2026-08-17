@@ -37,17 +37,25 @@ Before starting, confirm your hosting plan has:
 
 ---
 
-## Step 3 — Import the database schema
+## Step 3 — Import the database (two options)
+
+**Option A — Use the web installer (easiest, recommended):**
+
+Skip straight to Step 5 below and visit `https://yourdomain.com/install.php`. It will connect to the empty database you created in Step 1, import `schema.sql` and `seed.sql` for you, let you create your own admin login, and automatically write a working `.env` file — you can skip Step 4 (manual `.env` editing) entirely if you use this option.
+
+**Option B — Import manually via phpMyAdmin:**
 
 1. In cPanel, open **phpMyAdmin**.
 2. Select your database in the left sidebar.
 3. Click the **Import** tab.
-4. Click **Choose File**, select `database/schema.sql` from the files you uploaded (or from your local copy), and click **Go**. Wait for it to finish — this creates all ~80 tables.
-5. Repeat the **Import** step with `database/seed.sql` — this adds default roles, permissions, subscription plans, email templates, and the bootstrap admin account.
+4. Click **Choose File**, select `database/schema.sql` from the files you uploaded (or from your local copy), and click **Go**. Wait for it to finish — this creates all ~80 tables. (Note: this file only contains `CREATE TABLE IF NOT EXISTS` statements — it does **not** create the database itself, since you already created that in Step 1.)
+5. Repeat the **Import** step with `database/seed.sql` — this adds default roles, permissions, subscription plans, email templates, and a bootstrap admin account (`admin@bharatai.example` / `ChangeMe@123` — change this immediately after logging in).
+
+If you used Option B, continue to Step 4 below to configure `.env` manually. If you used Option A (the installer), skip ahead to Step 6.
 
 ---
 
-## Step 4 — Configure the `.env` file
+## Step 4 — Configure the `.env` file (skip if you used the web installer)
 
 1. In **File Manager**, click the **Settings** gear icon (top right) and enable **Show Hidden Files (dotfiles)**.
 2. Find `.env.example` in your uploaded files, right-click it, choose **Copy**, and name the copy `.env`.

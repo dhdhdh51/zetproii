@@ -1,0 +1,30 @@
+# Environment / secrets - never commit real credentials
+.env
+
+# Installer lock file (created after successful install.php run)
+storage/.installed
+
+# Logs
+storage/logs/*.log
+
+# Cache
+storage/cache/*
+!storage/cache/.gitkeep
+
+# Sessions
+storage/sessions/*
+!storage/sessions/.gitkeep
+
+# User-uploaded files (business documents, knowledge base uploads, etc.)
+storage/uploads/*
+!storage/uploads/.gitkeep
+public/uploads/*
+!public/uploads/.gitkeep
+!public/uploads/.htaccess
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/
