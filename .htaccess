@@ -24,6 +24,15 @@ Options -Indexes
     # DirectoryIndex and 403, since there is no index.php at the project root.
     RewriteRule ^$ public/index.php [L]
 
+    # Static assets: pages reference them as /assets/... (which is the correct
+    # public-facing path), but they physically live in /public/assets/... since
+    # the document root is the project root (so that /auth, /dashboard, /admin,
+    # /api are reachable). Map them across, otherwise every CSS/JS/image
+    # request falls through to the marketing router and 404s - which renders
+    # the whole app completely unstyled.
+    RewriteRule ^assets/(.*)$ public/assets/$1 [L]
+    RewriteRule ^uploads/(.*)$ public/uploads/$1 [L]
+
     # Serve real files/directories (css, js, images, existing php pages,
     # and the auth/ dashboard/ admin/ api/ cron/ folders) as-is.
     RewriteCond %{REQUEST_FILENAME} -f [OR]
