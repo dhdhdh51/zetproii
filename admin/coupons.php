@@ -9,11 +9,11 @@ require_once __DIR__ . '/_init.php';
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Coupons — Admin | BharatAI Business OS</title>
-<link rel="stylesheet" href="/assets/css/app.css">
+<link rel="stylesheet" href="<?= asset('css/app.css') ?>">
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js" defer></script>
 </head>
 <body>
-<script>window.__CSRF_TOKEN__ = <?= json_encode(Security::csrfToken()) ?>;</script>
+<script>window.__CSRF_TOKEN__ = <?= json_encode(Security::csrfToken()) ?>; window.__BASE__ = <?= json_encode(Url::basePath()) ?>;</script>
 <div class="app-shell">
     <?php include __DIR__ . '/partials/sidebar.php'; ?>
     <div class="main-content">
@@ -42,10 +42,10 @@ require_once __DIR__ . '/_init.php';
         </div>
     </div>
 </div>
-<script src="/assets/js/app.js"></script>
+<script src="<?= asset('js/app.js') ?>"></script>
 <script>
 async function load() {
-    const json = await Api.call('/api/admin/coupons.php');
+    const json = await Api.call('' + window.__BASE__ + '/api/admin/coupons.php');
     if (!json.success) { Toast.error(json.message); return; }
     document.getElementById('tbody').innerHTML = json.data.length === 0
         ? '<tr><td colspan="5"><div class="empty-state">No coupons yet.</div></td></tr>'
@@ -60,7 +60,7 @@ async function load() {
 
 document.getElementById('coupon-form').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const json = await Api.call('/api/admin/coupons.php', {
+    const json = await Api.call('' + window.__BASE__ + '/api/admin/coupons.php', {
         method: 'POST',
         body: { code: document.getElementById('c-code').value, discount_type: document.getElementById('c-type').value, discount_value: document.getElementById('c-value').value, max_redemptions: document.getElementById('c-max').value || null },
     });
@@ -69,7 +69,7 @@ document.getElementById('coupon-form').addEventListener('submit', async (e) => {
 
 async function deleteCoupon(id) {
     if (!confirm('Delete this coupon?')) return;
-    const json = await Api.call('/api/admin/coupons.php', { method: 'DELETE', body: { id } });
+    const json = await Api.call('' + window.__BASE__ + '/api/admin/coupons.php', { method: 'DELETE', body: { id } });
     if (json.success) { Toast.success('Deleted.'); load(); } else { Toast.error(json.message); }
 }
 

@@ -48,7 +48,7 @@ try {
                         <h3><?= View::e($post['title']) ?></h3>
                         <p><?= View::e($post['meta_description'] ?? '') ?></p>
                         <p style="font-size:13px;margin-top:10px;">
-                            <a href="/blog/<?= View::e($post['slug']) ?>">Read more &rarr;</a>
+                            <a href="<?= url('blog') ?>/<?= View::e($post['slug']) ?>">Read more &rarr;</a>
                         </p>
                     </div>
                     <?php endforeach; ?>

@@ -10,11 +10,11 @@ $user = $currentUser;
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Knowledge Base — BharatAI Business OS</title>
-<link rel="stylesheet" href="/assets/css/app.css">
+<link rel="stylesheet" href="<?= asset('css/app.css') ?>">
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js" defer></script>
 </head>
 <body>
-<script>window.__CSRF_TOKEN__ = <?= json_encode(Security::csrfToken()) ?>;</script>
+<script>window.__CSRF_TOKEN__ = <?= json_encode(Security::csrfToken()) ?>; window.__BASE__ = <?= json_encode(Url::basePath()) ?>;</script>
 <div class="app-shell">
     <?php include __DIR__ . '/partials/sidebar.php'; ?>
     <div class="main-content">
@@ -58,7 +58,7 @@ $user = $currentUser;
     </div>
 </div>
 
-<script src="/assets/js/app.js"></script>
+<script src="<?= asset('js/app.js') ?>"></script>
 <script>
 const businessId = <?= (int) $activeBusiness['id'] ?>;
 
@@ -68,7 +68,7 @@ function statusBadge(s) {
 }
 
 async function loadSources() {
-    const json = await Api.call('/api/knowledge/index.php?business_id=' + businessId);
+    const json = await Api.call('' + window.__BASE__ + '/api/knowledge/index.php?business_id=' + businessId);
     const tbody = document.getElementById('sources-tbody');
     if (!json.success) { Toast.error(json.message); return; }
     if (json.data.length === 0) {
@@ -89,13 +89,13 @@ async function loadSources() {
 }
 
 async function deleteSource(id) {
-    const json = await Api.call('/api/knowledge/index.php', { method: 'DELETE', body: { business_id: businessId, id } });
+    const json = await Api.call('' + window.__BASE__ + '/api/knowledge/index.php', { method: 'DELETE', body: { business_id: businessId, id } });
     if (json.success) { Toast.success('Removed.'); loadSources(); } else { Toast.error(json.message); }
 }
 
 document.getElementById('text-form').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const json = await Api.call('/api/knowledge/index.php', {
+    const json = await Api.call('' + window.__BASE__ + '/api/knowledge/index.php', {
         method: 'POST',
         body: { business_id: businessId, type: 'text', title: document.getElementById('text-title').value, content: document.getElementById('text-content').value },
     });
@@ -104,7 +104,7 @@ document.getElementById('text-form').addEventListener('submit', async (e) => {
 
 document.getElementById('url-form').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const json = await Api.call('/api/knowledge/index.php', {
+    const json = await Api.call('' + window.__BASE__ + '/api/knowledge/index.php', {
         method: 'POST',
         body: { business_id: businessId, type: 'url', url: document.getElementById('url-input').value },
     });
@@ -120,7 +120,7 @@ document.getElementById('upload-form').addEventListener('submit', async (e) => {
     formData.append('title', document.getElementById('upload-title').value);
     formData.append('file', fileInput.files[0]);
 
-    const res = await fetch('/api/knowledge/upload.php', {
+    const res = await fetch('' + window.__BASE__ + '/api/knowledge/upload.php', {
         method: 'POST', body: formData, headers: { 'X-CSRF-Token': window.__CSRF_TOKEN__ }, credentials: 'same-origin',
     });
     const json = await res.json();

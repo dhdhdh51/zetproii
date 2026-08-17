@@ -35,10 +35,10 @@ $canonicalUrl = rtrim((string) config('app.url'), '/') . '/privacy';
             <p>You may delete your account, business data, or specific records at any time. Some records may be retained as soft-deleted for a limited period for recovery and audit purposes before permanent deletion.</p>
 
             <h2>7. Your Rights</h2>
-            <p>You may request a copy of your data or request deletion of your account by contacting us via the <a href="/contact">Contact page</a>.</p>
+            <p>You may request a copy of your data or request deletion of your account by contacting us via the <a href="<?= url('contact') ?>">Contact page</a>.</p>
 
             <h2>8. Contact</h2>
-            <p>For privacy-related questions, please reach out via our <a href="/contact">Contact page</a>.</p>
+            <p>For privacy-related questions, please reach out via our <a href="<?= url('contact') ?>">Contact page</a>.</p>
         </div>
     </section>
 </main>

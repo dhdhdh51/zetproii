@@ -10,11 +10,11 @@ $user = $currentUser;
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Tasks — BharatAI Business OS</title>
-<link rel="stylesheet" href="/assets/css/app.css">
+<link rel="stylesheet" href="<?= asset('css/app.css') ?>">
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js" defer></script>
 </head>
 <body>
-<script>window.__CSRF_TOKEN__ = <?= json_encode(Security::csrfToken()) ?>;</script>
+<script>window.__CSRF_TOKEN__ = <?= json_encode(Security::csrfToken()) ?>; window.__BASE__ = <?= json_encode(Url::basePath()) ?>;</script>
 <div class="app-shell">
     <?php include __DIR__ . '/partials/sidebar.php'; ?>
     <div class="main-content">
@@ -61,7 +61,7 @@ $user = $currentUser;
     </div>
 </div>
 
-<script src="/assets/js/app.js"></script>
+<script src="<?= asset('js/app.js') ?>"></script>
 <script>
 const businessId = <?= (int) $activeBusiness['id'] ?>;
 
@@ -76,7 +76,7 @@ function priorityBadge(p) {
 
 async function load(page = 1) {
     const params = new URLSearchParams({ business_id: businessId, page, search: document.getElementById('f-search').value, status: document.getElementById('f-status').value });
-    const json = await Api.call('/api/business/tasks.php?' + params.toString());
+    const json = await Api.call('' + window.__BASE__ + '/api/business/tasks.php?' + params.toString());
     if (!json.success) { Toast.error(json.message); return; }
     document.getElementById('tbody').innerHTML = json.data.items.length === 0
         ? '<tr><td colspan="6"><div class="empty-state">No tasks yet.</div></td></tr>'
@@ -106,7 +106,7 @@ document.getElementById('btn-new').addEventListener('click', () => document.getE
 
 document.getElementById('task-form').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const json = await Api.call('/api/business/tasks.php', {
+    const json = await Api.call('' + window.__BASE__ + '/api/business/tasks.php', {
         method: 'POST',
         body: { business_id: businessId, title: document.getElementById('t-title').value, description: document.getElementById('t-desc').value, priority: document.getElementById('t-priority').value, due_at: document.getElementById('t-due').value },
     });
@@ -115,13 +115,13 @@ document.getElementById('task-form').addEventListener('submit', async (e) => {
 });
 
 async function setStatus(id, status) {
-    const json = await Api.call('/api/business/tasks.php', { method: 'PUT', body: { business_id: businessId, id, status } });
+    const json = await Api.call('' + window.__BASE__ + '/api/business/tasks.php', { method: 'PUT', body: { business_id: businessId, id, status } });
     if (json.success) { Toast.success('Task updated.'); } else { Toast.error(json.message); }
 }
 
 async function deleteTask(id) {
     if (!confirm('Delete this task?')) return;
-    const json = await Api.call('/api/business/tasks.php', { method: 'DELETE', body: { business_id: businessId, id } });
+    const json = await Api.call('' + window.__BASE__ + '/api/business/tasks.php', { method: 'DELETE', body: { business_id: businessId, id } });
     if (json.success) { Toast.success('Task deleted.'); load(1); } else { Toast.error(json.message); }
 }
 

@@ -10,11 +10,11 @@ $user = $currentUser;
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Team — BharatAI Business OS</title>
-<link rel="stylesheet" href="/assets/css/app.css">
+<link rel="stylesheet" href="<?= asset('css/app.css') ?>">
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js" defer></script>
 </head>
 <body>
-<script>window.__CSRF_TOKEN__ = <?= json_encode(Security::csrfToken()) ?>;</script>
+<script>window.__CSRF_TOKEN__ = <?= json_encode(Security::csrfToken()) ?>; window.__BASE__ = <?= json_encode(Url::basePath()) ?>;</script>
 <div class="app-shell">
     <?php include __DIR__ . '/partials/sidebar.php'; ?>
     <div class="main-content">
@@ -44,12 +44,12 @@ $user = $currentUser;
     </div>
 </div>
 
-<script src="/assets/js/app.js"></script>
+<script src="<?= asset('js/app.js') ?>"></script>
 <script>
 const businessId = <?= (int) $activeBusiness['id'] ?>;
 
 async function load() {
-    const json = await Api.call('/api/business/team.php?business_id=' + businessId);
+    const json = await Api.call('' + window.__BASE__ + '/api/business/team.php?business_id=' + businessId);
     if (!json.success) { Toast.error(json.message); return; }
     const rows = [`<tr><td>${json.data.owner.name}</td><td>${json.data.owner.email}</td><td><span class="badge badge-blue">Owner</span></td><td><span class="badge badge-green">active</span></td><td></td></tr>`]
         .concat(json.data.members.map(m => `<tr>
@@ -62,7 +62,7 @@ async function load() {
 
 document.getElementById('invite-form').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const json = await Api.call('/api/business/team.php', {
+    const json = await Api.call('' + window.__BASE__ + '/api/business/team.php', {
         method: 'POST',
         body: { business_id: businessId, email: document.getElementById('inv-email').value, role: document.getElementById('inv-role').value },
     });
@@ -71,7 +71,7 @@ document.getElementById('invite-form').addEventListener('submit', async (e) => {
 
 async function removeMember(id) {
     if (!confirm('Remove this team member?')) return;
-    const json = await Api.call('/api/business/team.php', { method: 'DELETE', body: { business_id: businessId, member_id: id } });
+    const json = await Api.call('' + window.__BASE__ + '/api/business/team.php', { method: 'DELETE', body: { business_id: businessId, member_id: id } });
     if (json.success) { Toast.success('Removed.'); load(); } else { Toast.error(json.message); }
 }
 

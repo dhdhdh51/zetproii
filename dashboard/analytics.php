@@ -10,12 +10,12 @@ $user = $currentUser;
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Analytics — BharatAI Business OS</title>
-<link rel="stylesheet" href="/assets/css/app.css">
+<link rel="stylesheet" href="<?= asset('css/app.css') ?>">
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
 </head>
 <body>
-<script>window.__CSRF_TOKEN__ = <?= json_encode(Security::csrfToken()) ?>;</script>
+<script>window.__CSRF_TOKEN__ = <?= json_encode(Security::csrfToken()) ?>; window.__BASE__ = <?= json_encode(Url::basePath()) ?>;</script>
 <div class="app-shell">
     <?php include __DIR__ . '/partials/sidebar.php'; ?>
     <div class="main-content">
@@ -36,12 +36,12 @@ $user = $currentUser;
     </div>
 </div>
 
-<script src="/assets/js/app.js"></script>
+<script src="<?= asset('js/app.js') ?>"></script>
 <script>
 const businessId = <?= (int) $activeBusiness['id'] ?>;
 
 async function load() {
-    const json = await Api.call('/api/analytics/dashboard.php?business_id=' + businessId);
+    const json = await Api.call('' + window.__BASE__ + '/api/analytics/dashboard.php?business_id=' + businessId);
     if (!json.success) { Toast.error(json.message); return; }
     const d = json.data;
     const w = d.widgets;

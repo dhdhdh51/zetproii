@@ -10,11 +10,11 @@ $user = $currentUser;
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Support — BharatAI Business OS</title>
-<link rel="stylesheet" href="/assets/css/app.css">
+<link rel="stylesheet" href="<?= asset('css/app.css') ?>">
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js" defer></script>
 </head>
 <body>
-<script>window.__CSRF_TOKEN__ = <?= json_encode(Security::csrfToken()) ?>;</script>
+<script>window.__CSRF_TOKEN__ = <?= json_encode(Security::csrfToken()) ?>; window.__BASE__ = <?= json_encode(Url::basePath()) ?>;</script>
 <div class="app-shell">
     <?php include __DIR__ . '/partials/sidebar.php'; ?>
     <div class="main-content">
@@ -43,7 +43,7 @@ $user = $currentUser;
 
 <div class="modal-overlay" id="ticket-detail-modal"><div class="modal-box" id="ticket-detail-content"></div></div>
 
-<script src="/assets/js/app.js"></script>
+<script src="<?= asset('js/app.js') ?>"></script>
 <script>
 const businessId = <?= (int) $activeBusiness['id'] ?>;
 
@@ -53,7 +53,7 @@ function statusBadge(s) {
 }
 
 async function loadTickets() {
-    const json = await Api.call('/api/business/support-tickets.php');
+    const json = await Api.call('' + window.__BASE__ + '/api/business/support-tickets.php');
     const list = document.getElementById('tickets-list');
     if (!json.success || json.data.length === 0) { list.innerHTML = '<div class="empty-state">No support tickets yet.</div>'; return; }
     list.innerHTML = json.data.map(t => `
@@ -66,7 +66,7 @@ async function loadTickets() {
 
 document.getElementById('ticket-form').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const json = await Api.call('/api/business/support-tickets.php', {
+    const json = await Api.call('' + window.__BASE__ + '/api/business/support-tickets.php', {
         method: 'POST',
         body: { business_id: businessId, subject: document.getElementById('t-subject').value, description: document.getElementById('t-desc').value, priority: document.getElementById('t-priority').value },
     });
@@ -74,7 +74,7 @@ document.getElementById('ticket-form').addEventListener('submit', async (e) => {
 });
 
 async function openTicket(id) {
-    const json = await Api.call('/api/business/support-ticket-detail.php?id=' + id);
+    const json = await Api.call('' + window.__BASE__ + '/api/business/support-ticket-detail.php?id=' + id);
     if (!json.success) { Toast.error(json.message); return; }
     const t = json.data;
     document.getElementById('ticket-detail-content').innerHTML = `
@@ -93,7 +93,7 @@ async function openTicket(id) {
 async function sendReply(ticketId) {
     const message = document.getElementById('reply-text').value.trim();
     if (!message) return;
-    const json = await Api.call('/api/business/support-ticket-detail.php', { method: 'POST', body: { id: ticketId, message } });
+    const json = await Api.call('' + window.__BASE__ + '/api/business/support-ticket-detail.php', { method: 'POST', body: { id: ticketId, message } });
     if (json.success) { Toast.success('Reply sent.'); openTicket(ticketId); } else { Toast.error(json.message); }
 }
 

@@ -28,6 +28,27 @@ ini_set('display_errors', '1');
 session_start();
 
 $rootDir = __DIR__;
+
+/**
+ * Base path of this installation as seen from the browser.
+ *
+ * install.php always lives in the project root, so the directory part of
+ * SCRIPT_NAME *is* the base path. Works for a root install ("" ) and for a
+ * subfolder install such as /zetpro-main ("/zetpro-main").
+ */
+function install_base(): string
+{
+    $dir = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '/install.php'));
+    return ($dir === '/' || $dir === '.') ? '' : rtrim($dir, '/');
+}
+
+/** Build a browser-usable URL for a path relative to the project root. */
+function install_url(string $path = ''): string
+{
+    $p = ltrim($path, '/');
+    return install_base() . '/' . $p;
+}
+
 $envPath = $rootDir . '/.env';
 $lockPath = $rootDir . '/storage/.installed';
 $schemaPath = $rootDir . '/database/schema.sql';
@@ -439,7 +460,7 @@ function render_locked_page(): void
         '<h1>✅ Already Installed</h1>' .
         '<p>BharatAI Business OS has already been installed on this server.</p>' .
         '<p>For security, please <strong>delete <code>install.php</code></strong> from your server now.</p>' .
-        '<p><a class="btn" href="/">Go to homepage</a></p>' .
+        '<p><a class="btn" href="' . install_url() . '">Go to homepage</a></p>' .
         '</div></div></body></html>';
 }
 
@@ -520,7 +541,7 @@ function install_styles(): string
         <?php elseif ($step === '2'): ?>
             <h1>Step 2 of 3 — Database Connection</h1>
             <p class="help"><strong>Create the database first</strong> using your host's control panel (e.g. cPanel &gt; MySQL Databases) before continuing. This installer will only import tables into a database that already exists — it will never try to create one for you.</p>
-            <form method="POST" action="install.php">
+            <form method="POST" action="<?= install_url('install.php') ?>">
                 <input type="hidden" name="step" value="2">
                 <label>Database Host</label>
                 <input type="text" name="db_host" value="localhost" required>
@@ -546,7 +567,7 @@ function install_styles(): string
                 </p>
             <?php endif; ?>
             <p>Database tables imported successfully. Now set up your own administrator login (this replaces the default seeded account).</p>
-            <form method="POST" action="install.php">
+            <form method="POST" action="<?= install_url('install.php') ?>">
                 <input type="hidden" name="step" value="3">
                 <label>Your Name</label>
                 <input type="text" name="admin_name" required>
@@ -564,7 +585,7 @@ function install_styles(): string
             <textarea readonly style="width:100%;height:280px;font-family:monospace;font-size:12px;border:1px solid #e6e4f0;border-radius:8px;padding:12px;"><?= htmlspecialchars($_SESSION['install_env_contents'] ?? '', ENT_QUOTES) ?></textarea>
             <p class="help">In cPanel File Manager: enable <em>Settings → Show Hidden Files</em>, click <em>+ File</em>, name it <code>.env</code>, then edit it and paste the above. Keep this page open until you've saved it — the <code>APP_KEY</code> above is unique and won't be shown again.</p>
             <p class="help"><strong>Then:</strong> delete <code>install.php</code> from your server and go to the login page.</p>
-            <a class="btn" href="/auth/login.php">I've created .env — Go to Login &rarr;</a>
+            <a class="btn" href="<?= install_url('auth/login.php') ?>">I've created .env — Go to Login &rarr;</a>
 
         <?php elseif ($step === 'done'): ?>
             <h1>🎉 Installation Complete!</h1>
@@ -573,7 +594,7 @@ function install_styles(): string
                 <div class="error">Note: the installer couldn't create its lock file in <code>storage/</code>. Please make sure you delete <code>install.php</code> manually, since it can't self-disable.</div>
             <?php endif; ?>
             <p><strong>Important:</strong> For security, please delete <code>install.php</code> from your server now.</p>
-            <a class="btn" href="/auth/login.php">Go to Login &rarr;</a>
+            <a class="btn" href="<?= install_url('auth/login.php') ?>">Go to Login &rarr;</a>
         <?php endif; ?>
     </div>
 </div>

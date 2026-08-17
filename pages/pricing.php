@@ -65,7 +65,7 @@ $featureLabels = [
                             </li>
                         <?php endforeach; ?>
                     </ul>
-                    <a href="/auth/register.php?plan=<?= View::e($plan['slug']) ?>" class="btn btn-block <?= $plan['slug'] === 'growth' ? 'btn-primary' : 'btn-ghost' ?>">
+                    <a href="<?= url('auth/register.php') ?>?plan=<?= View::e($plan['slug']) ?>" class="btn btn-block <?= $plan['slug'] === 'growth' ? 'btn-primary' : 'btn-ghost' ?>">
                         <?= (float) $plan['price_monthly'] == 0 ? 'Start Free' : 'Choose ' . View::e($plan['name']) ?>
                     </a>
                 </div>
@@ -79,7 +79,7 @@ $featureLabels = [
             <div class="section-head"><h2>Pricing FAQ</h2></div>
             <details class="faq-item"><summary>Can I change plans later? <i data-lucide="chevron-down"></i></summary><p>Yes, upgrade or downgrade anytime from Billing settings. Usage limits are enforced server-side immediately after a plan change.</p></details>
             <details class="faq-item"><summary>What happens if I exceed my limits? <i data-lucide="chevron-down"></i></summary><p>You'll be notified in-app and asked to upgrade before further usage of that specific feature (e.g. AI credits) is blocked.</p></details>
-            <details class="faq-item"><summary>Do you offer refunds? <i data-lucide="chevron-down"></i></summary><p>See our <a href="/refund-policy">Refund Policy</a> for full details.</p></details>
+            <details class="faq-item"><summary>Do you offer refunds? <i data-lucide="chevron-down"></i></summary><p>See our <a href="<?= url('refund-policy') ?>">Refund Policy</a> for full details.</p></details>
         </div>
     </section>
 </main>

@@ -10,11 +10,11 @@ $user = $currentUser;
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Quotations — BharatAI Business OS</title>
-<link rel="stylesheet" href="/assets/css/app.css">
+<link rel="stylesheet" href="<?= asset('css/app.css') ?>">
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js" defer></script>
 </head>
 <body>
-<script>window.__CSRF_TOKEN__ = <?= json_encode(Security::csrfToken()) ?>;</script>
+<script>window.__CSRF_TOKEN__ = <?= json_encode(Security::csrfToken()) ?>; window.__BASE__ = <?= json_encode(Url::basePath()) ?>;</script>
 <div class="app-shell">
     <?php include __DIR__ . '/partials/sidebar.php'; ?>
     <div class="main-content">
@@ -67,7 +67,7 @@ $user = $currentUser;
     </div>
 </div>
 
-<script src="/assets/js/app.js"></script>
+<script src="<?= asset('js/app.js') ?>"></script>
 <script>
 const businessId = <?= (int) $activeBusiness['id'] ?>;
 let itemRowCount = 0;
@@ -93,14 +93,14 @@ function addItemRow() {
 
 async function load(page = 1) {
     const params = new URLSearchParams({ business_id: businessId, page, search: document.getElementById('f-search').value });
-    const json = await Api.call('/api/business/quotations.php?' + params.toString());
+    const json = await Api.call('' + window.__BASE__ + '/api/business/quotations.php?' + params.toString());
     if (!json.success) { Toast.error(json.message); return; }
     document.getElementById('tbody').innerHTML = json.data.items.length === 0
         ? '<tr><td colspan="6"><div class="empty-state">No quotations yet.</div></td></tr>'
         : json.data.items.map(q => `<tr>
             <td>${q.quote_number}</td><td>${q.customer_name || '-'}</td><td>₹${Number(q.total).toLocaleString()}</td>
             <td>${statusBadge(q.status)}</td><td>${new Date(q.created_at).toLocaleDateString()}</td>
-            <td><a href="/dashboard/print-document.php?business_id=${businessId}&type=quotation&id=${q.id}" target="_blank" class="btn btn-secondary" style="width:auto;padding:6px 10px;display:inline-flex;"><i data-lucide="printer" style="width:14px;height:14px;"></i></a></td>
+            <td><a href="<?= url('dashboard/print-document.php') ?>?business_id=${businessId}&type=quotation&id=${q.id}" target="_blank" class="btn btn-secondary" style="width:auto;padding:6px 10px;display:inline-flex;"><i data-lucide="printer" style="width:14px;height:14px;"></i></a></td>
         </tr>`).join('');
     if (window.lucide) lucide.createIcons();
 
@@ -118,7 +118,7 @@ document.getElementById('ai-submit').addEventListener('click', async () => {
     const requirement = document.getElementById('ai-requirement').value.trim();
     if (!requirement) return;
     Toast.success('Generating with AI...');
-    const json = await Api.call('/api/ai/generate-quote.php', { method: 'POST', body: { business_id: businessId, requirement } });
+    const json = await Api.call('' + window.__BASE__ + '/api/ai/generate-quote.php', { method: 'POST', body: { business_id: businessId, requirement } });
     if (json.success) { Toast.success('Quote generated!'); document.getElementById('ai-modal').classList.remove('open'); load(1); }
     else { Toast.error(json.message || 'AI generation failed.'); }
 });
@@ -135,7 +135,7 @@ document.getElementById('manual-form').addEventListener('submit', async (e) => {
             tax_percent: row.querySelector('.item-tax').value,
         });
     });
-    const json = await Api.call('/api/business/quotations.php', { method: 'POST', body: { business_id: businessId, items, notes: document.getElementById('m-notes').value } });
+    const json = await Api.call('' + window.__BASE__ + '/api/business/quotations.php', { method: 'POST', body: { business_id: businessId, items, notes: document.getElementById('m-notes').value } });
     if (json.success) { Toast.success('Quotation created.'); document.getElementById('manual-modal').classList.remove('open'); load(1); }
     else { Toast.error(json.message); }
 });

@@ -52,7 +52,8 @@
             submitBtn.textContent = 'Sending...';
 
             try {
-                var res = await fetch('/api/business/contact-message.php', {
+                var base = (typeof window.__BASE__ === 'string') ? window.__BASE__ : '';
+                var res = await fetch(base + '/api/business/contact-message.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload),

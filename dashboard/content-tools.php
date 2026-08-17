@@ -10,7 +10,7 @@ $user = $currentUser;
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AI Content Tools — BharatAI Business OS</title>
-<link rel="stylesheet" href="/assets/css/app.css">
+<link rel="stylesheet" href="<?= asset('css/app.css') ?>">
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js" defer></script>
 <style>
 .tabs { display: flex; gap: 6px; margin-bottom: 16px; border-bottom: 1px solid var(--color-border); }
@@ -21,7 +21,7 @@ $user = $currentUser;
 </style>
 </head>
 <body>
-<script>window.__CSRF_TOKEN__ = <?= json_encode(Security::csrfToken()) ?>;</script>
+<script>window.__CSRF_TOKEN__ = <?= json_encode(Security::csrfToken()) ?>; window.__BASE__ = <?= json_encode(Url::basePath()) ?>;</script>
 <div class="app-shell">
     <?php include __DIR__ . '/partials/sidebar.php'; ?>
     <div class="main-content">
@@ -122,7 +122,7 @@ $user = $currentUser;
     </div>
 </div>
 
-<script src="/assets/js/app.js"></script>
+<script src="<?= asset('js/app.js') ?>"></script>
 <script>
 const businessId = <?= (int) $activeBusiness['id'] ?>;
 
@@ -135,7 +135,7 @@ document.querySelectorAll('.tab-btn').forEach(btn => btn.addEventListener('click
 
 // ---- Reviews ----
 async function loadReviews() {
-    const json = await Api.call('/api/business/reviews.php?business_id=' + businessId);
+    const json = await Api.call('' + window.__BASE__ + '/api/business/reviews.php?business_id=' + businessId);
     const list = document.getElementById('reviews-list');
     if (!json.success || json.data.length === 0) { list.innerHTML = '<div class="empty-state">No reviews added yet.</div>'; return; }
     list.innerHTML = json.data.map(r => `
@@ -153,7 +153,7 @@ async function loadReviews() {
 
 document.getElementById('review-form').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const json = await Api.call('/api/business/reviews.php', {
+    const json = await Api.call('' + window.__BASE__ + '/api/business/reviews.php', {
         method: 'POST',
         body: { business_id: businessId, customer_name: document.getElementById('rv-name').value, source: document.getElementById('rv-source').value, rating: document.getElementById('rv-rating').value, review_text: document.getElementById('rv-text').value },
     });
@@ -162,7 +162,7 @@ document.getElementById('review-form').addEventListener('submit', async (e) => {
 
 async function generateReply(reviewId) {
     Toast.success('Generating reply...');
-    const json = await Api.call('/api/ai/review-reply.php', { method: 'POST', body: { business_id: businessId, review_id: reviewId } });
+    const json = await Api.call('' + window.__BASE__ + '/api/ai/review-reply.php', { method: 'POST', body: { business_id: businessId, review_id: reviewId } });
     const box = document.getElementById('reply-' + reviewId);
     if (json.success) { box.innerHTML = `<div class="card" style="margin-top:8px;background:var(--color-bg);"><p style="font-size:13.5px;margin:0;">${json.data.reply_text}</p></div>`; }
     else { Toast.error(json.message); }
@@ -170,7 +170,7 @@ async function generateReply(reviewId) {
 
 // ---- Social ----
 async function loadSocial() {
-    const json = await Api.call('/api/ai/social-post.php?business_id=' + businessId);
+    const json = await Api.call('' + window.__BASE__ + '/api/ai/social-post.php?business_id=' + businessId);
     const list = document.getElementById('social-list');
     if (!json.success || json.data.length === 0) { list.innerHTML = '<div class="empty-state">No drafts yet.</div>'; return; }
     list.innerHTML = json.data.map(p => `<div class="card" style="margin-bottom:10px;"><span class="badge badge-blue">${p.platform}</span> <span style="color:var(--color-text-muted);font-size:12px;">${new Date(p.created_at).toLocaleDateString()}</span><p style="font-size:14px;margin:8px 0;white-space:pre-wrap;">${p.content}</p></div>`).join('');
@@ -179,7 +179,7 @@ async function loadSocial() {
 document.getElementById('social-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     Toast.success('Generating post...');
-    const json = await Api.call('/api/ai/social-post.php', {
+    const json = await Api.call('' + window.__BASE__ + '/api/ai/social-post.php', {
         method: 'POST',
         body: {
             business_id: businessId, platform: document.getElementById('sc-platform').value, tone: document.getElementById('sc-tone').value,
@@ -193,7 +193,7 @@ document.getElementById('social-form').addEventListener('submit', async (e) => {
 // ---- SEO ----
 let seoProjects = [];
 async function loadSeoProjects() {
-    const json = await Api.call('/api/ai/seo-content.php?business_id=' + businessId);
+    const json = await Api.call('' + window.__BASE__ + '/api/ai/seo-content.php?business_id=' + businessId);
     if (!json.success) return;
     seoProjects = json.data;
     document.getElementById('seo-project-select').innerHTML = seoProjects.map(p => `<option value="${p.id}">${p.name} (${p.content_count} articles)</option>`).join('') || '<option value="">No projects yet</option>';
@@ -201,7 +201,7 @@ async function loadSeoProjects() {
 
 document.getElementById('seo-project-form').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const json = await Api.call('/api/ai/seo-content.php', {
+    const json = await Api.call('' + window.__BASE__ + '/api/ai/seo-content.php', {
         method: 'POST',
         body: { business_id: businessId, action: 'create_project', name: document.getElementById('seo-project-name').value, country: document.getElementById('seo-country').value || 'IN', language: document.getElementById('seo-language').value || 'en' },
     });
@@ -213,7 +213,7 @@ document.getElementById('seo-generate-form').addEventListener('submit', async (e
     const projectId = document.getElementById('seo-project-select').value;
     if (!projectId) { Toast.error('Please create a project first.'); return; }
     Toast.success('Generating SEO content (this may take a moment)...');
-    const json = await Api.call('/api/ai/seo-content.php', {
+    const json = await Api.call('' + window.__BASE__ + '/api/ai/seo-content.php', {
         method: 'POST',
         body: {
             business_id: businessId, action: 'generate', seo_project_id: projectId,
@@ -225,7 +225,7 @@ document.getElementById('seo-generate-form').addEventListener('submit', async (e
 });
 
 async function loadSeoContentForProject(projectId) {
-    const json = await Api.call('/api/ai/seo-content.php?business_id=' + businessId + '&project_id=' + projectId);
+    const json = await Api.call('' + window.__BASE__ + '/api/ai/seo-content.php?business_id=' + businessId + '&project_id=' + projectId);
     const list = document.getElementById('seo-content-list');
     if (!json.success || json.data.length === 0) { list.innerHTML = '<div class="empty-state">No content generated yet for this project.</div>'; return; }
     list.innerHTML = json.data.map(c => `

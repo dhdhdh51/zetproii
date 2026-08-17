@@ -29,7 +29,7 @@ $canonicalUrl = rtrim((string) config('app.url'), '/') . '/terms';
             <p>Content generated using AI features is provided as a starting point. You are responsible for reviewing and verifying AI-generated content (proposals, quotations, emails, social posts, etc.) before sending it to customers.</p>
 
             <h2>5. Subscription & Billing</h2>
-            <p>Paid plans are billed according to the billing cycle you select. Usage limits are enforced per your plan and are described on the <a href="/pricing">Pricing page</a>.</p>
+            <p>Paid plans are billed according to the billing cycle you select. Usage limits are enforced per your plan and are described on the <a href="<?= url('pricing') ?>">Pricing page</a>.</p>
 
             <h2>6. Termination</h2>
             <p>We may suspend or terminate accounts that violate these terms. You may cancel your subscription and delete your account at any time.</p>
@@ -41,7 +41,7 @@ $canonicalUrl = rtrim((string) config('app.url'), '/') . '/terms';
             <p>We may update these terms from time to time. Continued use of the platform after changes constitutes acceptance of the updated terms.</p>
 
             <h2>9. Contact</h2>
-            <p>Questions about these terms can be sent via our <a href="/contact">Contact page</a>.</p>
+            <p>Questions about these terms can be sent via our <a href="<?= url('contact') ?>">Contact page</a>.</p>
         </div>
     </section>
 </main>

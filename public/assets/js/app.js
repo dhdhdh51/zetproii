@@ -3,6 +3,15 @@
  * auto-attached), toast notifications, sidebar toggle, theme toggle.
  * Every AJAX call in the dashboard/admin goes through Api.call().
  */
+/**
+ * The URL path prefix the app is served under ('' at the domain root, or
+ * e.g. '/zetpro-main' when installed in a subfolder). Injected server-side
+ * as window.__BASE__; falls back to '' so nothing breaks if absent.
+ */
+function appBase() {
+    return (typeof window.__BASE__ === 'string') ? window.__BASE__ : '';
+}
+
 const Api = (function () {
     let csrfToken = window.__CSRF_TOKEN__ || '';
 
@@ -45,7 +54,7 @@ const Api = (function () {
 
         if (res.status === 401) {
             Toast.error(json.message || 'Session expired. Please log in again.');
-            setTimeout(() => { window.location.href = '/auth/login.php'; }, 1200);
+            setTimeout(() => { window.location.href = appBase() + '/auth/login.php'; }, 1200);
         }
 
         return json;

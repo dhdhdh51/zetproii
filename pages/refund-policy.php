@@ -26,7 +26,7 @@ $canonicalUrl = rtrim((string) config('app.url'), '/') . '/refund-policy';
             <p>Refund requests submitted within 7 days of an initial paid subscription purchase will be reviewed on a case-by-case basis. Refunds are not provided for renewal charges, partial billing periods, or accounts that have been suspended for violating the Terms of Service.</p>
 
             <h2>4. How to Request a Refund</h2>
-            <p>Contact us via the <a href="/contact">Contact page</a> with your account email and reason for the refund request.</p>
+            <p>Contact us via the <a href="<?= url('contact') ?>">Contact page</a> with your account email and reason for the refund request.</p>
 
             <h2>5. Processing Time</h2>
             <p>Approved refunds are processed back to the original payment method within 5-10 business days, depending on the payment gateway used.</p>

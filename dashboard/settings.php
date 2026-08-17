@@ -11,7 +11,7 @@ $business = Database::fetchOne("SELECT * FROM businesses WHERE id = ?", [$active
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Settings — BharatAI Business OS</title>
-<link rel="stylesheet" href="/assets/css/app.css">
+<link rel="stylesheet" href="<?= asset('css/app.css') ?>">
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js" defer></script>
 <style>
 .tabs { display: flex; gap: 6px; margin-bottom: 16px; border-bottom: 1px solid var(--color-border); flex-wrap: wrap; }
@@ -22,7 +22,7 @@ $business = Database::fetchOne("SELECT * FROM businesses WHERE id = ?", [$active
 </style>
 </head>
 <body>
-<script>window.__CSRF_TOKEN__ = <?= json_encode(Security::csrfToken()) ?>;</script>
+<script>window.__CSRF_TOKEN__ = <?= json_encode(Security::csrfToken()) ?>; window.__BASE__ = <?= json_encode(Url::basePath()) ?>;</script>
 <div class="app-shell">
     <?php include __DIR__ . '/partials/sidebar.php'; ?>
     <div class="main-content">
@@ -89,7 +89,7 @@ $business = Database::fetchOne("SELECT * FROM businesses WHERE id = ?", [$active
     </div>
 </div>
 
-<script src="/assets/js/app.js"></script>
+<script src="<?= asset('js/app.js') ?>"></script>
 <script>
 const businessId = <?= (int) $activeBusiness['id'] ?>;
 
@@ -102,7 +102,7 @@ document.querySelectorAll('.tab-btn').forEach(btn => btn.addEventListener('click
 
 document.getElementById('business-form').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const json = await Api.call('/api/business/update.php', {
+    const json = await Api.call('' + window.__BASE__ + '/api/business/update.php', {
         method: 'POST',
         body: {
             business_id: businessId, name: document.getElementById('b-name').value, website: document.getElementById('b-website').value,
@@ -116,7 +116,7 @@ document.getElementById('business-form').addEventListener('submit', async (e) =>
 
 document.getElementById('prefix-form').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const json = await Api.call('/api/business/settings-save.php', {
+    const json = await Api.call('' + window.__BASE__ + '/api/business/settings-save.php', {
         method: 'POST',
         body: { business_id: businessId, settings: { invoice_prefix: document.getElementById('p-invoice').value, quote_prefix: document.getElementById('p-quote').value, proposal_prefix: document.getElementById('p-proposal').value } },
     });
@@ -125,7 +125,7 @@ document.getElementById('prefix-form').addEventListener('submit', async (e) => {
 
 document.getElementById('profile-form').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const json = await Api.call('/api/settings/user-profile.php', {
+    const json = await Api.call('' + window.__BASE__ + '/api/settings/user-profile.php', {
         method: 'POST',
         body: {
             name: document.getElementById('u-name').value, phone: document.getElementById('u-phone').value,

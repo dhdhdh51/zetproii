@@ -9,7 +9,7 @@
 require_once dirname(__DIR__) . '/app/config/bootstrap.php';
 
 if (empty($_SESSION['user_id'])) {
-    header('Location: /auth/login.php');
+    header('Location: ' . url('auth/login.php'));
     exit;
 }
 

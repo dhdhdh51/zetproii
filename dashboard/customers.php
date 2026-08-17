@@ -10,11 +10,11 @@ $user = $currentUser;
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Customers — BharatAI Business OS</title>
-<link rel="stylesheet" href="/assets/css/app.css">
+<link rel="stylesheet" href="<?= asset('css/app.css') ?>">
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js" defer></script>
 </head>
 <body>
-<script>window.__CSRF_TOKEN__ = <?= json_encode(Security::csrfToken()) ?>;</script>
+<script>window.__CSRF_TOKEN__ = <?= json_encode(Security::csrfToken()) ?>; window.__BASE__ = <?= json_encode(Url::basePath()) ?>;</script>
 <div class="app-shell">
     <?php include __DIR__ . '/partials/sidebar.php'; ?>
     <div class="main-content">
@@ -69,7 +69,7 @@ $user = $currentUser;
     </div>
 </div>
 
-<script src="/assets/js/app.js"></script>
+<script src="<?= asset('js/app.js') ?>"></script>
 <script>
 const businessId = <?= (int) $activeBusiness['id'] ?>;
 let currentPage = 1;
@@ -77,7 +77,7 @@ let currentPage = 1;
 async function loadCustomers(page = 1) {
     currentPage = page;
     const params = new URLSearchParams({ business_id: businessId, page, search: document.getElementById('f-search').value });
-    const json = await Api.call('/api/crm/customers.php?' + params.toString());
+    const json = await Api.call('' + window.__BASE__ + '/api/crm/customers.php?' + params.toString());
     if (!json.success) { Toast.error(json.message); return; }
 
     const tbody = document.getElementById('customers-tbody');
@@ -144,7 +144,7 @@ document.getElementById('customer-form').addEventListener('submit', async functi
         state: document.getElementById('c-state').value,
         address: document.getElementById('c-address').value,
     };
-    const url = id ? '/api/crm/customer-detail.php' : '/api/crm/customers.php';
+    const url = id ? '' + window.__BASE__ + '/api/crm/customer-detail.php' : '' + window.__BASE__ + '/api/crm/customers.php';
     if (id) payload.id = id;
     const json = await Api.call(url, { method: id ? 'PUT' : 'POST', body: payload });
     if (json.success) { Toast.success(json.message); closeCustomerModal(); loadCustomers(currentPage); }
@@ -152,7 +152,7 @@ document.getElementById('customer-form').addEventListener('submit', async functi
 });
 
 async function openCustomerDetail(id) {
-    const json = await Api.call('/api/crm/customer-detail.php?business_id=' + businessId + '&id=' + id);
+    const json = await Api.call('' + window.__BASE__ + '/api/crm/customer-detail.php?business_id=' + businessId + '&id=' + id);
     if (!json.success) { Toast.error(json.message); return; }
     const c = json.data;
     document.getElementById('customer-detail-content').innerHTML = `
@@ -177,7 +177,7 @@ async function openCustomerDetail(id) {
 async function addCustomerNote(customerId) {
     const note = document.getElementById('new-customer-note').value.trim();
     if (!note) return;
-    const json = await Api.call('/api/crm/customer-notes.php', { method: 'POST', body: { business_id: businessId, customer_id: customerId, note } });
+    const json = await Api.call('' + window.__BASE__ + '/api/crm/customer-notes.php', { method: 'POST', body: { business_id: businessId, customer_id: customerId, note } });
     if (json.success) { Toast.success('Note added.'); openCustomerDetail(customerId); } else { Toast.error(json.message); }
 }
 

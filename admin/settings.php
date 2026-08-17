@@ -9,11 +9,11 @@ require_once __DIR__ . '/_init.php';
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Platform Settings — Admin | BharatAI Business OS</title>
-<link rel="stylesheet" href="/assets/css/app.css">
+<link rel="stylesheet" href="<?= asset('css/app.css') ?>">
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js" defer></script>
 </head>
 <body>
-<script>window.__CSRF_TOKEN__ = <?= json_encode(Security::csrfToken()) ?>;</script>
+<script>window.__CSRF_TOKEN__ = <?= json_encode(Security::csrfToken()) ?>; window.__BASE__ = <?= json_encode(Url::basePath()) ?>;</script>
 <div class="app-shell">
     <?php include __DIR__ . '/partials/sidebar.php'; ?>
     <div class="main-content">
@@ -48,10 +48,10 @@ require_once __DIR__ . '/_init.php';
         </div>
     </div>
 </div>
-<script src="/assets/js/app.js"></script>
+<script src="<?= asset('js/app.js') ?>"></script>
 <script>
 async function loadSettings() {
-    const json = await Api.call('/api/admin/settings.php');
+    const json = await Api.call('' + window.__BASE__ + '/api/admin/settings.php');
     if (!json.success) return;
     const d = json.data;
     document.getElementById('platform_name').value = d.platform_name || '';
@@ -65,7 +65,7 @@ async function loadSettings() {
 
 document.getElementById('general-form').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const json = await Api.call('/api/admin/settings.php', {
+    const json = await Api.call('' + window.__BASE__ + '/api/admin/settings.php', {
         method: 'POST',
         body: {
             platform_name: document.getElementById('platform_name').value, platform_support_email: document.getElementById('platform_support_email').value,
@@ -84,7 +84,7 @@ document.getElementById('google-form').addEventListener('submit', async (e) => {
     };
     const secret = document.getElementById('google_client_secret').value;
     if (secret) payload.google_client_secret = secret;
-    const json = await Api.call('/api/admin/settings.php', { method: 'POST', body: payload });
+    const json = await Api.call('' + window.__BASE__ + '/api/admin/settings.php', { method: 'POST', body: payload });
     if (json.success) Toast.success('Saved.'); else Toast.error(json.message);
 });
 

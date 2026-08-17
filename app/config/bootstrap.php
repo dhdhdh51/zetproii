@@ -37,6 +37,12 @@ spl_autoload_register(function (string $class): void {
 
 require_once __DIR__ . '/Database.php';
 
+// Url.php defines the global asset()/url() helper FUNCTIONS used by every
+// view. PHP's autoloader only fires for classes, never for functions, so
+// this file must be required explicitly - without it every page would hit
+// "Call to undefined function asset()" and render with no styling at all.
+require_once dirname(__DIR__) . '/helpers/Url.php';
+
 // ---- Global error/exception handling (never leak stack traces in prod) ----
 set_exception_handler(function (\Throwable $e) use ($isDebug): void {
     Logger::system($e->getMessage(), [

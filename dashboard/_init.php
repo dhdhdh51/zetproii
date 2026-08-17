@@ -11,7 +11,7 @@
 require_once dirname(__DIR__) . '/app/config/bootstrap.php';
 
 if (empty($_SESSION['user_id'])) {
-    header('Location: /auth/login.php');
+    header('Location: ' . url('auth/login.php'));
     exit;
 }
 
@@ -21,7 +21,7 @@ $currentUser = Database::fetchOne(
 );
 
 if ($currentUser === null) {
-    header('Location: /auth/login.php');
+    header('Location: ' . url('auth/login.php'));
     exit;
 }
 
@@ -36,7 +36,7 @@ $myBusinesses = Database::fetchAll(
 );
 
 if (empty($myBusinesses)) {
-    header('Location: /dashboard/onboarding.php');
+    header('Location: ' . url('dashboard/onboarding.php'));
     exit;
 }
 
@@ -57,6 +57,6 @@ if ($activeBusiness === null) {
 $currentBusinessRole = $activeBusiness['my_role'];
 
 if (!$activeBusiness['onboarding_completed'] && basename($_SERVER['SCRIPT_NAME']) !== 'onboarding.php') {
-    header('Location: /dashboard/onboarding.php');
+    header('Location: ' . url('dashboard/onboarding.php'));
     exit;
 }

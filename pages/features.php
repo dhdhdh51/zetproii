@@ -88,7 +88,7 @@ $featureGroups = [
             <div class="cta-block">
                 <h2>See it in action</h2>
                 <p>Create your free account and explore every feature yourself.</p>
-                <a href="/auth/register.php" class="btn btn-primary btn-lg">Start Free</a>
+                <a href="<?= url('auth/register.php') ?>" class="btn btn-primary btn-lg">Start Free</a>
             </div>
         </div>
     </section>

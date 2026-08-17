@@ -10,7 +10,7 @@ $user = $currentUser;
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AI Assistant — BharatAI Business OS</title>
-<link rel="stylesheet" href="/assets/css/app.css">
+<link rel="stylesheet" href="<?= asset('css/app.css') ?>">
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js" defer></script>
 <style>
 .chat-shell { display: flex; height: calc(100vh - 64px - 40px); gap: 16px; }
@@ -27,7 +27,7 @@ $user = $currentUser;
 </style>
 </head>
 <body>
-<script>window.__CSRF_TOKEN__ = <?= json_encode(Security::csrfToken()) ?>;</script>
+<script>window.__CSRF_TOKEN__ = <?= json_encode(Security::csrfToken()) ?>; window.__BASE__ = <?= json_encode(Url::basePath()) ?>;</script>
 <div class="app-shell">
     <?php include __DIR__ . '/partials/sidebar.php'; ?>
     <div class="main-content">
@@ -52,7 +52,7 @@ $user = $currentUser;
     </div>
 </div>
 
-<script src="/assets/js/app.js"></script>
+<script src="<?= asset('js/app.js') ?>"></script>
 <script>
 const businessId = <?= (int) $activeBusiness['id'] ?>;
 let activeConversationId = null;
@@ -64,7 +64,7 @@ function escapeHtml(str) {
 }
 
 async function loadConversations() {
-    const json = await Api.call('/api/ai/conversations.php?business_id=' + businessId);
+    const json = await Api.call('' + window.__BASE__ + '/api/ai/conversations.php?business_id=' + businessId);
     if (!json.success) return;
     const list = document.getElementById('conversation-list');
     if (json.data.length === 0) {
@@ -77,7 +77,7 @@ async function loadConversations() {
 async function openConversation(id) {
     activeConversationId = id;
     loadConversations();
-    const json = await Api.call('/api/ai/messages.php?business_id=' + businessId + '&conversation_id=' + id);
+    const json = await Api.call('' + window.__BASE__ + '/api/ai/messages.php?business_id=' + businessId + '&conversation_id=' + id);
     const box = document.getElementById('chat-messages');
     if (!json.success || json.data.length === 0) {
         box.innerHTML = '<div class="empty-state">Start the conversation below.</div>';
@@ -88,7 +88,7 @@ async function openConversation(id) {
 }
 
 document.getElementById('btn-new-chat').addEventListener('click', async () => {
-    const json = await Api.call('/api/ai/conversations.php', { method: 'POST', body: { business_id: businessId } });
+    const json = await Api.call('' + window.__BASE__ + '/api/ai/conversations.php', { method: 'POST', body: { business_id: businessId } });
     if (json.success) {
         activeConversationId = json.data.id;
         document.getElementById('chat-messages').innerHTML = '<div class="empty-state">Start the conversation below.</div>';
@@ -102,7 +102,7 @@ async function sendMessage() {
     if (!text) return;
 
     if (!activeConversationId) {
-        const json = await Api.call('/api/ai/conversations.php', { method: 'POST', body: { business_id: businessId } });
+        const json = await Api.call('' + window.__BASE__ + '/api/ai/conversations.php', { method: 'POST', body: { business_id: businessId } });
         if (!json.success) { Toast.error(json.message); return; }
         activeConversationId = json.data.id;
     }
@@ -119,7 +119,7 @@ async function sendMessage() {
     box.scrollTop = box.scrollHeight;
 
     try {
-        const json = await Api.call('/api/ai/messages.php', {
+        const json = await Api.call('' + window.__BASE__ + '/api/ai/messages.php', {
             method: 'POST',
             body: { business_id: businessId, conversation_id: activeConversationId, message: text },
         });

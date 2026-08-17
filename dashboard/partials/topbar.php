@@ -20,7 +20,7 @@
 </header>
 <script>
 document.getElementById('logout-btn')?.addEventListener('click', async function () {
-    await Api.call('/api/auth/logout.php', { method: 'POST' });
-    window.location.href = '/auth/login.php';
+    await Api.call('' + window.__BASE__ + '/api/auth/logout.php', { method: 'POST' });
+    window.location.href = '' + window.__BASE__ + '/auth/login.php';
 });
 </script>

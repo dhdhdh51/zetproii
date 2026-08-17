@@ -11,11 +11,11 @@ $appUrl = rtrim((string) config('app.url'), '/');
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AI Chatbot — BharatAI Business OS</title>
-<link rel="stylesheet" href="/assets/css/app.css">
+<link rel="stylesheet" href="<?= asset('css/app.css') ?>">
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js" defer></script>
 </head>
 <body>
-<script>window.__CSRF_TOKEN__ = <?= json_encode(Security::csrfToken()) ?>;</script>
+<script>window.__CSRF_TOKEN__ = <?= json_encode(Security::csrfToken()) ?>; window.__BASE__ = <?= json_encode(Url::basePath()) ?>;</script>
 <div class="app-shell">
     <?php include __DIR__ . '/partials/sidebar.php'; ?>
     <div class="main-content">
@@ -59,14 +59,17 @@ $appUrl = rtrim((string) config('app.url'), '/');
     </div>
 </div>
 
-<script src="/assets/js/app.js"></script>
+<script src="<?= asset('js/app.js') ?>"></script>
 <script>
 const businessId = <?= (int) $activeBusiness['id'] ?>;
 const appUrl = <?= json_encode($appUrl) ?>;
+// Absolute URL to the widget script, including any subfolder the app is
+// installed under - this is what the customer pastes into their own site.
+const widgetSrc = <?= json_encode(Url::absolute('public/assets/js/chat-widget.js')) ?>;
 let currentConfig = null;
 
 async function loadConfig() {
-    const json = await Api.call('/api/business/chatbot-config.php?business_id=' + businessId);
+    const json = await Api.call('' + window.__BASE__ + '/api/business/chatbot-config.php?business_id=' + businessId);
     if (!json.success) { Toast.error(json.message); return; }
     currentConfig = json.data;
     document.getElementById('bot_name').value = currentConfig.bot_name;
@@ -78,7 +81,7 @@ async function loadConfig() {
     document.getElementById('handoff_email').value = currentConfig.handoff_email || '';
     document.getElementById('is_active').checked = !!currentConfig.is_active;
     document.getElementById('widget-key-display').textContent = currentConfig.widget_key;
-    document.getElementById('embed-code').value = `<script src="${appUrl}/assets/js/chat-widget.js" data-widget-key="${currentConfig.widget_key}"><\/script>`;
+    document.getElementById('embed-code').value = `<script src="${widgetSrc}" data-widget-key="${currentConfig.widget_key}"><\/script>`;
 }
 
 document.getElementById('chatbot-form').addEventListener('submit', async function (e) {
@@ -94,7 +97,7 @@ document.getElementById('chatbot-form').addEventListener('submit', async functio
         handoff_email: document.getElementById('handoff_email').value,
         is_active: document.getElementById('is_active').checked,
     };
-    const json = await Api.call('/api/business/chatbot-config.php', { method: 'POST', body: payload });
+    const json = await Api.call('' + window.__BASE__ + '/api/business/chatbot-config.php', { method: 'POST', body: payload });
     if (json.success) { Toast.success('Chatbot settings saved.'); loadConfig(); } else { Toast.error(json.message); }
 });
 

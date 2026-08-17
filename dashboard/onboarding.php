@@ -7,13 +7,13 @@
 require_once dirname(__DIR__) . '/app/config/bootstrap.php';
 
 if (empty($_SESSION['user_id'])) {
-    header('Location: /auth/login.php');
+    header('Location: ' . url('auth/login.php'));
     exit;
 }
 
 $currentUser = Database::fetchOne("SELECT id, name, email, phone FROM users WHERE id = ? AND deleted_at IS NULL", [$_SESSION['user_id']]);
 if ($currentUser === null) {
-    header('Location: /auth/login.php');
+    header('Location: ' . url('auth/login.php'));
     exit;
 }
 
@@ -31,7 +31,7 @@ $plans = Database::fetchAll("SELECT * FROM plans WHERE is_active = 1 ORDER BY so
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Welcome — Set Up Your Business | BharatAI Business OS</title>
-<link rel="stylesheet" href="/assets/css/app.css">
+<link rel="stylesheet" href="<?= asset('css/app.css') ?>">
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js" defer></script>
 <style>
 .wizard-shell { max-width: 640px; margin: 40px auto; padding: 0 20px; }
@@ -45,14 +45,14 @@ $plans = Database::fetchAll("SELECT * FROM plans WHERE is_active = 1 ORDER BY so
 </style>
 </head>
 <body>
-<script>window.__CSRF_TOKEN__ = <?= json_encode(Security::csrfToken()) ?>;</script>
+<script>window.__CSRF_TOKEN__ = <?= json_encode(Security::csrfToken()) ?>; window.__BASE__ = <?= json_encode(Url::basePath()) ?>;</script>
 <div class="wizard-shell">
-    <a href="/" class="auth-brand"><i data-lucide="sparkles"></i> BharatAI Business OS</a>
+    <a href="<?= url() ?>" class="auth-brand"><i data-lucide="sparkles"></i> BharatAI Business OS</a>
     <div class="wizard-steps" id="wizard-steps"></div>
     <div class="wizard-card" id="wizard-content"></div>
 </div>
 
-<script src="/assets/js/app.js"></script>
+<script src="<?= asset('js/app.js') ?>"></script>
 <script>
 const DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 let state = {
@@ -75,7 +75,7 @@ function renderSteps() {
 
 async function ensureBusiness(name) {
     if (state.businessId) return state.businessId;
-    const json = await Api.call('/api/business/create.php', { method: 'POST', body: { name } });
+    const json = await Api.call('' + window.__BASE__ + '/api/business/create.php', { method: 'POST', body: { name } });
     if (!json.success) { Toast.error(json.message); throw new Error(json.message); }
     state.businessId = json.data.id;
     state.business = json.data;
@@ -84,7 +84,7 @@ async function ensureBusiness(name) {
 
 async function saveStep(step, fields) {
     await ensureBusiness(fields.name || state.business?.name || (document.getElementById('biz_name')?.value) || 'My Business');
-    const json = await Api.call('/api/business/onboarding.php', {
+    const json = await Api.call('' + window.__BASE__ + '/api/business/onboarding.php', {
         method: 'POST',
         body: { business_id: state.businessId, step, fields },
     });
@@ -235,7 +235,7 @@ async function nextFromStep5() {
 
 async function nextFromStep6() {
     const tone = document.getElementById('ai_tone').value;
-    await Api.call('/api/business/settings-save.php', {
+    await Api.call('' + window.__BASE__ + '/api/business/settings-save.php', {
         method: 'POST',
         body: { business_id: state.businessId, settings: { ai_default_tone: tone } },
     });
@@ -246,7 +246,7 @@ async function nextFromStep6() {
 async function finishOnboarding() {
     const planSlug = document.querySelector('input[name="plan"]:checked')?.value || 'free';
     await saveStep(7, { plan: planSlug });
-    window.location.href = '/dashboard/index.php';
+    window.location.href = '' + window.__BASE__ + '/dashboard/index.php';
 }
 
 function skip() {

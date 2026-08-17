@@ -20,6 +20,10 @@ $config = [
         'timezone'   => Env::get('APP_TIMEZONE', 'Asia/Kolkata'),
         'key'        => Env::get('APP_KEY', ''),
         'locale'     => Env::get('APP_LOCALE', 'en'),
+        // Optional override for the URL path the app is served under (e.g.
+        // "myapp" if it lives at https://domain.com/myapp). Leave blank to
+        // auto-detect - see app/helpers/Url.php.
+        'base_path'  => Env::get('BASE_PATH', ''),
     ],
 
     'db' => [

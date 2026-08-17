@@ -10,12 +10,12 @@ $user = $currentUser;
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dashboard — BharatAI Business OS</title>
-<link rel="stylesheet" href="/assets/css/app.css">
+<link rel="stylesheet" href="<?= asset('css/app.css') ?>">
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
 </head>
 <body>
-<script>window.__CSRF_TOKEN__ = <?= json_encode(Security::csrfToken()) ?>;</script>
+<script>window.__CSRF_TOKEN__ = <?= json_encode(Security::csrfToken()) ?>; window.__BASE__ = <?= json_encode(Url::basePath()) ?>;</script>
 <div class="app-shell">
     <?php include __DIR__ . '/partials/sidebar.php'; ?>
     <div class="main-content">
@@ -26,13 +26,13 @@ $user = $currentUser;
             <div class="card" style="margin-bottom:20px;">
                 <div class="card-title" style="margin-bottom:12px;">Quick Actions</div>
                 <div style="display:flex;flex-wrap:wrap;gap:10px;">
-                    <a href="/dashboard/leads.php?action=new" class="btn btn-secondary" style="width:auto;"><i data-lucide="user-plus" style="width:16px;height:16px;"></i> Add Lead</a>
-                    <a href="/dashboard/customers.php?action=new" class="btn btn-secondary" style="width:auto;"><i data-lucide="user-plus" style="width:16px;height:16px;"></i> Add Customer</a>
-                    <a href="/dashboard/ai-assistant.php" class="btn btn-secondary" style="width:auto;"><i data-lucide="bot" style="width:16px;height:16px;"></i> Start AI Chat</a>
-                    <a href="/dashboard/proposals.php?action=new" class="btn btn-secondary" style="width:auto;"><i data-lucide="file-text" style="width:16px;height:16px;"></i> Generate Proposal</a>
-                    <a href="/dashboard/quotations.php?action=new" class="btn btn-secondary" style="width:auto;"><i data-lucide="file-spreadsheet" style="width:16px;height:16px;"></i> Generate Quote</a>
-                    <a href="/dashboard/campaigns.php?action=new" class="btn btn-secondary" style="width:auto;"><i data-lucide="send" style="width:16px;height:16px;"></i> Create Campaign</a>
-                    <a href="/dashboard/knowledge.php?action=new" class="btn btn-secondary" style="width:auto;"><i data-lucide="book-open" style="width:16px;height:16px;"></i> Add Knowledge Source</a>
+                    <a href="<?= url('dashboard/leads.php') ?>?action=new" class="btn btn-secondary" style="width:auto;"><i data-lucide="user-plus" style="width:16px;height:16px;"></i> Add Lead</a>
+                    <a href="<?= url('dashboard/customers.php') ?>?action=new" class="btn btn-secondary" style="width:auto;"><i data-lucide="user-plus" style="width:16px;height:16px;"></i> Add Customer</a>
+                    <a href="<?= url('dashboard/ai-assistant.php') ?>" class="btn btn-secondary" style="width:auto;"><i data-lucide="bot" style="width:16px;height:16px;"></i> Start AI Chat</a>
+                    <a href="<?= url('dashboard/proposals.php') ?>?action=new" class="btn btn-secondary" style="width:auto;"><i data-lucide="file-text" style="width:16px;height:16px;"></i> Generate Proposal</a>
+                    <a href="<?= url('dashboard/quotations.php') ?>?action=new" class="btn btn-secondary" style="width:auto;"><i data-lucide="file-spreadsheet" style="width:16px;height:16px;"></i> Generate Quote</a>
+                    <a href="<?= url('dashboard/campaigns.php') ?>?action=new" class="btn btn-secondary" style="width:auto;"><i data-lucide="send" style="width:16px;height:16px;"></i> Create Campaign</a>
+                    <a href="<?= url('dashboard/knowledge.php') ?>?action=new" class="btn btn-secondary" style="width:auto;"><i data-lucide="book-open" style="width:16px;height:16px;"></i> Add Knowledge Source</a>
                 </div>
             </div>
 
@@ -63,7 +63,7 @@ $user = $currentUser;
     </div>
 </div>
 
-<script src="/assets/js/app.js"></script>
+<script src="<?= asset('js/app.js') ?>"></script>
 <script>
 const businessId = <?= (int) $activeBusiness['id'] ?>;
 
@@ -79,7 +79,7 @@ function widgetCard(title, value, icon) {
 }
 
 async function loadDashboard() {
-    const json = await Api.call('/api/analytics/dashboard.php?business_id=' + businessId);
+    const json = await Api.call('' + window.__BASE__ + '/api/analytics/dashboard.php?business_id=' + businessId);
     if (!json.success) { Toast.error(json.message || 'Failed to load dashboard.'); return; }
     const d = json.data;
     const w = d.widgets;

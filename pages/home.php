@@ -28,8 +28,8 @@ $canonicalUrl = rtrim((string) config('app.url'), '/') . '/';
             <h1>Run your business on <span class="highlight">autopilot</span> with AI</h1>
             <p class="lead">BharatAI Business OS unifies your CRM, AI assistant, chatbot, proposals, quotations, invoicing and automation into one platform built for small businesses, agencies and freelancers.</p>
             <div class="hero-actions">
-                <a href="/auth/register.php" class="btn btn-primary btn-lg"><i data-lucide="rocket"></i> Start Free</a>
-                <a href="/features" class="btn btn-ghost btn-lg"><i data-lucide="play-circle"></i> See Features</a>
+                <a href="<?= url('auth/register.php') ?>" class="btn btn-primary btn-lg"><i data-lucide="rocket"></i> Start Free</a>
+                <a href="<?= url('features') ?>" class="btn btn-ghost btn-lg"><i data-lucide="play-circle"></i> See Features</a>
             </div>
         </div>
     </section>
@@ -151,7 +151,7 @@ $canonicalUrl = rtrim((string) config('app.url'), '/') . '/';
             <div class="cta-block">
                 <h2>Ready to automate your business?</h2>
                 <p>Start free. No credit card required.</p>
-                <a href="/auth/register.php" class="btn btn-primary btn-lg">Get Started Free</a>
+                <a href="<?= url('auth/register.php') ?>" class="btn btn-primary btn-lg">Get Started Free</a>
             </div>
         </div>
     </section>

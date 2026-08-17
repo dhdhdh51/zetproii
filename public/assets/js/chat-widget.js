@@ -22,10 +22,15 @@
         return;
     }
 
+    // Derive the app's base URL from THIS script's own src, preserving any
+    // subfolder the app is installed under. The script lives at
+    //   {base}/public/assets/js/chat-widget.js
+    // so stripping that known suffix yields {base} (origin + optional path).
     var apiBase = (function () {
-        var src = scriptTag.src;
-        var url = new URL(src);
-        return url.origin;
+        var url = new URL(scriptTag.src);
+        var path = url.pathname.replace(/\/public\/assets\/js\/chat-widget\.js$/, '')
+                               .replace(/\/assets\/js\/chat-widget\.js$/, '');
+        return url.origin + path;
     })();
 
     var state = { sessionUuid: null, botName: 'AI Assistant', primaryColor: '#4f46e5', leadCollectionEnabled: false, requiredFields: [], leadCaptured: false };

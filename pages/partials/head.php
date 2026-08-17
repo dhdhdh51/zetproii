@@ -19,6 +19,7 @@ $appUrl = rtrim((string) config('app.url'), '/');
 <meta name="twitter:title" content="<?= View::e($pageTitle) ?>">
 <meta name="twitter:description" content="<?= View::e($pageDescription) ?>">
 
-<link rel="icon" href="/assets/images/favicon.svg">
-<link rel="stylesheet" href="/assets/css/marketing.css">
+<link rel="icon" href="<?= asset('images/favicon.svg') ?>">
+<link rel="stylesheet" href="<?= asset('css/marketing.css') ?>">
+<script>window.__BASE__ = <?= json_encode(Url::basePath()) ?>;</script>
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js" defer></script>

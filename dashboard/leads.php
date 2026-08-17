@@ -10,11 +10,11 @@ $user = $currentUser;
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Leads — BharatAI Business OS</title>
-<link rel="stylesheet" href="/assets/css/app.css">
+<link rel="stylesheet" href="<?= asset('css/app.css') ?>">
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js" defer></script>
 </head>
 <body>
-<script>window.__CSRF_TOKEN__ = <?= json_encode(Security::csrfToken()) ?>;</script>
+<script>window.__CSRF_TOKEN__ = <?= json_encode(Security::csrfToken()) ?>; window.__BASE__ = <?= json_encode(Url::basePath()) ?>;</script>
 <div class="app-shell">
     <?php include __DIR__ . '/partials/sidebar.php'; ?>
     <div class="main-content">
@@ -94,14 +94,14 @@ $user = $currentUser;
     </div>
 </div>
 
-<script src="/assets/js/app.js"></script>
+<script src="<?= asset('js/app.js') ?>"></script>
 <script>
 const businessId = <?= (int) $activeBusiness['id'] ?>;
 let meta = { statuses: [], sources: [], tags: [], team_members: [] };
 let currentPage = 1;
 
 async function loadMeta() {
-    const json = await Api.call('/api/leads/meta.php?business_id=' + businessId);
+    const json = await Api.call('' + window.__BASE__ + '/api/leads/meta.php?business_id=' + businessId);
     if (!json.success) return;
     meta = json.data;
     const statusOpts = meta.statuses.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
@@ -134,7 +134,7 @@ async function loadLeads(page = 1) {
         date_from: document.getElementById('f-date-from').value,
         date_to: document.getElementById('f-date-to').value,
     });
-    const json = await Api.call('/api/leads/index.php?' + params.toString());
+    const json = await Api.call('' + window.__BASE__ + '/api/leads/index.php?' + params.toString());
     if (!json.success) { Toast.error(json.message); return; }
 
     const tbody = document.getElementById('leads-tbody');
@@ -219,7 +219,7 @@ document.getElementById('lead-form').addEventListener('submit', async function (
         budget: document.getElementById('lead-budget').value,
     };
 
-    const url = id ? '/api/leads/detail.php' : '/api/leads/index.php';
+    const url = id ? '' + window.__BASE__ + '/api/leads/detail.php' : '' + window.__BASE__ + '/api/leads/index.php';
     if (id) payload.id = id;
     const json = await Api.call(url, { method: id ? 'PUT' : 'POST', body: payload });
     if (json.success) {
@@ -232,7 +232,7 @@ document.getElementById('lead-form').addEventListener('submit', async function (
 });
 
 async function openLeadDetail(id) {
-    const json = await Api.call('/api/leads/detail.php?business_id=' + businessId + '&id=' + id);
+    const json = await Api.call('' + window.__BASE__ + '/api/leads/detail.php?business_id=' + businessId + '&id=' + id);
     if (!json.success) { Toast.error(json.message); return; }
     const l = json.data;
     document.getElementById('lead-detail-content').innerHTML = `
@@ -260,19 +260,19 @@ async function openLeadDetail(id) {
 async function addLeadNote(leadId) {
     const note = document.getElementById('new-note-text').value.trim();
     if (!note) return;
-    const json = await Api.call('/api/leads/notes.php', { method: 'POST', body: { business_id: businessId, lead_id: leadId, note } });
+    const json = await Api.call('' + window.__BASE__ + '/api/leads/notes.php', { method: 'POST', body: { business_id: businessId, lead_id: leadId, note } });
     if (json.success) { Toast.success('Note added.'); openLeadDetail(leadId); } else { Toast.error(json.message); }
 }
 
 async function convertLead(leadId) {
-    const json = await Api.call('/api/leads/convert.php', { method: 'POST', body: { business_id: businessId, lead_id: leadId } });
+    const json = await Api.call('' + window.__BASE__ + '/api/leads/convert.php', { method: 'POST', body: { business_id: businessId, lead_id: leadId } });
     if (json.success) { Toast.success('Converted to customer.'); document.getElementById('lead-detail-modal').classList.remove('open'); loadLeads(currentPage); }
     else { Toast.error(json.message); }
 }
 
 async function qualifyLead(leadId) {
     Toast.success('Running AI qualification...');
-    const json = await Api.call('/api/ai/qualify-lead.php', { method: 'POST', body: { business_id: businessId, lead_id: leadId } });
+    const json = await Api.call('' + window.__BASE__ + '/api/ai/qualify-lead.php', { method: 'POST', body: { business_id: businessId, lead_id: leadId } });
     if (json.success) { Toast.success('Lead qualified by AI.'); openLeadDetail(leadId); loadLeads(currentPage); }
     else { Toast.error(json.message || 'AI qualification failed.'); }
 }

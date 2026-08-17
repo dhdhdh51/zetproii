@@ -37,7 +37,7 @@ $canonicalUrl = rtrim((string) config('app.url'), '/') . '/about';
             <div class="cta-block">
                 <h2>Join us</h2>
                 <p>Start automating your business today.</p>
-                <a href="/auth/register.php" class="btn btn-primary btn-lg">Start Free</a>
+                <a href="<?= url('auth/register.php') ?>" class="btn btn-primary btn-lg">Start Free</a>
             </div>
         </div>
     </section>

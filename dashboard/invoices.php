@@ -10,11 +10,11 @@ $user = $currentUser;
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Invoices — BharatAI Business OS</title>
-<link rel="stylesheet" href="/assets/css/app.css">
+<link rel="stylesheet" href="<?= asset('css/app.css') ?>">
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js" defer></script>
 </head>
 <body>
-<script>window.__CSRF_TOKEN__ = <?= json_encode(Security::csrfToken()) ?>;</script>
+<script>window.__CSRF_TOKEN__ = <?= json_encode(Security::csrfToken()) ?>; window.__BASE__ = <?= json_encode(Url::basePath()) ?>;</script>
 <div class="app-shell">
     <?php include __DIR__ . '/partials/sidebar.php'; ?>
     <div class="main-content">
@@ -64,7 +64,7 @@ $user = $currentUser;
     </div>
 </div>
 
-<script src="/assets/js/app.js"></script>
+<script src="<?= asset('js/app.js') ?>"></script>
 <script>
 const businessId = <?= (int) $activeBusiness['id'] ?>;
 
@@ -86,7 +86,7 @@ function addItemRow() {
 
 async function load(page = 1) {
     const params = new URLSearchParams({ business_id: businessId, page, search: document.getElementById('f-search').value });
-    const json = await Api.call('/api/business/invoices.php?' + params.toString());
+    const json = await Api.call('' + window.__BASE__ + '/api/business/invoices.php?' + params.toString());
     if (!json.success) { Toast.error(json.message); return; }
     document.getElementById('tbody').innerHTML = json.data.items.length === 0
         ? '<tr><td colspan="7"><div class="empty-state">No invoices yet.</div></td></tr>'
@@ -94,7 +94,7 @@ async function load(page = 1) {
             <td>${inv.invoice_number}</td><td>${inv.customer_name || '-'}</td><td>₹${Number(inv.total).toLocaleString()}</td>
             <td>₹${Number(inv.amount_paid).toLocaleString()}</td><td>${statusBadge(inv.status)}</td><td>${new Date(inv.created_at).toLocaleDateString()}</td>
             <td style="display:flex;gap:6px;">
-                <a href="/dashboard/print-document.php?business_id=${businessId}&type=invoice&id=${inv.id}" target="_blank" class="btn btn-secondary" style="width:auto;padding:6px 10px;display:inline-flex;"><i data-lucide="printer" style="width:14px;height:14px;"></i></a>
+                <a href="<?= url('dashboard/print-document.php') ?>?business_id=${businessId}&type=invoice&id=${inv.id}" target="_blank" class="btn btn-secondary" style="width:auto;padding:6px 10px;display:inline-flex;"><i data-lucide="printer" style="width:14px;height:14px;"></i></a>
                 <button class="btn btn-secondary" style="width:auto;padding:6px 10px;" onclick="openPayment(${inv.id})"><i data-lucide="indian-rupee" style="width:14px;height:14px;"></i></button>
             </td>
         </tr>`).join('');
@@ -116,7 +116,7 @@ document.getElementById('manual-form').addEventListener('submit', async (e) => {
         const row = el.closest('div');
         items.push({ name: el.value, quantity: row.querySelector('.item-qty').value, unit_price: row.querySelector('.item-price').value, tax_percent: row.querySelector('.item-tax').value });
     });
-    const json = await Api.call('/api/business/invoices.php', { method: 'POST', body: { business_id: businessId, items, due_date: document.getElementById('m-due').value } });
+    const json = await Api.call('' + window.__BASE__ + '/api/business/invoices.php', { method: 'POST', body: { business_id: businessId, items, due_date: document.getElementById('m-due').value } });
     if (json.success) { Toast.success('Invoice created.'); document.getElementById('manual-modal').classList.remove('open'); load(1); }
     else { Toast.error(json.message); }
 });
@@ -128,7 +128,7 @@ function openPayment(id) {
 document.getElementById('payment-submit').addEventListener('click', async () => {
     const invoiceId = document.getElementById('payment-invoice-id').value;
     const amount = document.getElementById('payment-amount').value;
-    const json = await Api.call('/api/business/invoice-payment.php', { method: 'POST', body: { business_id: businessId, invoice_id: invoiceId, amount } });
+    const json = await Api.call('' + window.__BASE__ + '/api/business/invoice-payment.php', { method: 'POST', body: { business_id: businessId, invoice_id: invoiceId, amount } });
     if (json.success) { Toast.success('Payment recorded.'); document.getElementById('payment-modal').classList.remove('open'); load(1); }
     else { Toast.error(json.message); }
 });

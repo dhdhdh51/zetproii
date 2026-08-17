@@ -3,7 +3,7 @@ require_once dirname(__DIR__) . '/app/config/bootstrap.php';
 
 $token = (new Request())->string('token');
 if ($token === '') {
-    header('Location: /auth/forgot-password.php');
+    header('Location: ' . url('auth/forgot-password.php'));
     exit;
 }
 ?>
@@ -13,13 +13,13 @@ if ($token === '') {
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Reset Password — BharatAI Business OS</title>
-<link rel="stylesheet" href="/assets/css/app.css">
+<link rel="stylesheet" href="<?= asset('css/app.css') ?>">
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js" defer></script>
 </head>
 <body>
 <div class="auth-shell">
     <div class="auth-card">
-        <a href="/" class="auth-brand"><i data-lucide="sparkles"></i> BharatAI Business OS</a>
+        <a href="<?= url() ?>" class="auth-brand"><i data-lucide="sparkles"></i> BharatAI Business OS</a>
         <h1>Set a new password</h1>
         <p class="subtitle">Choose a strong new password for your account</p>
 
@@ -41,7 +41,7 @@ if ($token === '') {
     </div>
 </div>
 
-<script src="/assets/js/app.js"></script>
+<script src="<?= asset('js/app.js') ?>"></script>
 <script>
 document.getElementById('reset-form').addEventListener('submit', async function (e) {
     e.preventDefault();
@@ -61,7 +61,7 @@ document.getElementById('reset-form').addEventListener('submit', async function 
     submitBtn.textContent = 'Resetting...';
 
     try {
-        const json = await Api.call('/api/auth/reset-password.php', {
+        const json = await Api.call('' + window.__BASE__ + '/api/auth/reset-password.php', {
             method: 'POST',
             body: {
                 token: document.getElementById('token').value,
@@ -74,7 +74,7 @@ document.getElementById('reset-form').addEventListener('submit', async function 
                 '<div class="auth-brand"><i data-lucide="check-circle"></i> Password Reset</div>' +
                 '<h1>All set!</h1>' +
                 '<p class="subtitle">Your password has been reset successfully.</p>' +
-                '<a href="/auth/login.php" class="btn btn-primary" style="display:block;text-align:center;">Log In</a>';
+                '<a href="<?= url('auth/login.php') ?>" class="btn btn-primary" style="display:block;text-align:center;">Log In</a>';
             if (window.lucide) lucide.createIcons();
         } else {
             alertBox.textContent = json.message || 'This link is invalid or expired.';

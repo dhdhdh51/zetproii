@@ -10,11 +10,11 @@ $user = $currentUser;
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Proposals — BharatAI Business OS</title>
-<link rel="stylesheet" href="/assets/css/app.css">
+<link rel="stylesheet" href="<?= asset('css/app.css') ?>">
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js" defer></script>
 </head>
 <body>
-<script>window.__CSRF_TOKEN__ = <?= json_encode(Security::csrfToken()) ?>;</script>
+<script>window.__CSRF_TOKEN__ = <?= json_encode(Security::csrfToken()) ?>; window.__BASE__ = <?= json_encode(Url::basePath()) ?>;</script>
 <div class="app-shell">
     <?php include __DIR__ . '/partials/sidebar.php'; ?>
     <div class="main-content">
@@ -67,7 +67,7 @@ $user = $currentUser;
     </div>
 </div>
 
-<script src="/assets/js/app.js"></script>
+<script src="<?= asset('js/app.js') ?>"></script>
 <script>
 const businessId = <?= (int) $activeBusiness['id'] ?>;
 
@@ -78,14 +78,14 @@ function statusBadge(s) {
 
 async function load(page = 1) {
     const params = new URLSearchParams({ business_id: businessId, page, search: document.getElementById('f-search').value });
-    const json = await Api.call('/api/business/proposals.php?' + params.toString());
+    const json = await Api.call('' + window.__BASE__ + '/api/business/proposals.php?' + params.toString());
     if (!json.success) { Toast.error(json.message); return; }
     document.getElementById('tbody').innerHTML = json.data.items.length === 0
         ? '<tr><td colspan="6"><div class="empty-state">No proposals yet.</div></td></tr>'
         : json.data.items.map(p => `<tr>
             <td>${p.proposal_number}</td><td>${p.title}</td><td>${p.customer_name || '-'}</td>
             <td>${statusBadge(p.status)}</td><td>${new Date(p.created_at).toLocaleDateString()}</td>
-            <td><a href="/dashboard/print-document.php?business_id=${businessId}&type=proposal&id=${p.id}" target="_blank" class="btn btn-secondary" style="width:auto;padding:6px 10px;display:inline-flex;"><i data-lucide="printer" style="width:14px;height:14px;"></i></a></td>
+            <td><a href="<?= url('dashboard/print-document.php') ?>?business_id=${businessId}&type=proposal&id=${p.id}" target="_blank" class="btn btn-secondary" style="width:auto;padding:6px 10px;display:inline-flex;"><i data-lucide="printer" style="width:14px;height:14px;"></i></a></td>
         </tr>`).join('');
     if (window.lucide) lucide.createIcons();
 
@@ -103,14 +103,14 @@ document.getElementById('ai-generate-submit').addEventListener('click', async ()
     const requirement = document.getElementById('ai-requirement').value.trim();
     if (!requirement) return;
     Toast.success('Generating with AI...');
-    const json = await Api.call('/api/ai/generate-proposal.php', { method: 'POST', body: { business_id: businessId, requirement } });
+    const json = await Api.call('' + window.__BASE__ + '/api/ai/generate-proposal.php', { method: 'POST', body: { business_id: businessId, requirement } });
     if (json.success) { Toast.success('Proposal generated!'); document.getElementById('ai-modal').classList.remove('open'); load(1); }
     else { Toast.error(json.message || 'AI generation failed.'); }
 });
 
 document.getElementById('manual-form').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const json = await Api.call('/api/business/proposals.php', {
+    const json = await Api.call('' + window.__BASE__ + '/api/business/proposals.php', {
         method: 'POST',
         body: { business_id: businessId, title: document.getElementById('m-title').value, introduction: document.getElementById('m-intro').value, solution: document.getElementById('m-solution').value, pricing_summary: document.getElementById('m-pricing').value },
     });

@@ -14,7 +14,7 @@ $canonicalUrl = rtrim((string) config('app.url'), '/') . '/404';
     <section style="text-align:center;padding:100px 20px;">
         <h1 style="font-size:64px;margin-bottom:8px;">404</h1>
         <p class="lead">This page doesn't exist. Let's get you back on track.</p>
-        <a href="/" class="btn btn-primary">Go Home</a>
+        <a href="<?= url() ?>" class="btn btn-primary">Go Home</a>
     </section>
 </main>
 <?php include __DIR__ . '/partials/footer.php'; ?>

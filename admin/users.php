@@ -9,11 +9,11 @@ require_once __DIR__ . '/_init.php';
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Users — Admin | BharatAI Business OS</title>
-<link rel="stylesheet" href="/assets/css/app.css">
+<link rel="stylesheet" href="<?= asset('css/app.css') ?>">
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js" defer></script>
 </head>
 <body>
-<script>window.__CSRF_TOKEN__ = <?= json_encode(Security::csrfToken()) ?>;</script>
+<script>window.__CSRF_TOKEN__ = <?= json_encode(Security::csrfToken()) ?>; window.__BASE__ = <?= json_encode(Url::basePath()) ?>;</script>
 <div class="app-shell">
     <?php include __DIR__ . '/partials/sidebar.php'; ?>
     <div class="main-content">
@@ -47,7 +47,7 @@ require_once __DIR__ . '/_init.php';
         </div>
     </div>
 </div>
-<script src="/assets/js/app.js"></script>
+<script src="<?= asset('js/app.js') ?>"></script>
 <script>
 function statusBadge(s) {
     const map = { active: 'green', pending: 'yellow', inactive: 'gray', suspended: 'red' };
@@ -56,7 +56,7 @@ function statusBadge(s) {
 
 async function loadUsers(page = 1) {
     const params = new URLSearchParams({ page, search: document.getElementById('f-search').value, role: document.getElementById('f-role').value, status: document.getElementById('f-status').value });
-    const json = await Api.call('/api/admin/users.php?' + params.toString());
+    const json = await Api.call('' + window.__BASE__ + '/api/admin/users.php?' + params.toString());
     if (!json.success) { Toast.error(json.message); return; }
     const tbody = document.getElementById('users-tbody');
     tbody.innerHTML = json.data.items.length === 0
@@ -84,7 +84,7 @@ async function loadUsers(page = 1) {
 
 async function setStatus(id, status) {
     if (!status) return;
-    const json = await Api.call('/api/admin/users.php', { method: 'POST', body: { id, status } });
+    const json = await Api.call('' + window.__BASE__ + '/api/admin/users.php', { method: 'POST', body: { id, status } });
     if (json.success) { Toast.success('User updated.'); loadUsers(); } else { Toast.error(json.message); }
 }
 

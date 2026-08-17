@@ -2,7 +2,7 @@
 require_once dirname(__DIR__) . '/app/config/bootstrap.php';
 
 if (!empty($_SESSION['user_id'])) {
-    header('Location: /dashboard/index.php');
+    header('Location: ' . url('dashboard/index.php'));
     exit;
 }
 ?>
@@ -12,13 +12,13 @@ if (!empty($_SESSION['user_id'])) {
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Create Your Account — BharatAI Business OS</title>
-<link rel="stylesheet" href="/assets/css/app.css">
+<link rel="stylesheet" href="<?= asset('css/app.css') ?>">
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js" defer></script>
 </head>
 <body>
 <div class="auth-shell">
     <div class="auth-card">
-        <a href="/" class="auth-brand"><i data-lucide="sparkles"></i> BharatAI Business OS</a>
+        <a href="<?= url() ?>" class="auth-brand"><i data-lucide="sparkles"></i> BharatAI Business OS</a>
         <h1>Create your account</h1>
         <p class="subtitle">Start automating your business today — free</p>
 
@@ -49,11 +49,11 @@ if (!empty($_SESSION['user_id'])) {
             <button type="submit" class="btn btn-primary" id="register-submit">Create Account</button>
         </form>
 
-        <p class="auth-footer-link">Already have an account? <a href="/auth/login.php">Log in</a></p>
+        <p class="auth-footer-link">Already have an account? <a href="<?= url('auth/login.php') ?>">Log in</a></p>
     </div>
 </div>
 
-<script src="/assets/js/app.js"></script>
+<script src="<?= asset('js/app.js') ?>"></script>
 <script>
 document.getElementById('register-form').addEventListener('submit', async function (e) {
     e.preventDefault();
@@ -81,13 +81,13 @@ document.getElementById('register-form').addEventListener('submit', async functi
     };
 
     try {
-        const json = await Api.call('/api/auth/register.php', { method: 'POST', body: payload });
+        const json = await Api.call('' + window.__BASE__ + '/api/auth/register.php', { method: 'POST', body: payload });
         if (json.success) {
             document.querySelector('.auth-card').innerHTML =
                 '<div class="auth-brand"><i data-lucide="mail-check"></i> Check your email</div>' +
                 '<h1>Verify your email</h1>' +
                 '<p class="subtitle">We sent a verification link to <strong>' + payload.email + '</strong>. Click the link to activate your account.</p>' +
-                '<a href="/auth/login.php" class="btn btn-secondary" style="display:block;text-align:center;">Back to Log In</a>';
+                '<a href="<?= url('auth/login.php') ?>" class="btn btn-secondary" style="display:block;text-align:center;">Back to Log In</a>';
             if (window.lucide) lucide.createIcons();
         } else {
             const firstError = json.errors && Object.values(json.errors)[0];

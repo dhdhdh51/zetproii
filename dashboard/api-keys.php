@@ -10,11 +10,11 @@ $user = $currentUser;
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>API & Webhooks — BharatAI Business OS</title>
-<link rel="stylesheet" href="/assets/css/app.css">
+<link rel="stylesheet" href="<?= asset('css/app.css') ?>">
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js" defer></script>
 </head>
 <body>
-<script>window.__CSRF_TOKEN__ = <?= json_encode(Security::csrfToken()) ?>;</script>
+<script>window.__CSRF_TOKEN__ = <?= json_encode(Security::csrfToken()) ?>; window.__BASE__ = <?= json_encode(Url::basePath()) ?>;</script>
 <div class="app-shell">
     <?php include __DIR__ . '/partials/sidebar.php'; ?>
     <div class="main-content">
@@ -59,12 +59,12 @@ $user = $currentUser;
     </div>
 </div>
 
-<script src="/assets/js/app.js"></script>
+<script src="<?= asset('js/app.js') ?>"></script>
 <script>
 const businessId = <?= (int) $activeBusiness['id'] ?>;
 
 async function loadKeys() {
-    const json = await Api.call('/api/business/api-keys.php?business_id=' + businessId);
+    const json = await Api.call('' + window.__BASE__ + '/api/business/api-keys.php?business_id=' + businessId);
     if (!json.success) { Toast.error(json.message); return; }
     document.getElementById('keys-tbody').innerHTML = json.data.length === 0
         ? '<tr><td colspan="5"><div class="empty-state">No API keys yet.</div></td></tr>'
@@ -78,7 +78,7 @@ async function loadKeys() {
 
 document.getElementById('key-form').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const json = await Api.call('/api/business/api-keys.php', { method: 'POST', body: { business_id: businessId, name: document.getElementById('k-name').value } });
+    const json = await Api.call('' + window.__BASE__ + '/api/business/api-keys.php', { method: 'POST', body: { business_id: businessId, name: document.getElementById('k-name').value } });
     if (json.success) {
         const box = document.getElementById('new-key-display');
         box.style.display = 'block';
@@ -90,12 +90,12 @@ document.getElementById('key-form').addEventListener('submit', async (e) => {
 
 async function revokeKey(id) {
     if (!confirm('Revoke this API key? This cannot be undone.')) return;
-    const json = await Api.call('/api/business/api-keys.php', { method: 'DELETE', body: { business_id: businessId, id } });
+    const json = await Api.call('' + window.__BASE__ + '/api/business/api-keys.php', { method: 'DELETE', body: { business_id: businessId, id } });
     if (json.success) { Toast.success('Key revoked.'); loadKeys(); } else { Toast.error(json.message); }
 }
 
 async function loadWebhooks() {
-    const json = await Api.call('/api/business/webhooks.php?business_id=' + businessId);
+    const json = await Api.call('' + window.__BASE__ + '/api/business/webhooks.php?business_id=' + businessId);
     if (!json.success) { Toast.error(json.message); return; }
     document.getElementById('webhooks-tbody').innerHTML = json.data.length === 0
         ? '<tr><td colspan="4"><div class="empty-state">No webhooks configured.</div></td></tr>'
@@ -111,13 +111,13 @@ document.getElementById('webhook-form').addEventListener('submit', async (e) => 
     e.preventDefault();
     const events = Array.from(document.querySelectorAll('.webhook-event:checked')).map(el => el.value);
     if (events.length === 0) { Toast.error('Select at least one event.'); return; }
-    const json = await Api.call('/api/business/webhooks.php', { method: 'POST', body: { business_id: businessId, target_url: document.getElementById('w-url').value, events } });
+    const json = await Api.call('' + window.__BASE__ + '/api/business/webhooks.php', { method: 'POST', body: { business_id: businessId, target_url: document.getElementById('w-url').value, events } });
     if (json.success) { Toast.success('Webhook created.'); e.target.reset(); loadWebhooks(); } else { Toast.error(json.message); }
 });
 
 async function deleteWebhook(id) {
     if (!confirm('Delete this webhook?')) return;
-    const json = await Api.call('/api/business/webhooks.php', { method: 'DELETE', body: { business_id: businessId, id } });
+    const json = await Api.call('' + window.__BASE__ + '/api/business/webhooks.php', { method: 'DELETE', body: { business_id: businessId, id } });
     if (json.success) { Toast.success('Deleted.'); loadWebhooks(); } else { Toast.error(json.message); }
 }
 

@@ -9,11 +9,11 @@ require_once __DIR__ . '/_init.php';
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Subscriptions — Admin | BharatAI Business OS</title>
-<link rel="stylesheet" href="/assets/css/app.css">
+<link rel="stylesheet" href="<?= asset('css/app.css') ?>">
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js" defer></script>
 </head>
 <body>
-<script>window.__CSRF_TOKEN__ = <?= json_encode(Security::csrfToken()) ?>;</script>
+<script>window.__CSRF_TOKEN__ = <?= json_encode(Security::csrfToken()) ?>; window.__BASE__ = <?= json_encode(Url::basePath()) ?>;</script>
 <div class="app-shell">
     <?php include __DIR__ . '/partials/sidebar.php'; ?>
     <div class="main-content">
@@ -34,14 +34,14 @@ require_once __DIR__ . '/_init.php';
         </div>
     </div>
 </div>
-<script src="/assets/js/app.js"></script>
+<script src="<?= asset('js/app.js') ?>"></script>
 <script>
 function statusBadge(s) {
     const map = { active: 'green', trialing: 'blue', past_due: 'yellow', cancelled: 'gray', expired: 'red' };
     return `<span class="badge badge-${map[s] || 'gray'}">${s}</span>`;
 }
 async function load(page = 1) {
-    const json = await Api.call('/api/admin/subscriptions.php?page=' + page);
+    const json = await Api.call('' + window.__BASE__ + '/api/admin/subscriptions.php?page=' + page);
     if (!json.success) { Toast.error(json.message); return; }
     document.getElementById('tbody').innerHTML = json.data.items.length === 0
         ? '<tr><td colspan="5"><div class="empty-state">No subscriptions found.</div></td></tr>'

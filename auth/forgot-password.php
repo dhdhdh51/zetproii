@@ -7,13 +7,13 @@ require_once dirname(__DIR__) . '/app/config/bootstrap.php';
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Forgot Password — BharatAI Business OS</title>
-<link rel="stylesheet" href="/assets/css/app.css">
+<link rel="stylesheet" href="<?= asset('css/app.css') ?>">
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js" defer></script>
 </head>
 <body>
 <div class="auth-shell">
     <div class="auth-card">
-        <a href="/" class="auth-brand"><i data-lucide="sparkles"></i> BharatAI Business OS</a>
+        <a href="<?= url() ?>" class="auth-brand"><i data-lucide="sparkles"></i> BharatAI Business OS</a>
         <h1>Forgot your password?</h1>
         <p class="subtitle">Enter your email and we'll send you a reset link</p>
 
@@ -28,11 +28,11 @@ require_once dirname(__DIR__) . '/app/config/bootstrap.php';
             <button type="submit" class="btn btn-primary" id="forgot-submit">Send Reset Link</button>
         </form>
 
-        <p class="auth-footer-link"><a href="/auth/login.php">Back to Log In</a></p>
+        <p class="auth-footer-link"><a href="<?= url('auth/login.php') ?>">Back to Log In</a></p>
     </div>
 </div>
 
-<script src="/assets/js/app.js"></script>
+<script src="<?= asset('js/app.js') ?>"></script>
 <script>
 document.getElementById('forgot-form').addEventListener('submit', async function (e) {
     e.preventDefault();
@@ -45,7 +45,7 @@ document.getElementById('forgot-form').addEventListener('submit', async function
     submitBtn.textContent = 'Sending...';
 
     try {
-        const json = await Api.call('/api/auth/forgot-password.php', {
+        const json = await Api.call('' + window.__BASE__ + '/api/auth/forgot-password.php', {
             method: 'POST',
             body: { email: document.getElementById('email').value },
         });

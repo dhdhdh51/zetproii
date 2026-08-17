@@ -9,12 +9,12 @@ require_once __DIR__ . '/_init.php';
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin Dashboard — BharatAI Business OS</title>
-<link rel="stylesheet" href="/assets/css/app.css">
+<link rel="stylesheet" href="<?= asset('css/app.css') ?>">
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
 </head>
 <body>
-<script>window.__CSRF_TOKEN__ = <?= json_encode(Security::csrfToken()) ?>;</script>
+<script>window.__CSRF_TOKEN__ = <?= json_encode(Security::csrfToken()) ?>; window.__BASE__ = <?= json_encode(Url::basePath()) ?>;</script>
 <div class="app-shell">
     <?php include __DIR__ . '/partials/sidebar.php'; ?>
     <div class="main-content">
@@ -33,10 +33,10 @@ require_once __DIR__ . '/_init.php';
         </div>
     </div>
 </div>
-<script src="/assets/js/app.js"></script>
+<script src="<?= asset('js/app.js') ?>"></script>
 <script>
 async function loadDashboard() {
-    const json = await Api.call('/api/admin/dashboard.php');
+    const json = await Api.call('' + window.__BASE__ + '/api/admin/dashboard.php');
     if (!json.success) { Toast.error(json.message); return; }
     const d = json.data;
     document.getElementById('metrics-grid').innerHTML = [
