@@ -143,7 +143,26 @@ final class Url
      */
     public static function asset(string $path): string
     {
-        return self::url('public/assets/' . ltrim($path, '/'));
+        $relative = ltrim($path, '/');
+        $url = self::url('public/assets/' . $relative);
+
+        // Cache-bust with the file's own modification time.
+        //
+        // WHY: hosts serve these with a long Cache-Control (LiteSpeed shared
+        // hosting sends max-age=604800 - a week). With a fixed URL, a visitor
+        // who had loaded the site before kept their stale stylesheet after a
+        // deploy and saw a half-styled page, while the server was serving the
+        // correct file all along. Only an incognito window looked right.
+        //
+        // Keying on mtime means the URL changes exactly when the file does: new
+        // deploys invalidate immediately, and unchanged files stay cached.
+        $file = dirname(__DIR__, 2) . '/public/assets/' . $relative;
+        $mtime = @filemtime($file);
+        if ($mtime !== false) {
+            $url .= (str_contains($url, '?') ? '&' : '?') . 'v=' . $mtime;
+        }
+
+        return $url;
     }
 
     /** Absolute URL (scheme + host + path), used for emails, sitemap, OG tags. */

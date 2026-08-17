@@ -33,5 +33,20 @@ $navItems = [
         <div class="nav-section">Support</div>
         <a href="<?= url('dashboard/support.php') ?>"><i data-lucide="life-buoy" style="width:18px;height:18px;"></i><span>Support Tickets</span></a>
         <a href="<?= url('dashboard/api-keys.php') ?>"><i data-lucide="key-round" style="width:18px;height:18px;"></i><span>API & Webhooks</span></a>
+
+        <?php
+        /*
+         * The admin panel had no entry point in the UI at all: an administrator
+         * had to know to type /admin/index.php. Shown only to platform admins,
+         * and the role is read from the server-side $currentUser record rather
+         * than from anything the client can influence - /admin still enforces
+         * the check itself, so this link is convenience, never authorisation.
+         */
+        $isPlatformAdmin = in_array($currentUser['role'] ?? '', ['ADMIN', 'SUPER_ADMIN'], true);
+        ?>
+        <?php if ($isPlatformAdmin): ?>
+        <div class="nav-section">Platform</div>
+        <a href="<?= url('admin/index.php') ?>"><i data-lucide="shield-check" style="width:18px;height:18px;"></i><span>Admin Panel</span></a>
+        <?php endif; ?>
     </nav>
 </aside>
