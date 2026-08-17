@@ -52,8 +52,9 @@ final class ContentToolsService
             "INSERT INTO review_replies (review_id, reply_text, generated_by_ai, created_by, created_at) VALUES (?, ?, 1, ?, NOW())",
             [$reviewId, $replyText, $userId]
         );
+        $replyId = (int) Database::lastInsertId();
 
-        return Database::fetchOne("SELECT * FROM review_replies WHERE id = ?", [(int) Database::lastInsertId()]);
+        return Database::fetchOne("SELECT * FROM review_replies WHERE id = ?", [$replyId]);
     }
 
     // ---------------- Social Content Generator ----------------

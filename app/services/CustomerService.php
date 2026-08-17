@@ -153,8 +153,13 @@ final class CustomerService
             "INSERT INTO customer_notes (customer_id, user_id, note, created_at) VALUES (?, ?, ?, NOW())",
             [$customerId, $userId, Security::cleanString($note)]
         );
+        // Capture the id BEFORE logActivity() writes to customer_activities,
+        // otherwise lastInsertId() returns the activity id and this returns null.
+        $noteId = (int) Database::lastInsertId();
+
         $this->logActivity($customerId, $userId, 'note', ['note' => $note]);
-        return Database::fetchOne("SELECT * FROM customer_notes WHERE id = ?", [(int) Database::lastInsertId()]);
+
+        return Database::fetchOne("SELECT * FROM customer_notes WHERE id = ?", [$noteId]);
     }
 
     private function logActivity(int $customerId, ?int $userId, string $type, array $metadata = []): void

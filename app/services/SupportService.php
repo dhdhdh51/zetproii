@@ -69,11 +69,15 @@ final class SupportService
             "INSERT INTO support_replies (ticket_id, user_id, is_admin_reply, message, created_at) VALUES (?, ?, ?, ?, NOW())",
             [$ticketId, $userId, $isAdmin ? 1 : 0, Security::cleanString($message)]
         );
+        // Capture the id immediately after the INSERT, before any other query.
+        $replyId = (int) Database::lastInsertId();
+
         Database::query(
             "UPDATE support_tickets SET status = ?, updated_at = NOW() WHERE id = ?",
             [$isAdmin ? 'in_progress' : 'open', $ticketId]
         );
-        return Database::fetchOne("SELECT * FROM support_replies WHERE id = ?", [(int) Database::lastInsertId()]);
+
+        return Database::fetchOne("SELECT * FROM support_replies WHERE id = ?", [$replyId]);
     }
 
     public function setStatus(int $ticketId, string $status, int $adminUserId): void

@@ -223,8 +223,14 @@ final class LeadService
             "INSERT INTO lead_notes (lead_id, user_id, note, created_at) VALUES (?, ?, ?, NOW())",
             [$leadId, $userId, Security::cleanString($note)]
         );
+        // Capture the id BEFORE any further DB write - logActivity() inserts into
+        // lead_activities, which would otherwise make lastInsertId() return the
+        // activity row's id and this lookup return null.
+        $noteId = (int) Database::lastInsertId();
+
         $this->logActivity($leadId, $userId, 'note', 'Note added');
-        return Database::fetchOne("SELECT * FROM lead_notes WHERE id = ?", [(int) Database::lastInsertId()]);
+
+        return Database::fetchOne("SELECT * FROM lead_notes WHERE id = ?", [$noteId]);
     }
 
     public function convertToCustomer(int $businessId, int $leadId, int $userId): array

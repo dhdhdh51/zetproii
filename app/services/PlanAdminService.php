@@ -93,8 +93,13 @@ final class PlanAdminService
                 $data['max_redemptions'] ?? null, $data['valid_from'] ?? null, $data['valid_until'] ?? null,
             ]
         );
+        // Capture the id BEFORE AuditLogger writes to admin_logs, otherwise
+        // lastInsertId() returns the audit row's id and this returns null.
+        $couponId = (int) Database::lastInsertId();
+
         AuditLogger::admin($adminUserId, 'coupon_created', '', ['code' => $data['code']]);
-        return Database::fetchOne("SELECT * FROM coupons WHERE id = ?", [(int) Database::lastInsertId()]);
+
+        return Database::fetchOne("SELECT * FROM coupons WHERE id = ?", [$couponId]);
     }
 
     public function deleteCoupon(int $id, int $adminUserId): void

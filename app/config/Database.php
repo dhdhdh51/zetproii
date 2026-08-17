@@ -21,6 +21,22 @@ final class Database
 
             $dsn = "mysql:host={$host};port={$port};dbname={$dbname};charset={$charset}";
 
+            // Align MySQL's session timezone with PHP's configured timezone.
+            //
+            // WHY THIS MATTERS: MySQL servers are very often set to UTC (this is
+            // the default on most shared hosting and RDS) while APP_TIMEZONE is
+            // something else, e.g. Asia/Kolkata. Without this, any value written
+            // by MySQL (NOW(), DATE_ADD(NOW(), ...)) and later read back and
+            // compared in PHP via strtotime() is off by the UTC offset - which
+            // silently broke password-reset links entirely (a 60-minute token
+            // looked ~5.5 hours expired the instant it was created) and made
+            // every other date comparison subtly wrong.
+            //
+            // Setting the session offset makes NOW()/CURDATE()/INTERVAL maths on
+            // the server agree with PHP's clock, so timestamps are consistent
+            // end to end regardless of how the host's MySQL is configured.
+            $tzOffset = (new DateTime('now', new DateTimeZone((string) config('app.timezone', 'UTC'))))->format('P');
+
             try {
                 self::$instance = new PDO($dsn, $user, $pass, [
                     PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
@@ -28,6 +44,7 @@ final class Database
                     PDO::ATTR_EMULATE_PREPARES    => false,
                     PDO::MYSQL_ATTR_INIT_COMMAND  => "SET NAMES {$charset}",
                 ]);
+                self::$instance->exec("SET time_zone = '{$tzOffset}'");
             } catch (PDOException $e) {
                 Logger::system('Database connection failed: ' . $e->getMessage());
                 if (config('app.debug')) {

@@ -92,8 +92,13 @@ final class AuthMiddleware
         $prefix = substr($token, 0, 12);
         $keyHash = hash('sha256', $token);
 
+        // Expiry is evaluated by MySQL (is_expired) rather than compared in PHP,
+        // so a PHP/MySQL timezone difference can never wrongly accept or reject
+        // a key.
         $row = Database::fetchOne(
-            "SELECT ak.id, ak.business_id, ak.permissions, ak.expires_at, ak.revoked_at, b.status AS business_status
+            "SELECT ak.id, ak.business_id, ak.permissions, ak.expires_at, ak.revoked_at,
+                    (ak.expires_at IS NOT NULL AND ak.expires_at <= NOW()) AS is_expired,
+                    b.status AS business_status
              FROM api_keys ak JOIN businesses b ON b.id = ak.business_id
              WHERE ak.key_prefix = ? AND ak.key_hash = ?",
             [$prefix, $keyHash]
@@ -103,7 +108,7 @@ final class AuthMiddleware
             Response::unauthorized('API key is invalid or revoked.');
         }
 
-        if ($row['expires_at'] !== null && strtotime($row['expires_at']) < time()) {
+        if ((int) $row['is_expired'] === 1) {
             Response::unauthorized('API key has expired.');
         }
 

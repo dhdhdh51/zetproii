@@ -158,12 +158,17 @@ final class AuthService
     public function resetPassword(string $token, string $newPassword): void
     {
         $tokenHash = hash('sha256', $token);
+
+        // Expiry is evaluated by MySQL (expires_at > NOW()) rather than in PHP,
+        // so the check can never be skewed by a PHP/MySQL timezone difference.
         $reset = Database::fetchOne(
-            "SELECT id, user_id, expires_at, used_at FROM password_resets WHERE token_hash = ? ORDER BY id DESC LIMIT 1",
+            "SELECT id, user_id FROM password_resets
+             WHERE token_hash = ? AND used_at IS NULL AND expires_at > NOW()
+             ORDER BY id DESC LIMIT 1",
             [$tokenHash]
         );
 
-        if ($reset === null || $reset['used_at'] !== null || strtotime($reset['expires_at']) < time()) {
+        if ($reset === null) {
             throw new InvalidArgumentException('This password reset link is invalid or has expired.');
         }
 
@@ -178,12 +183,16 @@ final class AuthService
     public function verifyEmail(string $token): void
     {
         $tokenHash = hash('sha256', $token);
+
+        // Expiry evaluated by MySQL, for the same timezone-safety reason as above.
         $verification = Database::fetchOne(
-            "SELECT id, user_id, expires_at, verified_at FROM email_verifications WHERE token_hash = ? ORDER BY id DESC LIMIT 1",
+            "SELECT id, user_id, verified_at FROM email_verifications
+             WHERE token_hash = ? AND expires_at > NOW()
+             ORDER BY id DESC LIMIT 1",
             [$tokenHash]
         );
 
-        if ($verification === null || strtotime($verification['expires_at']) < time()) {
+        if ($verification === null) {
             throw new InvalidArgumentException('This verification link is invalid or has expired.');
         }
 
