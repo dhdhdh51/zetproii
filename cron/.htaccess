@@ -1,0 +1,11 @@
+# Cron scripts should ideally be invoked via CLI (cPanel cron jobs).
+# If your host only supports HTTP-triggered cron, requests MUST include
+# the correct ?key=CRON_SECRET (see cron/_cron_bootstrap.php::cron_guard()).
+# This .htaccess is defense-in-depth on top of that secret check.
+
+<IfModule mod_php.c>
+    php_flag engine on
+</IfModule>
+
+# Still deny directory listing.
+Options -Indexes
