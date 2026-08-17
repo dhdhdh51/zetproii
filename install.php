@@ -86,8 +86,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $step === '2') {
             $errors[] = 'database/schema.sql or database/seed.sql could not be found on the server.';
         } else {
             try {
+                // Both files are idempotent (schema uses CREATE TABLE IF NOT
+                // EXISTS, seed guards every insert), so re-running after a
+                // partially-failed install is safe and won't duplicate data.
+                $alreadyHadTables = database_has_our_tables($pdo);
+
                 run_sql_file($pdo, $schemaPath);
                 run_sql_file($pdo, $seedPath);
+
+                if ($alreadyHadTables) {
+                    $_SESSION['install_reused_existing'] = true;
+                }
             } catch (\Throwable $e) {
                 $errors[] = 'Failed to import the database: ' . $e->getMessage();
             }
@@ -187,6 +196,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $step === '3') {
 // =======================================================================
 // Helper functions
 // =======================================================================
+
+/**
+ * Detects whether this database already contains BharatAI tables, so the
+ * installer can tell the user it's reusing/repairing an existing install
+ * rather than silently doing something unexpected.
+ */
+function database_has_our_tables(PDO $pdo): bool
+{
+    try {
+        $count = (int) $pdo->query(
+            "SELECT COUNT(*) FROM information_schema.tables
+             WHERE table_schema = DATABASE() AND table_name IN ('users','plans','businesses')"
+        )->fetchColumn();
+        return $count > 0;
+    } catch (\Throwable $e) {
+        return false;
+    }
+}
 
 function generate_uuid4(): string
 {
@@ -512,6 +539,12 @@ function install_styles(): string
 
         <?php elseif ($step === '3'): ?>
             <h1>Step 3 of 3 — Create Your Admin Account</h1>
+            <?php if (!empty($_SESSION['install_reused_existing'])): ?>
+                <p class="help" style="background:#eef2ff;border-radius:8px;padding:10px 12px;color:#4338ca;">
+                    ℹ️ This database already contained BharatAI tables (likely from an earlier install attempt).
+                    Nothing was duplicated or lost — existing tables and data were kept, and anything missing was added.
+                </p>
+            <?php endif; ?>
             <p>Database tables imported successfully. Now set up your own administrator login (this replaces the default seeded account).</p>
             <form method="POST" action="install.php">
                 <input type="hidden" name="step" value="3">
