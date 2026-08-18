@@ -44,6 +44,12 @@ $appName = (string) config('app.name', 'BharatSEO');
             }
         } catch (e) { /* private mode: fall back to the default theme */ }
     })();
+
+    // Defined here as well as in app.js so a stale or blocked copy of app.js
+    // cannot break every form on these pages with "appBase is not defined".
+    window.appBase = window.appBase || function () {
+        return (typeof window.__BASE__ === 'string') ? window.__BASE__ : '';
+    };
 </script>
 
 <script src="https://unpkg.com/lucide@1.31.0/dist/umd/lucide.js" async></script>

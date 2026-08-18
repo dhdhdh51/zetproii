@@ -25,4 +25,16 @@
             }
         } catch (e) { /* private mode: keep the default light theme */ }
     })();
+
+    // appBase() is called ~105 times by the inline scripts on these pages to
+    // build API URLs. It used to exist only inside app.js, which made that one
+    // cached file a single point of failure: a browser holding a stale copy from
+    // before the function existed threw "appBase is not defined" on every
+    // handler, so pages rendered but nothing on them worked. Defining it here,
+    // inline and server-rendered, means it cannot go missing. app.js declares
+    // the same function and simply replaces this one with an identical
+    // implementation, so there is no divergence to keep in sync.
+    window.appBase = window.appBase || function () {
+        return (typeof window.__BASE__ === 'string') ? window.__BASE__ : '';
+    };
 </script>
