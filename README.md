@@ -81,6 +81,21 @@ AI-powered business automation platform for small businesses, agencies, and free
    - **Change this password immediately after first login.**
 6. As an admin, go to **Admin > AI Providers** and add your OpenAI/Gemini/Anthropic API key to enable AI features platform-wide.
 
+## Deploying updates
+
+Running on **CyberPanel**? See [docs/CYBERPANEL_DEPLOY.md](docs/CYBERPANEL_DEPLOY.md).
+Once set up, an update is:
+
+```bash
+cd ~/bharatseo-repo
+./deploy.sh /home/<your-domain>/public_html
+```
+
+`deploy.sh` pulls the latest commit and copies it over your site without
+touching `env.php`, `storage/` or `public/uploads/`, and withholds `install.php`
+from an already-installed site. It works over SSH on CyberPanel, cPanel
+Terminal, a VPS or EC2.
+
 ## Deployment
 
 See [`docs/HOSTING.md`](docs/HOSTING.md) for a complete guide covering cPanel, Plesk, Apache VPS (Ubuntu/Debian and CentOS/RHEL), Nginx + PHP-FPM, AWS EC2, DigitalOcean, and Docker — plus an environment variable reference, cron job reference, post-deployment checklist, and troubleshooting.
