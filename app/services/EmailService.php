@@ -12,6 +12,18 @@ final class EmailService
      */
     public static function send(string $toEmail, string $templateSlug, array $variables, ?int $businessId = null): bool
     {
+        // Checked before anything else so nothing is attempted, and the attempt
+        // is still recorded in email_logs with the real reason - otherwise an
+        // admin who turned sending off would see silence and assume a bug.
+        if (self::isDisabled()) {
+            Logger::email('Email sending is switched off in Admin > Email / SMTP', [
+                'to' => $toEmail, 'template' => $templateSlug,
+            ]);
+            self::logAttempt($businessId, null, $toEmail, $templateSlug, 'failed',
+                'Email sending is switched off by the administrator.');
+            return false;
+        }
+
         $template = Database::fetchOne(
             "SELECT id, subject, body_html FROM email_templates
              WHERE slug = ? AND (business_id = ? OR business_id IS NULL) AND is_active = 1
@@ -74,8 +86,34 @@ final class EmailService
      */
     public static function isConfigured(): bool
     {
+        if (self::isDisabled()) {
+            return false;
+        }
+
         [$config] = self::resolveSmtpConfig();
         return $config !== null;
+    }
+
+    /**
+     * Has an admin explicitly switched email sending off?
+     *
+     * This exists so email can be turned off without deleting working SMTP
+     * credentials, which used to be the only way. The key is checked for an
+     * explicit '1' and is absent on existing installs, so upgrading changes
+     * nothing: email stays governed by whether SMTP is configured.
+     */
+    public static function isDisabled(): bool
+    {
+        try {
+            $row = Database::fetchOne(
+                "SELECT setting_value FROM settings WHERE setting_key = 'email_disabled'"
+            );
+        } catch (\Throwable $e) {
+            // Settings unreadable (e.g. during install) - don't claim it's off.
+            return false;
+        }
+
+        return $row !== null && (string) $row['setting_value'] === '1';
     }
 
     /**

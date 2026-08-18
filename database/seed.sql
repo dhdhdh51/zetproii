@@ -292,6 +292,9 @@ INSERT INTO settings (setting_key, setting_value, is_encrypted) VALUES
 ('trial_days', '14', 0),
 ('google_oauth_enabled', '0', 0),
 ('smtp_configured', '0', 0),
+-- Explicit off switch for all outbound email. '0' = normal behaviour (email works
+-- if SMTP is configured), '1' = sending is off regardless of SMTP settings.
+('email_disabled', '0', 0),
 ('maintenance_mode', '0', 0),
 ('active_payment_gateway', 'razorpay', 0)
 ON DUPLICATE KEY UPDATE setting_key = settings.setting_key;
